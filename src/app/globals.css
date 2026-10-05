@@ -228,6 +228,23 @@
     animation: abf-marquee 32s linear infinite;
   }
 
+  @keyframes abf-ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  .abf-ripple {
+    position: absolute;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0.25;
+    transform: scale(0);
+    animation: abf-ripple 700ms ease-out;
+    pointer-events: none;
+  }
+
   .abf-delay-1 {
     animation-delay: 120ms;
   }

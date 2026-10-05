@@ -38,7 +38,7 @@ interface FeatureCardProps {
 
 export function FeatureCard({ icon, title, description, className }: FeatureCardProps) {
   return (
-    <ScrollFocus className={cn(cardMotion, "p-6", className)}>
+    <ScrollFocus tilt className={cn(cardMotion, "p-6", className)}>
       <IconTile className="mb-4 group-hover:-rotate-6 group-hover:scale-110 group-data-[focused=true]:-rotate-6 group-data-[focused=true]:scale-110">
         {icon}
       </IconTile>
@@ -56,7 +56,7 @@ interface NumberedItemProps {
 
 export function NumberedItem({ number, title, className }: NumberedItemProps) {
   return (
-    <ScrollFocus className={cn(cardMotion, "p-6", className)}>
+    <ScrollFocus tilt className={cn(cardMotion, "p-6", className)}>
       <div className="mb-4 flex size-11 items-center justify-center rounded-full border border-maroon-200 bg-maroon-50 font-display text-lg font-bold text-maroon-600 transition-all duration-500 group-hover:rotate-[360deg] group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground group-data-[focused=true]:rotate-[360deg] group-data-[focused=true]:scale-110 group-data-[focused=true]:bg-primary group-data-[focused=true]:text-primary-foreground">
         {number}
       </div>
