@@ -26,13 +26,25 @@ import { JourneyTimeline } from "@/components/public/journey-timeline";
 import { Marquee } from "@/components/public/marquee";
 import { PageHero } from "@/components/public/page-hero";
 import { Reveal } from "@/components/public/reveal";
+import { ScrollFocus } from "@/components/public/scroll-focus";
 import { Section, SectionHeading } from "@/components/public/section";
+import { SectionDots } from "@/components/public/section-dots";
 
 export const metadata: Metadata = {
   title: "About ABF | Adeyinka Bakare Fellowship",
   description:
     "The Adeyinka Bakare Fellowship (ABF) empowers Information Technology students at the University of Ilorin through scholarships, mentorship, career development and collaborative learning.",
 };
+
+const aboutSections = [
+  { id: "who-we-are", label: "Who we are" },
+  { id: "vision-and-mission", label: "Vision and mission" },
+  { id: "objectives", label: "Objectives" },
+  { id: "journey", label: "Journey" },
+  { id: "membership", label: "Membership" },
+  { id: "leadership", label: "Leadership" },
+  { id: "governance", label: "Governance" },
+];
 
 const tabPanelClass =
   "mt-5 animate-in fade-in-0 slide-in-from-bottom-3 duration-500";
@@ -55,6 +67,7 @@ function CheckList({ items }: { items: readonly string[] }) {
 export default function AboutPage() {
   return (
     <>
+      <SectionDots sections={aboutSections} />
       <PageHero
         eyebrow="About ABF"
         title="Who we are"
@@ -93,7 +106,7 @@ export default function AboutPage() {
           </Reveal>
 
           <Reveal direction="right" className="space-y-5">
-            <div className="rounded-2xl border bg-card p-8 text-center shadow-sm">
+            <ScrollFocus tilt className="rounded-2xl border bg-card p-8 text-center shadow-sm">
               <Image
                 src="/brand/logo.png"
                 alt="Adeyinka Bakare Fellowship logo"
@@ -105,7 +118,7 @@ export default function AboutPage() {
                 Adeyinka Bakare Fellowship
               </p>
               <p className="text-muted-foreground">Also referred to as ABF Fellowship</p>
-            </div>
+            </ScrollFocus>
           </Reveal>
         </div>
       </Section>
