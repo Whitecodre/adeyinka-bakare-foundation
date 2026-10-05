@@ -1,25 +1,26 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { HeroSection, StatsSection, FeatureCardsSection, MissionSection, ProgrammesSection, CTASection } from "@/components/homepage";
+import {
+  HeroSection,
+  StatsSection,
+  FeatureCardsSection,
+  MissionSection,
+  ProgrammesSection,
+  HowToJoinSection,
+  CTASection,
+} from "@/components/homepage";
+import { Marquee } from "@/components/public/marquee";
+import { values } from "@/config/about";
 
 export default function HomePage() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
+    <>
       <HeroSection />
+      <Marquee items={values.map((value) => value.label)} />
       <StatsSection />
       <FeatureCardsSection />
       <MissionSection />
       <ProgrammesSection />
+      <HowToJoinSection />
       <CTASection />
-    </div>
+    </>
   );
 }

@@ -1,5 +1,9 @@
-import { GraduationCap, Users, Target } from "lucide-react";
-import { motion } from "framer-motion";
+import { GraduationCap, Target, Users } from "lucide-react";
+
+import { vision } from "@/config/about";
+import { FeatureCard } from "@/components/public/feature-card";
+import { Reveal } from "@/components/public/reveal";
+import { Section, SectionHeading } from "@/components/public/section";
 
 const pillars = [
   {
@@ -21,41 +25,18 @@ const pillars = [
 
 export function MissionSection() {
   return (
-    <section className="py-24 bg-white">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto text-center"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#922821]">
-            Our Mission
-          </h2>
-          <p className="text-xl text-gray-600 leading-relaxed mb-8">
-            To support intentional undergraduate students of the Department of Information Technology with a strong commitment to learning and good character through our fellowship programme, enabling them to achieve academic success, complete their studies at the University, and prepare them for their career pursuits.
-          </p>
-          <div className="grid md:grid-cols-3 gap-6 mt-12">
-            {pillars.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
-              >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-[#aa322b] to-[#922821] mb-4">
-                  <item.icon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">{item.title}</h3>
-                <p className="text-gray-600">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+    <Section className="bg-white">
+      <Reveal>
+        {/* The sentence below is the Vision in Article 2 of the constitution. */}
+        <SectionHeading title="Our Vision" description={vision} />
+      </Reveal>
+      <div className="mx-auto grid max-w-5xl gap-5 md:grid-cols-3 md:gap-6">
+        {pillars.map(({ icon: Icon, title, description }, index) => (
+          <Reveal key={title} delay={index * 0.1}>
+            <FeatureCard icon={<Icon />} title={title} description={description} />
+          </Reveal>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }

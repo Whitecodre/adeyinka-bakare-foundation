@@ -1,119 +1,160 @@
-import { GraduationCap, Users, Target, Award, BookOpen, TrendingUp } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+"use client";
+
+import { GraduationCap, Users, Target, Award, BookOpen, TrendingUp, type LucideIcon } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
 
-const features = [
+import { Reveal } from "@/components/public/reveal";
+import { SectionHeading } from "@/components/public/section";
+
+interface Feature {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  color: string;
+  image: string;
+}
+
+const features: Feature[] = [
   {
     title: "Scholarship Support",
     description: "Need-based and merit-based financial assistance for deserving IT students throughout their academic journey.",
     icon: GraduationCap,
-    color: "from-[#aa322b] to-[#922821]",
+    color: "from-maroon-500 to-maroon-600",
     image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=80",
   },
   {
     title: "Mentorship Network",
     description: "Connect with experienced professionals and alumni who guide you through career decisions and professional growth.",
     icon: Users,
-    color: "from-[#f8c84d] to-[#d9960d]",
+    color: "from-gold-300 to-gold-500",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&q=80",
   },
   {
     title: "Career Development",
     description: "Practical industry exposure, internship placements, and professional skills training for workplace readiness.",
     icon: Target,
-    color: "from-[#d88f7f] to-[#c45d4f]",
+    color: "from-maroon-300 to-maroon-400",
     image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&q=80",
   },
   {
     title: "Academic Excellence",
     description: "Academic support, study resources, and collaborative learning environments to help you excel.",
     icon: Award,
-    color: "from-[#922821] to-[#73201c]",
+    color: "from-maroon-600 to-maroon-700",
     image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&q=80",
   },
   {
     title: "Skill Building",
     description: "Technical workshops, certification programs, and hands-on training in cutting-edge technologies.",
     icon: BookOpen,
-    color: "from-[#ebc3b9] to-[#d88f7f]",
+    color: "from-maroon-200 to-maroon-300",
     image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&q=80",
   },
   {
     title: "Leadership Training",
     description: "Develop leadership skills through student governance, event management, and team collaboration opportunities.",
     icon: TrendingUp,
-    color: "from-[#ffe08a] to-[#f8c84d]",
+    color: "from-gold-200 to-gold-300",
     image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80",
   },
 ];
 
+/** Image + text for one feature. Shared by the pinned stack and the plain list. */
+function FeatureCardBody({ feature, priority = false }: { feature: Feature; priority?: boolean }) {
+  const Icon = feature.icon;
+
+  return (
+    <>
+      <div className="absolute inset-0">
+        <Image
+          src={feature.image}
+          alt=""
+          fill
+          sizes="(min-width: 1152px) 72rem, 92vw"
+          priority={priority}
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/55 to-black/75" />
+      </div>
+      <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-12 lg:p-14">
+        <div
+          className={`mb-4 inline-flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br shadow-xl md:mb-5 md:size-16 ${feature.color}`}
+        >
+          <Icon className="size-7 text-white md:size-8" />
+        </div>
+        <h3 className="mb-3 max-w-2xl text-2xl font-bold text-white md:mb-4 md:text-4xl">{feature.title}</h3>
+        <p className="max-w-xl text-base leading-relaxed text-gray-100 md:text-lg">{feature.description}</p>
+      </div>
+    </>
+  );
+}
+
 export function FeatureCardsSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   });
 
   return (
-    <section ref={sectionRef} className="relative" style={{ height: `${features.length * 110}vh` }}>
-      {/* Sticky Header */}
-      <div className="sticky top-0 left-0 right-0 z-30 bg-gray-50/90 backdrop-blur-md py-6 border-b border-black/5">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-2 text-[#922821]">
-              What We Offer
-            </h2>
-          </motion.div>
-        </div>
+    <>
+      {/* Heading sits in normal flow so the fixed navbar can never cover it */}
+      <div className="bg-maroon-50/60 px-4 pb-4 pt-12 sm:px-6 md:pt-16">
+        <Reveal>
+          <SectionHeading title="What We Offer" className="mb-0 md:mb-0" />
+        </Reveal>
       </div>
 
-      {/* Pinned deck container */}
-      <div className="sticky top-24 h-[calc(100vh-6rem)] flex items-center justify-center px-4 pb-6 md:px-8">
-        {features.map((feature, index) => (
-          <CardStack
-            key={index}
-            index={index}
-            total={features.length}
-            title={feature.title}
-            description={feature.description}
-            icon={feature.icon}
-            color={feature.color}
-            image={feature.image}
-            scrollProgress={scrollYProgress}
-          />
-        ))}
-      </div>
-    </section>
+      {reduceMotion ? (
+        /* Reduced motion: a plain, non-pinned list */
+        <div className="mx-auto grid max-w-7xl gap-5 bg-maroon-50/60 px-4 pb-12 sm:px-6 md:grid-cols-2">
+          {features.map((feature) => (
+            <div key={feature.title} className="relative h-80 overflow-hidden rounded-3xl shadow-xl">
+              <FeatureCardBody feature={feature} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Pinned deck: cards slide away one by one as you scroll. dvh keeps it stable under mobile browser bars. */
+        <section ref={sectionRef} className="relative bg-maroon-50/60" style={{ height: `${features.length * 100}vh` }}>
+          <div className="sticky top-[88px] flex h-[calc(100dvh-88px)] items-center justify-center px-4 pb-6 md:px-8">
+            {features.map((feature, index) => (
+              <CardStack
+                key={feature.title}
+                index={index}
+                total={features.length}
+                feature={feature}
+                scrollProgress={scrollYProgress}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+    </>
   );
 }
 
-// Card Stack Component - Pinned cards that slide up and reveal the next card underneath
-function CardStack({ index, total, title, description, icon: Icon, color, image, scrollProgress }: {
+// Pinned card that slides up to reveal the next card underneath
+function CardStack({
+  index,
+  total,
+  feature,
+  scrollProgress,
+}: {
   index: number;
   total: number;
-  title: string;
-  description: string;
-  icon: any;
-  color: string;
-  image: string;
-  scrollProgress: any;
+  feature: Feature;
+  scrollProgress: MotionValue<number>;
 }) {
-  // Calculate progress for this card based on its position in the stack
-  const cardProgress = useTransform(
-    scrollProgress,
-    (latest: number) => {
-      const start = index / total;
-      const end = (index + 1) / total;
-      const progress = (latest - start) / Math.max(end - start, 0.0001);
-      return Math.min(1, Math.max(0, progress));
-    }
-  );
+  const cardProgress = useTransform(scrollProgress, (latest: number) => {
+    const start = index / total;
+    const end = (index + 1) / total;
+    const progress = (latest - start) / Math.max(end - start, 0.0001);
+    return Math.min(1, Math.max(0, progress));
+  });
 
   const scale = useTransform(cardProgress, [0, 0.7, 1], [1 - index * 0.025, 1, 0.96]);
   const y = useTransform(cardProgress, [0, 0.7, 1], [index * 14, 0, -120]);
@@ -121,35 +162,10 @@ function CardStack({ index, total, title, description, icon: Icon, color, image,
 
   return (
     <motion.div
-      style={{
-        scale,
-        y,
-        opacity,
-        zIndex: total - index,
-      }}
-      className="absolute w-[min(92vw,72rem)] h-[min(72vh,44rem)] rounded-[2rem] shadow-2xl overflow-hidden bg-white"
+      style={{ scale, y, opacity, zIndex: total - index }}
+      className="absolute h-[min(68dvh,40rem)] w-[min(92vw,72rem)] overflow-hidden rounded-3xl bg-white shadow-2xl md:rounded-[2rem]"
     >
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <Image
-          src={image}
-          alt={title}
-          width={1200}
-          height={800}
-          className="object-cover w-full h-full"
-          priority={index === 0}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/55 to-black/75" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-12 lg:p-14">
-        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5 bg-gradient-to-br ${color} backdrop-blur-sm shadow-xl`}>
-          <Icon className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-2xl md:text-4xl font-bold mb-4 text-white max-w-2xl">{title}</h3>
-        <p className="text-base md:text-lg text-gray-100 leading-relaxed max-w-xl">{description}</p>
-      </div>
+      <FeatureCardBody feature={feature} priority={index === 0} />
     </motion.div>
   );
 }
