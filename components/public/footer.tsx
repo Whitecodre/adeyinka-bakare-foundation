@@ -38,7 +38,7 @@ export function Footer() {
             <ul className="mt-4 space-y-3 text-sm">
               {footerNavigation.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="text-foreground/68 transition-colors hover:text-primary">
+                  <Link href={item.href} className="inline-block py-1 text-foreground/68 transition-colors hover:text-primary">
                     {item.label}
                   </Link>
                 </li>
@@ -52,10 +52,10 @@ export function Footer() {
             </h4>
             <div className="mt-4 space-y-3 text-sm text-foreground/68">
               <p>Join our community and access scholarship opportunities, mentorship programmes, and career development resources.</p>
-              <Link href="/get-involved" className="block font-medium text-primary transition-colors hover:text-primary/80">
+              <Link href="/get-involved" className="block py-1 font-medium text-primary transition-colors hover:text-primary/80">
                 Get involved
               </Link>
-              <Link href="/contact" className="block font-medium text-primary transition-colors hover:text-primary/80">
+              <Link href="/contact" className="block py-1 font-medium text-primary transition-colors hover:text-primary/80">
                 Contact ABF
               </Link>
             </div>
