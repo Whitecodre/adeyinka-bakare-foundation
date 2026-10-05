@@ -92,11 +92,24 @@ export function Navbar() {
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "text-xs font-semibold uppercase tracking-widest transition-colors",
+                    "group relative py-1 text-xs font-semibold uppercase tracking-widest transition-colors",
                     isActive ? "text-primary" : "text-foreground/65 hover:text-primary"
                   )}
                 >
                   {item.label}
+                  {/* Hover: a thin line grows in. Active: a solid line that slides between links. */}
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-0 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded bg-primary/40 transition-transform duration-300 group-hover:scale-x-100"
+                  />
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active-line"
+                      aria-hidden
+                      className="absolute inset-x-0 -bottom-0.5 h-0.5 rounded bg-primary"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </Link>
               );
             })}
@@ -174,6 +187,13 @@ export function Navbar() {
                         isActive ? "bg-maroon-50 text-primary" : "text-foreground"
                       )}
                     >
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "mr-3 h-5 w-1 rounded-full bg-primary transition-all duration-300",
+                          isActive ? "opacity-100" : "w-0 opacity-0"
+                        )}
+                      />
                       {item.label}
                     </Link>
                   </motion.div>
