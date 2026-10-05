@@ -1,0 +1,17 @@
+export const PERMISSIONS = {
+  MEMBERS: ["super_admin", "admin", "editor"],
+  VOLUNTEERS: ["super_admin", "admin", "editor"],
+  BENEFICIARIES: ["super_admin", "admin", "editor"],
+  PROGRAMMES: ["super_admin", "admin", "editor"],
+  TESTIMONIALS: ["super_admin", "admin", "editor"],
+  EVENTS: ["super_admin", "admin", "editor"],
+  NEWS: ["super_admin", "admin", "editor"],
+  MEDIA: ["super_admin", "admin", "editor"],
+  CONTENTS: ["super_admin", "admin", "editor"],
+  FOOTER: ["super_admin", "admin", "editor"],
+  SOCIAL_LINKS: ["super_admin", "admin", "editor"],
+  SETTINGS: ["super_admin", "admin"],
+  NOTIFICATIONS: ["super_admin", "admin", "editor"],
+  ADMINS: ["super_admin"],
+  SECURITY: ["super_admin", "admin"],
+} as const;
