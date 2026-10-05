@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
 import { programmeLevels } from "@/config/programme-levels";
 import { Reveal } from "@/components/public/reveal";
 import { ScrollFocus } from "@/components/public/scroll-focus";
@@ -24,7 +27,8 @@ export function ProgrammesSection() {
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
         {programmeLevels.map(({ icon: Icon, level, title, summary }, index) => (
           <Reveal key={level} delay={index * 0.1}>
-            <ScrollFocus className="flex h-full flex-col items-center rounded-2xl border bg-card p-6 text-center shadow-lg transition-all duration-500 active:scale-[0.98] hover:border-primary/30 hover:shadow-2xl data-[focused=true]:border-primary/30 data-[focused=true]:shadow-2xl">
+            <Link href="/programmes" className="block h-full rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <ScrollFocus tilt className="flex h-full flex-col items-center rounded-2xl border bg-card p-6 text-center shadow-lg transition-all duration-500 active:scale-[0.98] hover:border-primary/30 hover:shadow-2xl data-[focused=true]:border-primary/30 data-[focused=true]:shadow-2xl">
               <span
                 className={`mb-4 inline-block rounded-full bg-gradient-to-r px-3 py-1 text-sm font-semibold text-foreground ${badgeColors[index]}`}
               >
@@ -35,7 +39,12 @@ export function ProgrammesSection() {
               </div>
               <h3 className="mb-2 text-lg font-semibold text-foreground">{title}</h3>
               <p className="text-sm text-muted-foreground">{summary}</p>
+              <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                Explore
+                <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1 group-data-[focused=true]:translate-x-1" />
+              </span>
             </ScrollFocus>
+            </Link>
           </Reveal>
         ))}
       </div>

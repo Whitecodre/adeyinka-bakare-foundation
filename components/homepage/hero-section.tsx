@@ -3,17 +3,38 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, GraduationCap } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
+import { Magnetic } from "@/components/public/magnetic";
 
 export function HeroSection() {
+  // Mouse parallax: the background blobs drift slowly against the pointer. Touch devices skip it.
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const smoothX = useSpring(pointerX, { stiffness: 50, damping: 20 });
+  const smoothY = useSpring(pointerY, { stiffness: 50, damping: 20 });
+  const goldX = useTransform(smoothX, (v) => v * -50);
+  const goldY = useTransform(smoothY, (v) => v * -50);
+  const maroonX = useTransform(smoothX, (v) => v * 40);
+  const maroonY = useTransform(smoothY, (v) => v * 40);
+
+  function handlePointerMove(event: React.PointerEvent<HTMLElement>) {
+    if (event.pointerType !== "mouse") return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    pointerX.set((event.clientX - rect.left) / rect.width - 0.5);
+    pointerY.set((event.clientY - rect.top) / rect.height - 0.5);
+  }
+
   return (
-    <section className="relative overflow-hidden py-10 sm:py-16 md:py-24">
+    <section
+      onPointerMove={handlePointerMove}
+      className="relative overflow-hidden py-10 sm:py-16 md:py-24"
+    >
       {/* Animated background blobs */}
       <div aria-hidden className="absolute inset-0 overflow-hidden">
-        <div className="animate-pulse-slow absolute -right-20 -top-20 size-48 rounded-full bg-gradient-to-br from-maroon-300 to-maroon-200 opacity-60 blur-3xl sm:size-60" />
-        <div className="animate-pulse-slower absolute -left-20 top-1/2 size-48 rounded-full bg-gradient-to-br from-gold-300 to-gold-200 opacity-60 blur-3xl sm:size-64" />
+        <motion.div style={{ x: maroonX, y: maroonY }} className="animate-pulse-slow absolute -right-20 -top-20 size-48 rounded-full bg-gradient-to-br from-maroon-300 to-maroon-200 opacity-60 blur-3xl sm:size-60" />
+        <motion.div style={{ x: goldX, y: goldY }} className="animate-pulse-slower absolute -left-20 top-1/2 size-48 rounded-full bg-gradient-to-br from-gold-300 to-gold-200 opacity-60 blur-3xl sm:size-64" />
         <div
           className="absolute bottom-0 right-1/4 size-56 animate-pulse rounded-full bg-gradient-to-br from-maroon-500 to-maroon-400 opacity-40 blur-3xl sm:size-72"
           style={{ animationDelay: "2s" }}
@@ -79,6 +100,7 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4"
           >
+            <Magnetic className="block sm:inline-block">
             <Button
               asChild
               size="lg"
@@ -89,6 +111,7 @@ export function HeroSection() {
                 <ArrowRight className="transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
+            </Magnetic>
             <Button
               asChild
               size="lg"

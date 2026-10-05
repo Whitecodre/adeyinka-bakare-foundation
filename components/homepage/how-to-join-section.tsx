@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { NumberedItem } from "@/components/public/feature-card";
+import { Magnetic } from "@/components/public/magnetic";
 import { Reveal } from "@/components/public/reveal";
 import { Section, SectionHeading } from "@/components/public/section";
 
@@ -31,12 +32,14 @@ export function HowToJoinSection() {
         ))}
       </div>
       <Reveal className="mt-10 text-center">
-        <Button asChild size="lg" className="h-12 w-full px-8 sm:w-auto">
-          <Link href="/get-involved">
-            Join the Fellowship
-            <ArrowRight />
-          </Link>
-        </Button>
+        <Magnetic className="block sm:inline-block">
+          <Button asChild size="lg" className="h-12 w-full px-8 sm:w-auto">
+            <Link href="/get-involved">
+              Join the Fellowship
+              <ArrowRight />
+            </Link>
+          </Button>
+        </Magnetic>
       </Reveal>
     </Section>
   );
