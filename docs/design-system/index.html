@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ABF Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ds.css">
+<script src="icons.js"></script>
+<script src="ds.js"></script>
+<style>
+.demo{padding:20px;border:1px solid var(--border);border-radius:16px;background:#fff;margin-bottom:20px}
+@media(min-width:640px){.demo{padding:28px}}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.sw-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+.swatch{all:unset;box-sizing:border-box;cursor:pointer;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:#fff;font-size:.74rem;display:block;transition:transform .4s var(--ease),box-shadow .3s}
+.swatch:hover,.swatch:focus-visible{transform:translateY(-5px) scale(1.03);box-shadow:0 18px 30px -16px rgba(0,0,0,.35)}
+.swatch i{display:block;height:64px}.swatch span{display:block;padding:7px 10px;line-height:1.35}
+.type-row{display:flex;gap:6px 16px;align-items:baseline;border-bottom:1px solid var(--border);padding:12px 0;flex-wrap:wrap}
+.type-row .spec{flex:none}
+.icon-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+.icon-cell{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;padding:14px 6px 10px;border:1px solid var(--border);border-radius:14px;background:#fff;font-size:.68rem;transition:.35s var(--ease);position:relative}
+.icon-cell:hover,.icon-cell:focus-visible{background:var(--maroon-50);border-color:var(--maroon-200);transform:translateY(-4px)}
+.icon-cell i.ico{font-size:1.7rem;color:var(--primary);display:flex;margin:0 auto 6px;transition:transform .4s var(--ease)}
+.icon-cell:hover i.ico{transform:scale(1.25) rotate(-6deg)}
+.icon-cell em{display:block;font-style:normal;margin-top:4px;font-size:.6rem;font-weight:800;color:var(--gold-800);background:var(--gold-50);border-radius:6px;padding:1px 4px}
+.search{width:100%;max-width:420px;padding:12px 16px;min-height:46px;border-radius:12px;border:1px solid var(--border);font:600 .95rem var(--font-body);background:#fff;margin-bottom:16px}
+.search:focus{outline:3px solid var(--gold-300);border-color:var(--gold-400)}
+.motion-grid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:640px){.motion-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:960px){.motion-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.rule{border-left:4px solid var(--gold-400);background:var(--gold-50);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.92rem}
+</style>
+</head>
+<body>
+<div id="progress" aria-hidden="true"></div>
+
+<div class="nav-shell">
+  <header class="nav">
+    <a class="brand" href="#top"><img src="../../public/brand/logo.png" alt="ABF logo"><span><small>ABF</small><b>Design System</b></span></a>
+    <nav class="links" aria-label="Sections">
+      <a data-spy-link href="#colour">Colour</a><a data-spy-link href="#type">Type</a><a data-spy-link href="#buttons">Buttons</a><a data-spy-link href="#motion">Motion</a><a data-spy-link href="#icons">Icons</a><a data-spy-link href="#responsive">Responsive</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="btn default sm hide-sm" href="about-preview.html">About preview <i class="go" data-icon="arrow-right"></i></a>
+      <button class="burger" aria-label="Open menu" aria-expanded="false"><i data-icon="menu"></i></button>
+    </div>
+  </header>
+</div>
+<div class="mobile-menu"><nav aria-label="Mobile sections">
+  <a style="--i:0" href="#colour">Colour <i data-icon="chevron-right"></i></a><a style="--i:1" href="#type">Typography <i data-icon="chevron-right"></i></a>
+  <a style="--i:2" href="#buttons">Buttons and badges <i data-icon="chevron-right"></i></a><a style="--i:3" href="#motion">Motion lab <i data-icon="chevron-right"></i></a>
+  <a style="--i:4" href="#icons">Icons <i data-icon="chevron-right"></i></a><a style="--i:5" href="#responsive">Responsive test <i data-icon="chevron-right"></i></a>
+  <a style="--i:6" href="about-preview.html">About page preview <i data-icon="arrow-right"></i></a>
+</nav></div>
+<button class="totop" aria-label="Back to top"><i data-icon="arrow-up"></i></button>
+
+<header class="hero" id="top">
+  <div class="blob a"></div><div class="blob b"></div>
+  <div class="wrap center prose">
+    <span class="eyebrow rv">Design system</span>
+    <h1 class="title" data-split>ABF Design System</h1>
+    <p class="lead rv" style="--d:500ms">The colours, type, icons, motion and components behind the site. Everything here is interactive: hover, tap, click and scroll.</p>
+    <div class="rv row" style="--d:650ms;justify-content:center;margin-top:8px"><a class="btn default lg" data-magnetic href="#motion">Try the motion lab <i class="go" data-icon="arrow-right"></i></a><a class="btn outline lg" href="about-preview.html">See the About page</a></div>
+  </div>
+</header>
+
+<section class="band" id="colour" data-spy><div class="wrap">
+  <div class="rv"><span class="eyebrow">Foundations</span><h2 class="title">Colour</h2><p class="lead">Click any swatch to copy its CSS variable. Maroon is the brand colour; gold is the accent.</p></div>
+  <h3 style="margin-top:32px">Maroon (brand)</h3>
+  <div class="sw-grid" id="maroon" data-stagger></div>
+  <h3 style="margin-top:32px">Gold (accent)</h3>
+  <div class="sw-grid" id="gold" data-stagger></div>
+  <h3 style="margin-top:32px">Neutrals</h3>
+  <div class="sw-grid">
+    <button class="swatch" data-copy="--abf-cream"><i style="background:#fffdf8"></i><span><b>cream</b><br>page</span></button>
+    <button class="swatch" data-copy="--abf-sand"><i style="background:#f8f2e8"></i><span><b>sand</b><br>page end</span></button>
+    <button class="swatch" data-copy="--abf-ink"><i style="background:#2d1816"></i><span><b>ink</b><br>text</span></button>
+    <button class="swatch" data-copy="muted"><i style="background:#f7f2ec"></i><span><b>muted</b><br>quiet surface</span></button>
+    <button class="swatch" data-copy="border"><i style="background:#e9ddd3"></i><span><b>border</b><br>lines</span></button>
+  </div>
+  <p class="rule" style="margin-top:24px"><b>Rule:</b> gold is never used as text on light backgrounds (about 1.9:1 contrast). Use it for fills and decoration. Text on gold is ink.</p>
+</div></section>
+
+<section class="band tint" id="type" data-spy><div class="wrap">
+  <div class="rv"><span class="eyebrow">Foundations</span><h2 class="title">Typography</h2><p class="lead">Headings: Libre Baskerville. Body: Manrope.</p></div>
+  <div class="demo rv">
+    <div class="type-row"><span class="spec">Display · text-4xl md:text-6xl</span><span style="font:700 clamp(1.9rem,6vw,3rem) var(--font-display);color:var(--maroon-600)">Empowering IT Students</span></div>
+    <div class="type-row"><span class="spec">H1 · text-4xl md:text-5xl</span><h1 style="font-size:clamp(1.8rem,5vw,2.6rem);margin:0">Page title</h1></div>
+    <div class="type-row"><span class="spec">H2 · text-3xl md:text-4xl</span><h2 style="font-size:clamp(1.5rem,4vw,2rem);margin:0">Section title</h2></div>
+    <div class="type-row"><span class="spec">H3 · text-xl font-semibold</span><h3 style="font-size:1.25rem;margin:0">Card title</h3></div>
+    <div class="type-row"><span class="spec">Lead · text-lg md:text-xl</span><span class="lead" style="margin:0">Introductory paragraph under a heading.</span></div>
+    <div class="type-row"><span class="spec">Body · text-base</span><span>Standard paragraph text for reading.</span></div>
+    <div class="type-row"><span class="spec">Small · text-sm muted</span><span class="muted" style="font-size:.875rem">5 October 2026 · caption or meta</span></div>
+    <div class="type-row" style="border:0"><span class="spec">Eyebrow</span><span class="eyebrow" style="margin:0">About ABF</span></div>
+  </div>
+</div></section>
+
+<section class="band" id="buttons" data-spy><div class="wrap">
+  <div class="rv"><span class="eyebrow">Components · ui</span><h2 class="title">Buttons and badges</h2><p class="lead">Hover for the shine, press for the ripple. The big ones are magnetic on desktop.</p></div>
+  <div class="demo rv"><h3>Variants</h3><div class="row">
+    <a class="btn default" href="#buttons">default <i class="go" data-icon="arrow-right"></i></a><a class="btn secondary" href="#buttons">secondary</a><a class="btn outline" href="#buttons">outline</a>
+    <a class="btn ghost" href="#buttons">ghost</a><a class="btn link" href="#buttons">link <i class="go" data-icon="arrow-right"></i></a><a class="btn destructive" href="#buttons">destructive</a></div>
+    <h3 style="margin-top:24px">Sizes</h3><div class="row"><a class="btn default sm" href="#buttons">sm</a><a class="btn default" href="#buttons">default</a><a class="btn default lg" data-magnetic href="#buttons">lg · magnetic</a></div>
+    <h3 style="margin-top:24px">On dark maroon</h3>
+    <div class="dark" style="padding:28px 20px;border-radius:16px"><div class="row"><a class="btn white lg" data-magnetic href="#buttons">Apply now <i class="go" data-icon="arrow-right"></i></a><a class="btn ghost-light lg" href="#buttons">View programmes</a></div></div>
+  </div>
+  <div class="demo rv"><h3>Badges</h3><div class="row"><span class="badge default">default</span><span class="badge secondary">100 Level</span><span class="badge outline">12 Oct 2026</span><span class="badge destructive">destructive</span></div></div>
+</div></section>
+
+<section class="band tint" id="motion" data-spy><div class="wrap">
+  <div class="rv"><span class="eyebrow">Interaction</span><h2 class="title">Motion lab</h2>
+  <p class="lead">Every effect used on the About page. In the real app these are built with framer-motion and small client components, so pages stay Server Components and content is still in the HTML for Google.</p></div>
+  <div class="motion-grid" data-stagger style="margin-top:32px">
+    <div class="card tilt rv"><div class="tile"><i data-icon="sparkles"></i></div><h3 style="font-size:1.1rem">Tilt and spotlight</h3><p class="muted" style="margin:0">Move your mouse over this card. It tilts toward the cursor and a gold glow follows it (desktop only).</p></div>
+    <div class="card lift rv"><div class="tile"><i data-icon="arrow-up"></i></div><h3 style="font-size:1.1rem">Lift on hover</h3><p class="muted" style="margin:0">Interactive cards rise and gain a maroon-tinted shadow. The icon tile spins slightly.</p></div>
+    <div class="card rv"><div class="tile"><i data-icon="mouse-pointer-click"></i></div><h3 style="font-size:1.1rem">Ripple and shine</h3><p class="muted">Press the button.</p><a class="btn default" href="#motion">Press me <i class="go" data-icon="arrow-right"></i></a></div>
+    <div class="card rv"><div class="tile"><i data-icon="layers"></i></div><h3 style="font-size:1.1rem">Reveal on scroll</h3><p class="muted" style="margin:0">Scroll up and down: sections fade up, with a stagger between siblings. Respects “reduce motion”.</p></div>
+    <div class="card rv"><h3 style="font-size:1.1rem">Toast feedback</h3><p class="muted">Confirms small actions such as copying a value.</p><button class="btn outline" onclick="abfToast('Saved. This is a toast.')">Show toast</button></div>
+    <div class="card rv"><h3 style="font-size:1.1rem">Value chips</h3><p class="muted">Hover or tap a chip.</p><span class="chip"><i data-icon="crown"></i>Leadership</span><span class="chip"><i data-icon="heart"></i>Service</span><span class="chip"><i data-icon="lightbulb"></i>Innovation</span></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:32px;align-items:start">
+    <div class="rv" data-tabs><div class="tabs"><button>Overview</button><button>Details</button><button>Usage</button></div>
+      <div class="panel"><div class="card"><b>Tabs.</b> A sliding indicator follows the active tab. Arrow keys switch tabs, and the row scrolls sideways on narrow phones. Used for membership on the About page.</div></div>
+      <div class="panel"><div class="card">Panels fade up when selected. Tab buttons are at least 44px tall for thumbs.</div></div>
+      <div class="panel"><div class="card">Real app: Radix <span class="spec">Tabs</span> component, styled with these classes.</div></div>
+    </div>
+    <div data-acc="single" class="rv">
+      <div class="acc open"><button><span class="tile"><i data-icon="scale"></i></span>Accordion item one<i class="chev" data-icon="chevron-down"></i></button><div class="body"><div><div class="in">Content slides open smoothly. One item stays open at a time in “single” mode.</div></div></div></div>
+      <div class="acc"><button><span class="tile"><i data-icon="landmark"></i></span>Accordion item two<i class="chev" data-icon="chevron-down"></i></button><div class="body"><div><div class="in">Used for governance and leadership roles, so long pages stay short on phones.</div></div></div></div>
+    </div>
+  </div>
+  <p class="rule" style="margin-top:28px"><b>Motion rules:</b> content must exist in the server HTML (never hide it until JavaScript runs) · animate only opacity and transform · keep each effect under about 1 second · turn it all off for “prefers-reduced-motion” · tilt and magnetic effects only for mouse pointers, never touch.</p>
+</div></section>
+
+<section class="band" id="icons" data-spy><div class="wrap">
+  <div class="rv"><span class="eyebrow">Icons</span><h2 class="title">Icons: Lucide only</h2>
+  <p class="lead">The app uses <span class="spec">lucide-react</span>. Never use emoji or system icons, because they look different on every device. Icons tagged <b>homepage</b> or <b>ui kit</b> are already in the code. Click one to copy its import.</p></div>
+  <input id="icon-q" class="search" type="search" placeholder="Search icons…" aria-label="Search icons">
+  <div class="icon-grid" id="icon-grid"></div>
+  <p class="rule" style="margin-top:20px"><b>Usage:</b> <span class="spec">import { GraduationCap } from "lucide-react"</span> then <span class="spec">&lt;GraduationCap className="size-6" /&gt;</span>. Size with <span class="spec">size-5</span> inline or <span class="spec">size-6</span> in a tile. Icons support text, they never replace it.</p>
+</div></section>
+
+<section class="band tint" id="responsive" data-spy><div class="wrap">
+  <div class="rv"><span class="eyebrow">Responsive</span><h2 class="title">Test any screen size</h2><p class="lead">The About page preview below reflows live. Everything is designed phone-first at 375px.</p></div>
+  <div class="devices rv" style="margin-top:20px">
+    <button class="btn default sm" data-w="375">Phone 375</button><button class="btn outline sm" data-w="768">Tablet 768</button><button class="btn outline sm" data-w="1100">Laptop 1100</button>
+  </div>
+  <div class="frame-wrap rv"><iframe id="device-frame" class="frame" title="About page preview" src="about-preview.html" style="width:375px" loading="lazy"></iframe></div>
+</div></section>
+
+<footer class="f"><div class="wrap">ABF Design System · preview only · tokens mirror <span class="spec">src/app/globals.css</span> · <a href="about-preview.html">About preview</a></div></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var maroon=[['50','#fbf4f1'],['100','#f6e3dd'],['200','#ebc3b9'],['300','#d88f7f'],['400','#c45d4f'],['500','#aa322b','primary'],['600','#922821'],['700','#73201c'],['800','#551a18'],['900','#3b1314']];
+  var gold=[['50','#fff9eb'],['100','#fff0c6'],['200','#ffe08a'],['300','#f8c84d'],['400','#efb11f','secondary'],['500','#d9960d'],['600','#b8790a'],['700','#8f5d0a'],['800','#6d470c'],['900','#4d3310']];
+  function sw(id,name,list){document.getElementById(id).innerHTML=list.map(function(c,i){
+    return '<button class="swatch rv" data-copy="--abf-'+name+'-'+c[0]+'"><i style="background:'+c[1]+'"></i><span><b>'+c[0]+(c[2]?' · '+c[2]:'')+'</b><br>'+c[1]+'</span></button>'}).join('')}
+  sw('maroon','maroon',maroon);sw('gold','gold',gold);
+  var homepage='graduation-cap users target briefcase award book-open trending-up zap arrow-right'.split(' '),ui='check chevron-down chevron-up chevron-right circle x'.split(' ');
+  function pascal(n){return n.split('-').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1)}).join('')}
+  document.getElementById('icon-grid').innerHTML=Object.keys(ABF_ICONS).sort().map(function(n){
+    var tag=homepage.indexOf(n)>-1?'<em>homepage</em>':ui.indexOf(n)>-1?'<em>ui kit</em>':'';
+    return '<button class="icon-cell" data-name="'+n+'" data-copy=\'import { '+pascal(n)+' } from "lucide-react"\'><i class="ico" data-icon="'+n+'"></i>'+n+tag+'</button>'}).join('');
+  abfIcons();
+  /* re-run wiring for dynamically added elements */
+  document.querySelectorAll('#maroon .rv,#gold .rv').forEach(function(el,i){el.style.setProperty('--d',(i%10*50)+'ms');setTimeout(function(){el.classList.add('in')},100)});
+  document.querySelectorAll('#maroon [data-copy],#gold [data-copy],.icon-cell').forEach(function(el){
+    el.addEventListener('click',function(){var v=el.getAttribute('data-copy');(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(function(){abfToast('Copied: '+v)},function(){abfToast(v)})})});
+});
+</script>
+</body>
+</html>
