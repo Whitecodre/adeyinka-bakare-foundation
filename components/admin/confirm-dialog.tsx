@@ -9,33 +9,33 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface ConfirmDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   title: string;
-  message: string;
+  description: string;
   confirmLabel?: string;
   cancelLabel?: string;
 }
 
 export function ConfirmDialog({
-  isOpen,
-  onClose,
+  open,
+  onOpenChange,
   onConfirm,
   title,
-  message,
+  description,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
 }: ConfirmDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{message}</DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             {cancelLabel}
           </Button>
           <Button onClick={onConfirm}>{confirmLabel}</Button>

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const memberSchema = z.object({
   full_name: z.string().min(1, "Name is required"),
-  email: z.string().email().optional().nullable(),
+  email: z.string().email("Invalid email address").optional().nullable(),
   phone: z.string().optional().nullable(),
   department: z.string().optional().nullable(),
   level: z.string().optional().nullable(),

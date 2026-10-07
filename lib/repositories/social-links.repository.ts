@@ -53,3 +53,17 @@ export async function deleteSocialLink(id: string) {
 
   if (error) throw error;
 }
+
+export async function findSocialLinkById(id: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("social_links")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+
+  return data;
+}

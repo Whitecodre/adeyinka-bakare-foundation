@@ -9,7 +9,7 @@ export async function getVolunteerById(id: string) {
   return findVolunteerById(id);
 }
 
-export async function createNewVolunteer(data: VolunteerInsert) {
+export async function createNewVolunteer(data: VolunteerInsert, actorId?: string) {
   return createVolunteer(data);
 }
 
