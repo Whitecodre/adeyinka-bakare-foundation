@@ -14,7 +14,7 @@ export async function getNewsBySlug(slug: string) {
   return findNewsBySlug(slug);
 }
 
-export async function createNewNews(data: NewsInsert, actorId: string) {
+export async function createNewNews(data: Omit<NewsInsert, "slug">, actorId: string) {
   const slug = await generateUniqueSlug(data.title, async (slug) => {
     const existing = await findNewsBySlug(slug);
     return !!existing;

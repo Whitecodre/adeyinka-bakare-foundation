@@ -11,6 +11,7 @@ type ToasterToast = ToastProps & {
   dismiss?: () => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  action?: React.ReactNode;
 };
 
 const TOAST_LIMIT = 1;

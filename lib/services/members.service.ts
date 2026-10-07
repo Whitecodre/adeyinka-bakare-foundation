@@ -10,7 +10,7 @@ export async function getMemberById(id: string) {
   return findMemberById(id);
 }
 
-export async function createNewMember(data: MemberInsert, actorId: string) {
+export async function createNewMember(data: MemberInsert, actorId?: string) {
   return createMember(data);
 }
 
