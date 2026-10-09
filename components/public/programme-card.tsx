@@ -1,60 +1,52 @@
-import Link from "next/link";
-import { ArrowRight, BookOpen, GraduationCap, Briefcase, Users } from "lucide-react";
+import Image from "next/image";
+import { Briefcase, Compass, GraduationCap, Wallet, type LucideIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { IconTile, cardMotion } from "@/components/public/feature-card";
+import { ScrollFocus } from "@/components/public/scroll-focus";
 
 interface ProgrammeCardProps {
   programme: {
-    id: string;
     title: string;
+    slug: string;
     description: string;
     image?: string | null;
-    slug: string;
   };
+  className?: string;
 }
 
-const levelIcons = {
-  "100L": { icon: BookOpen, color: "bg-[#aa322b]/10 text-[#aa322b]" },
-  "200L": { icon: GraduationCap, color: "bg-[#f8c84d]/20 text-[#f8c84d]" },
-  "300L": { icon: Briefcase, color: "bg-[#aa322b]/10 text-[#aa322b]" },
-  "400L": { icon: Users, color: "bg-[#f8c84d]/20 text-[#f8c84d]" },
+/** Icon per programme (meaning map in docs/design-system/foundations.md). Unknown slugs get the scholarship icon. */
+const programmeIcons: Record<string, LucideIcon> = {
+  "need-based-scholarship": Wallet,
+  "merit-based-scholarship": GraduationCap,
+  "internship-programme": Briefcase,
+  "mentorship-programme": Compass,
 };
 
-export function ProgrammeCard({ programme }: ProgrammeCardProps) {
-  // Extract level from title or description
-  const levelMatch = programme.title.match(/(\d+L)/);
-  const level = levelMatch ? levelMatch[0] : "General";
-  const iconData = levelIcons[level as keyof typeof levelIcons] || levelIcons["100L"];
-  const Icon = iconData.icon;
+export function ProgrammeCard({ programme, className }: ProgrammeCardProps) {
+  const Icon = programmeIcons[programme.slug] ?? GraduationCap;
 
   return (
-    <Link
-      href={`/programmes/${programme.slug}`}
-      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-[#e9ddd3] hover:border-[#aa322b]/30"
-    >
+    <ScrollFocus tilt className={cn(cardMotion, "flex flex-col overflow-hidden", className)}>
       {programme.image && (
-        <div className="aspect-video overflow-hidden">
-          <img
+        <div className="relative aspect-video w-full overflow-hidden">
+          <Image
             src={programme.image}
             alt={programme.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            fill
+            unoptimized
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105 group-data-[focused=true]:scale-105"
           />
         </div>
       )}
-      <div className="p-6">
-        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4 ${iconData.color}`}>
-          <Icon className="w-4 h-4" />
-          {level}
-        </div>
-        <h3 className="text-xl font-bold text-[#2d1816] mb-3 font-['Libre_Baskerville'] group-hover:text-[#922821] transition-colors">
-          {programme.title}
-        </h3>
-        <p className="text-[#2d1816]/70 mb-4 line-clamp-3">
-          {programme.description}
-        </p>
-        <div className="flex items-center text-[#aa322b] font-semibold group-hover:translate-x-2 transition-transform duration-300">
-          Learn More
-          <ArrowRight className="w-5 h-5 ml-2" />
-        </div>
+      <div className="flex flex-1 flex-col p-6">
+        <IconTile className="mb-4 group-hover:-rotate-6 group-hover:scale-110 group-data-[focused=true]:-rotate-6 group-data-[focused=true]:scale-110">
+          <Icon aria-hidden />
+        </IconTile>
+        <h3 className="mb-2 text-xl font-semibold text-foreground">{programme.title}</h3>
+        <p className="text-muted-foreground">{programme.description}</p>
       </div>
-    </Link>
+    </ScrollFocus>
   );
 }
