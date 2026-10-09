@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 
 import type { FooterSection, FooterLink, SocialLink } from "@/lib/types/domain.types";
 
-const headingClass = "font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#922821]";
+const headingClass = "font-sans text-xs font-bold uppercase tracking-[0.2em] text-maroon-600";
 const linkClass =
-  "group inline-flex items-center gap-1 py-1 text-sm text-[#2d1816]/70 transition-colors hover:text-[#922821]";
+  "group inline-flex items-center gap-1 py-1 text-sm text-muted-foreground transition-colors hover:text-maroon-600";
 
 export function Footer() {
   const [footerSections, setFooterSections] = useState<FooterSection[]>([]);
@@ -64,9 +64,9 @@ export function Footer() {
   }
 
   return (
-    <footer className="relative mt-8 bg-[linear-gradient(180deg,rgba(255,255,255,0.55),rgba(255,250,244,0.95))]">
+    <footer className="relative mt-8 bg-gradient-to-b from-white/55 to-cream">
       {/* Brand accent line */}
-      <div aria-hidden className="h-1 w-full bg-gradient-to-r from-[#f8c84d] via-[#aa322b] to-[#7a221b]" />
+      <div aria-hidden className="h-1 w-full bg-gradient-to-r from-gold-300 via-maroon-500 to-maroon-700" />
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
@@ -74,14 +74,14 @@ export function Footer() {
             <Link href="/" className="mb-5 inline-flex items-center gap-3">
               <Image src="/brand/logo.png" alt="ABF" width={48} height={48} className="rounded-xl shadow-md" />
               <span className="leading-tight">
-                <span className="block text-xs font-bold uppercase tracking-[0.3em] text-[#922821]/80">ABF</span>
-                <span className="block text-sm font-medium text-[#2d1816]/70">Adeyinka Bakare Fellowship</span>
+                <span className="block text-xs font-bold uppercase tracking-[0.3em] text-maroon-600/80">ABF</span>
+                <span className="block text-sm font-medium text-muted-foreground">Adeyinka Bakare Fellowship</span>
               </span>
             </Link>
-            <h3 className="max-w-md text-2xl font-semibold tracking-tight text-[#2d1816]">
+            <h3 className="max-w-md text-2xl font-semibold tracking-tight text-foreground">
               Empowering IT students through scholarships, mentorship, and career development.
             </h3>
-            <p className="mt-4 max-w-md text-sm leading-7 text-[#2d1816]/70">
+            <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">
               Supporting the Department of Information Technology, University of Ilorin
             </p>
 
@@ -94,7 +94,7 @@ export function Footer() {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#2d1816]/70 hover:text-[#922821] transition-colors"
+                    className="text-muted-foreground hover:text-maroon-600 transition-colors"
                     aria-label={social.platform}
                   >
                     <span className="sr-only">{social.platform}</span>
@@ -120,7 +120,7 @@ export function Footer() {
                         {link.label}
                         <span
                           aria-hidden
-                          className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-[#922821] transition-transform duration-300 group-hover:scale-x-100"
+                          className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-maroon-600 transition-transform duration-300 group-hover:scale-x-100"
                         />
                       </span>
                     </Link>
@@ -132,16 +132,16 @@ export function Footer() {
 
           <div>
             <h4 className={headingClass}>Stay connected</h4>
-            <p className="mt-4 text-sm leading-7 text-[#2d1816]/70">
+            <p className="mt-4 text-sm leading-7 text-muted-foreground">
               Join our community and access scholarship opportunities, mentorship programmes, and
               career development resources.
             </p>
             <div className="mt-3 flex flex-col items-start">
-              <Link href="/get-involved" className="group inline-flex items-center gap-1 py-1 text-sm font-semibold text-[#922821]">
+              <Link href="/get-involved" className="group inline-flex items-center gap-1 py-1 text-sm font-semibold text-maroon-600">
                 Get involved
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
-              <Link href="/contact" className="group inline-flex items-center gap-1 py-1 text-sm font-semibold text-[#922821]">
+              <Link href="/contact" className="group inline-flex items-center gap-1 py-1 text-sm font-semibold text-maroon-600">
                 Contact ABF
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
@@ -149,7 +149,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-2 border-t border-[#e9ddd3] pt-6 text-sm text-[#2d1816]/55 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-2 border-t border-border pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} Adeyinka Bakare Fellowship. All rights reserved.</p>
           <p>Department of Information Technology, University of Ilorin</p>
         </div>
