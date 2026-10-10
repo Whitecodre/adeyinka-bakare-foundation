@@ -26,7 +26,7 @@ export function IconTile({ children, className }: IconTileProps) {
  *  - touch:  the same effect plays while the card is near the middle of the screen (ScrollFocus)
  *  - press:  active:* gives instant feedback on both
  */
-const cardMotion =
+export const cardMotion =
   "h-full rounded-2xl border bg-card shadow-sm transition-all duration-500 active:scale-[0.98] hover:-translate-y-1.5 hover:border-maroon-200 hover:shadow-xl hover:shadow-maroon-700/15 data-[focused=true]:-translate-y-1.5 data-[focused=true]:border-maroon-200 data-[focused=true]:shadow-xl data-[focused=true]:shadow-maroon-700/15";
 
 interface FeatureCardProps {

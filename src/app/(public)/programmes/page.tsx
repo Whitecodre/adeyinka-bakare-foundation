@@ -1,64 +1,59 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 
 import { PageHero } from "@/components/public/page-hero";
 import { Reveal } from "@/components/public/reveal";
-import { Section, SectionHeading } from "@/components/public/section";
+import { Section } from "@/components/public/section";
 import { CTABanner } from "@/components/public/cta-banner";
+import { IconTile } from "@/components/public/feature-card";
 import { ProgrammeCard } from "@/components/public/programme-card";
-import { EmptyState } from "@/components/admin/empty-state";
-import { Button } from "@/components/ui/button";
+import { getAllProgrammes } from "@/lib/services/programmes.service";
 
 export const metadata: Metadata = {
   title: "Programmes | Adeyinka Bakare Fellowship",
-  description: "Discover our programmes designed to empower IT students through scholarships, mentorship, and career development.",
+  description:
+    "Scholarship, internship and mentorship programmes for members of the Department of Information Technology.",
 };
 
-export const dynamic = "force-dynamic";
-
-async function getProgrammes() {
+async function getPublishedProgrammes() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/public/programmes`, {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    return data.success ? data.data : [];
+    const programmes = await getAllProgrammes();
+    return programmes.filter((programme) => programme.status === "published");
   } catch (error) {
-    console.error("Error fetching programmes:", error);
+    console.error("Error loading programmes:", error);
     return [];
   }
 }
 
 export default async function ProgrammesPage() {
-  const programmes = await getProgrammes();
+  const programmes = await getPublishedProgrammes();
 
   return (
     <>
       <PageHero
-        eyebrow="Our Programmes"
-        title="Empowering IT Students"
-        description="Our programmes are designed to support students at every level of their academic journey, from 100L to 400L."
+        eyebrow="What ABF Offers"
+        title="Our Programmes"
+        description="Financial support, academic recognition, career development and professional mentorship for students of the Department of Information Technology."
       />
 
       <Section>
         {programmes.length === 0 ? (
           <Reveal>
-            <EmptyState
-              title="No programmes available"
-              description="Check back soon for updates on our programmes."
-            />
+            <div className="mx-auto flex max-w-md flex-col items-center text-center">
+              <IconTile className="mb-4">
+                <GraduationCap aria-hidden />
+              </IconTile>
+              <h2 className="text-xl font-semibold text-foreground">Programmes coming soon</h2>
+              <p className="mt-2 text-muted-foreground">
+                We are updating this page. Please check back shortly.
+              </p>
+            </div>
           </Reveal>
         ) : (
-          <div className="grid md:grid-cols-2 gap-8">
-            {programmes.map((programme: any, index: number) => (
+          <div className="grid gap-6 md:grid-cols-2">
+            {programmes.map((programme, index) => (
               <Reveal key={programme.id} delay={index * 0.08}>
-                <ProgrammeCard programme={programme} />
+                <ProgrammeCard programme={programme} className="h-full" />
               </Reveal>
             ))}
           </div>
@@ -66,9 +61,9 @@ export default async function ProgrammesPage() {
       </Section>
 
       <CTABanner
-        title="Ready to join a programme?"
-        description="Apply for membership and access our comprehensive support programmes."
-        primary={{ label: "Join the Fellowship", href: "/get-involved" }}
+        title="Ready to join the Fellowship?"
+        description="Programmes are open to registered ABF members. Find out how to join."
+        primary={{ label: "How to join", href: "/get-involved" }}
         secondary={{ label: "Contact us", href: "/contact" }}
       />
     </>
