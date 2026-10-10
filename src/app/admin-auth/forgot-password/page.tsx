@@ -65,22 +65,22 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <Link href="/admin-auth/login" className="inline-flex items-center gap-2 text-sm font-medium text-[#2d1816]/60 hover:text-[#2d1816] transition-colors w-fit">
+      <Link href="/admin-auth/login" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-fit">
         <ArrowLeft size={16} />
         Back to sign in
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-12 lg:mt-0">
+      <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-8 pb-8">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
           <div>
-            <h1 className="text-3xl font-bold text-[#2d1816] font-['Libre_Baskerville'] tracking-tight">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
               Reset Password
             </h1>
-            <p className="text-sm text-[#2d1816]/60 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               {submitted
                 ? "Check your email for the reset link"
                 : "Enter your email to receive a password reset link"}
@@ -91,21 +91,21 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium text-[#2d1816]/80">Email</Label>
+                <Label className="text-xs font-medium text-foreground/80">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2d1816]/40" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="admin@abf.org"
-                    className={`pl-10 border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20 ${
-                      errors.email ? "border-red-500" : ""
+                    className={`pl-10 border-border bg-background focus:border-gold-300 focus:ring-gold-300/20 ${
+                      errors.email ? "border-destructive" : ""
                     }`}
                     disabled={loading}
                   />
                 </div>
-                {errors.email && <p className="text-[11px] text-red-500">{errors.email}</p>}
+                {errors.email && <p className="text-[11px] text-destructive">{errors.email}</p>}
               </div>
 
               {/* Submit Button */}
@@ -113,7 +113,7 @@ export default function ForgotPasswordPage() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c] text-white font-semibold shadow-lg shadow-primary/30"
+                  className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
                 >
                   {loading ? "Sending..." : "Send Reset Link"}
                 </Button>
@@ -125,12 +125,12 @@ export default function ForgotPasswordPage() {
                 <Check className="w-8 h-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#2d1816] mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   Email sent successfully
                 </h3>
-                <p className="text-sm text-[#2d1816]/60">
+                <p className="text-sm text-muted-foreground">
                   We've sent a password reset link to{" "}
-                  <span className="font-medium text-[#2d1816]">{formData.email}</span>
+                  <span className="font-medium text-foreground">{formData.email}</span>
                 </p>
               </div>
               <Button
@@ -139,7 +139,7 @@ export default function ForgotPasswordPage() {
                   setFormData({ email: "" });
                 }}
                 variant="outline"
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-border/30"
               >
                 Send another email
               </Button>

@@ -80,28 +80,28 @@ function ResetPasswordForm() {
   if (!validToken) {
     return (
       <div className="flex flex-col h-full relative">
-        <Link href="/admin-auth/forgot-password" className="inline-flex items-center gap-2 text-sm font-medium text-[#2d1816]/60 hover:text-[#2d1816] transition-colors w-fit">
+        <Link href="/admin-auth/forgot-password" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-fit">
           <ArrowLeft size={16} />
           Back to forgot password
         </Link>
 
-        <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-12 lg:mt-0">
+        <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-8 pb-8">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-6"
           >
-            <AlertCircle className="w-16 h-16 mx-auto text-red-500" />
+            <AlertCircle className="w-16 h-16 mx-auto text-destructive" />
             <div>
-              <h1 className="text-2xl font-bold text-[#2d1816] font-['Libre_Baskerville'] mb-2">
+              <h1 className="text-2xl font-bold text-foreground mb-2">
                 Invalid Reset Link
               </h1>
-              <p className="text-sm text-[#2d1816]/60">
+              <p className="text-sm text-muted-foreground">
                 The password reset link is invalid or has expired. Please request a new one.
               </p>
             </div>
             <Link href="/admin-auth/forgot-password">
-              <Button className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]">
+              <Button className="bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700">
                 Request New Link
               </Button>
             </Link>
@@ -124,15 +124,15 @@ function ResetPasswordForm() {
               <Check className="w-8 h-8 text-green-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#2d1816] font-['Libre_Baskerville'] mb-2">
+              <h1 className="text-2xl font-bold text-foreground mb-2">
                 Password Reset Successful
               </h1>
-              <p className="text-sm text-[#2d1816]/60">
+              <p className="text-sm text-muted-foreground">
                 Your password has been updated successfully. You can now sign in with your new password.
               </p>
             </div>
             <Link href="/admin-auth/login">
-              <Button className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]">
+              <Button className="bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700">
                 Sign In
               </Button>
             </Link>
@@ -144,22 +144,22 @@ function ResetPasswordForm() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <Link href="/admin-auth/login" className="inline-flex items-center gap-2 text-sm font-medium text-[#2d1816]/60 hover:text-[#2d1816] transition-colors w-fit">
+      <Link href="/admin-auth/login" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-fit">
         <ArrowLeft size={16} />
         Back to sign in
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-12 lg:mt-0">
+      <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-8 pb-8">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
           <div>
-            <h1 className="text-3xl font-bold text-[#2d1816] font-['Libre_Baskerville'] tracking-tight">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
               Reset Password
             </h1>
-            <p className="text-sm text-[#2d1816]/60 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               Enter your new password below
             </p>
           </div>
@@ -167,54 +167,54 @@ function ResetPasswordForm() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Password */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[#2d1816]/80">New Password</Label>
+              <Label className="text-xs font-medium text-foreground/80">New Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2d1816]/40" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="•••••••••"
-                  className={`pl-10 pr-10 border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20 ${
-                    errors.password ? "border-red-500" : ""
+                  className={`pl-10 pr-10 border-border bg-background focus:border-gold-300 focus:ring-gold-300/20 ${
+                    errors.password ? "border-destructive" : ""
                   }`}
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2d1816]/40 hover:text-[#2d1816]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && <p className="text-[11px] text-red-500">{errors.password}</p>}
+              {errors.password && <p className="text-[11px] text-destructive">{errors.password}</p>}
             </div>
 
             {/* Confirm Password */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[#2d1816]/80">Confirm New Password</Label>
+              <Label className="text-xs font-medium text-foreground/80">Confirm New Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2d1816]/40" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   placeholder="•••••••••"
-                  className={`pl-10 pr-10 border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20 ${
-                    errors.confirmPassword ? "border-red-500" : ""
+                  className={`pl-10 pr-10 border-border bg-background focus:border-gold-300 focus:ring-gold-300/20 ${
+                    errors.confirmPassword ? "border-destructive" : ""
                   }`}
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2d1816]/40 hover:text-[#2d1816]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.confirmPassword && <p className="text-[11px] text-red-500">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="text-[11px] text-destructive">{errors.confirmPassword}</p>}
             </div>
 
             {/* Submit Button */}
@@ -222,7 +222,7 @@ function ResetPasswordForm() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c] text-white font-semibold shadow-lg shadow-primary/30"
+                className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </Button>
@@ -236,7 +236,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#fffdf8]">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background">Loading...</div>}>
       <ResetPasswordForm />
     </Suspense>
   );

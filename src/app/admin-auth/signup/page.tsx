@@ -3,20 +3,88 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft, Building, Eye, EyeOff, KeyRound, Lock, Mail, User } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Lock, User, Building, Eye, EyeOff, ArrowLeft, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+interface FieldProps {
+  id: string;
+  label: string;
+  error?: string;
+  hint?: string;
+  className?: string;
+  children: React.ReactNode;
+}
+
+/** Label + control + error/hint. Keeps every field on this page identical. */
+function Field({ id, label, error, hint, className, children }: FieldProps) {
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      <Label htmlFor={id} className="text-xs font-medium">
+        {label}
+      </Label>
+      {children}
+      {error ? (
+        <p className="text-xs text-destructive">{error}</p>
+      ) : (
+        hint && <p className="text-xs text-muted-foreground">{hint}</p>
+      )}
+    </div>
+  );
+}
+
+interface IconInputProps extends React.ComponentProps<typeof Input> {
+  icon: React.ReactNode;
+  invalid?: boolean;
+}
+
+function IconInput({ icon, invalid, className, ...props }: IconInputProps) {
+  return (
+    <div className="relative">
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground [&_svg]:size-5">
+        {icon}
+      </span>
+      <Input aria-invalid={invalid} className={cn("h-11 pl-10", invalid && "border-destructive", className)} {...props} />
+    </div>
+  );
+}
+
+function PasswordInput({
+  invalid,
+  ...props
+}: Omit<React.ComponentProps<typeof Input>, "type"> & { invalid?: boolean }) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className="relative">
+      <Lock className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        type={visible ? "text" : "password"}
+        aria-invalid={invalid}
+        className={cn("h-11 pl-10 pr-12", invalid && "border-destructive")}
+        {...props}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible(!visible)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        className="absolute right-0 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground"
+      >
+        {visible ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+      </button>
+    </div>
+  );
+}
 
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -27,6 +95,9 @@ export default function SignupPage() {
     reason: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const update = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setFormData({ ...formData, [field]: e.target.value });
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -82,12 +153,12 @@ export default function SignupPage() {
       });
 
       router.push("/admin-auth/login");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Signup error:", error);
       toast({
         variant: "destructive",
         title: "Signup failed",
-        description: error.message || "Failed to submit request",
+        description: error instanceof Error ? error.message : "Failed to submit request",
       });
     } finally {
       setLoading(false);
@@ -95,191 +166,137 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex flex-col h-full relative">
-      <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#2d1816]/60 hover:text-[#2d1816] transition-colors w-fit">
-        <ArrowLeft size={16} />
+    <div className="relative flex h-full flex-col">
+      <Link
+        href="/"
+        className="inline-flex min-h-[44px] w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" />
         Back to website
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-12 lg:mt-0">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
+      <div className="mx-auto mt-6 flex w-full max-w-xl flex-1 flex-col justify-center pb-8">
+        <div className="abf-fade-up space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-[#2d1816] font-['Libre_Baskerville'] tracking-tight">
-              Request Admin Access
-            </h1>
-            <p className="text-sm text-[#2d1816]/60 mt-2">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Request Admin Access</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
               Fill in the form below to request admin dashboard access
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Full Name */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[#2d1816]/80">Full Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2d1816]/40" />
-                <Input
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  placeholder="John Doe"
-                  className={`pl-10 border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20 ${
-                    errors.fullName ? "border-red-500" : ""
-                  }`}
-                  disabled={loading}
-                />
-              </div>
-              {errors.fullName && <p className="text-[11px] text-red-500">{errors.fullName}</p>}
-            </div>
-
-            {/* Email */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[#2d1816]/80">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2d1816]/40" />
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="admin@abf.org"
-                  className={`pl-10 border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20 ${
-                    errors.email ? "border-red-500" : ""
-                  }`}
-                  disabled={loading}
-                />
-              </div>
-              {errors.email && <p className="text-[11px] text-red-500">{errors.email}</p>}
-            </div>
-
-            {/* Organization */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[#2d1816]/80">Organization (optional)</Label>
-              <div className="relative">
-                <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2d1816]/40" />
-                <Input
-                  value={formData.organization}
-                  onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                  placeholder="Adeyinka Bakare Foundation"
-                  className="pl-10 border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20"
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
-            {/* Signup Code */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[#2d1816]/80">Signup Code *</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2d1816]/40" />
-                <Input
-                  value={formData.signupCode}
-                  onChange={(e) => setFormData({ ...formData, signupCode: e.target.value })}
-                  placeholder="Enter your signup code"
-                  className={`pl-10 border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20 ${
-                    errors.signupCode ? "border-red-500" : ""
-                  }`}
-                  disabled={loading}
-                />
-              </div>
-              {errors.signupCode && <p className="text-[11px] text-red-500">{errors.signupCode}</p>}
-              <p className="text-[11px] text-[#2d1816]/60">
-                Contact the foundation administrator to obtain a signup code
-              </p>
-            </div>
-
-            {/* Password */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[#2d1816]/80">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2d1816]/40" />
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="•••••••••"
-                  className={`pl-10 pr-10 border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20 ${
-                    errors.password ? "border-red-500" : ""
-                  }`}
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2d1816]/40 hover:text-[#2d1816]"
+          <form onSubmit={handleSubmit} noValidate className="space-y-8">
+            <fieldset className="space-y-4" disabled={loading}>
+              <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                About you
+              </legend>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field id="fullName" label="Full name" error={errors.fullName}>
+                  <IconInput
+                    id="fullName"
+                    icon={<User />}
+                    autoComplete="name"
+                    value={formData.fullName}
+                    onChange={update("fullName")}
+                    placeholder="Your full name"
+                    invalid={!!errors.fullName}
+                  />
+                </Field>
+                <Field id="email" label="Email" error={errors.email}>
+                  <IconInput
+                    id="email"
+                    type="email"
+                    icon={<Mail />}
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={update("email")}
+                    placeholder="you@example.com"
+                    invalid={!!errors.email}
+                  />
+                </Field>
+                <Field id="organization" label="Role or organisation (optional)">
+                  <IconInput
+                    id="organization"
+                    icon={<Building />}
+                    value={formData.organization}
+                    onChange={update("organization")}
+                    placeholder="e.g. ABF executive"
+                  />
+                </Field>
+                <Field
+                  id="signupCode"
+                  label="Signup code"
+                  error={errors.signupCode}
+                  hint="Ask an ABF administrator for a code"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+                  <IconInput
+                    id="signupCode"
+                    icon={<KeyRound />}
+                    value={formData.signupCode}
+                    onChange={update("signupCode")}
+                    placeholder="Enter your signup code"
+                    invalid={!!errors.signupCode}
+                  />
+                </Field>
               </div>
-              {errors.password && <p className="text-[11px] text-red-500">{errors.password}</p>}
-            </div>
+            </fieldset>
 
-            {/* Confirm Password */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[#2d1816]/80">Confirm Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2d1816]/40" />
-                <Input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  placeholder="•••••••••"
-                  className={`pl-10 pr-10 border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20 ${
-                    errors.confirmPassword ? "border-red-500" : ""
-                  }`}
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2d1816]/40 hover:text-[#2d1816]"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+            <fieldset className="space-y-4" disabled={loading}>
+              <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                Secure your account
+              </legend>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field id="password" label="Password" error={errors.password} hint="At least 8 characters">
+                  <PasswordInput
+                    id="password"
+                    autoComplete="new-password"
+                    value={formData.password}
+                    onChange={update("password")}
+                    placeholder="Create a password"
+                    invalid={!!errors.password}
+                  />
+                </Field>
+                <Field id="confirmPassword" label="Confirm password" error={errors.confirmPassword}>
+                  <PasswordInput
+                    id="confirmPassword"
+                    autoComplete="new-password"
+                    value={formData.confirmPassword}
+                    onChange={update("confirmPassword")}
+                    placeholder="Repeat the password"
+                    invalid={!!errors.confirmPassword}
+                  />
+                </Field>
               </div>
-              {errors.confirmPassword && <p className="text-[11px] text-red-500">{errors.confirmPassword}</p>}
-            </div>
+            </fieldset>
 
-            {/* Reason */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-[#2d1816]/80">Reason for Request *</Label>
+            <Field id="reason" label="Reason for request" error={errors.reason}>
               <Textarea
+                id="reason"
                 value={formData.reason}
-                onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                placeholder="Explain why you need admin access..."
+                onChange={update("reason")}
+                placeholder="Explain why you need admin access"
                 rows={3}
-                className={`border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20 resize-none ${
-                  errors.reason ? "border-red-500" : ""
-                }`}
+                aria-invalid={!!errors.reason}
                 disabled={loading}
+                className={cn("resize-none", errors.reason && "border-destructive")}
               />
-              {errors.reason && <p className="text-[11px] text-red-500">{errors.reason}</p>}
-            </div>
+            </Field>
 
-            {/* Submit Button */}
-            <div className="pt-2">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c] text-white font-semibold shadow-lg shadow-primary/30"
-              >
-                {loading ? "Submitting..." : "Submit Request"}
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
+            >
+              {loading ? "Submitting..." : "Submit request"}
+            </Button>
           </form>
 
-          <p className="text-center text-sm text-[#2d1816]/60">
+          <p className="text-center text-sm text-muted-foreground">
             Already have access?{" "}
-            <Link
-              href="/admin-auth/login"
-              className="text-[#aa322b] font-medium hover:underline underline-offset-4"
-            >
+            <Link href="/admin-auth/login" className="font-medium text-primary underline-offset-4 hover:underline">
               Sign in
             </Link>
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
