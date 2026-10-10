@@ -1,120 +1,93 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, Award, Compass, MessageCircle, ShieldCheck, Users, Vote } from "lucide-react";
+
+import { externalLinks } from "@/config/external-links";
+import { PageHero } from "@/components/public/page-hero";
+import { Reveal } from "@/components/public/reveal";
+import { Section, SectionHeading } from "@/components/public/section";
+import { IconTile, NumberedItem } from "@/components/public/feature-card";
+import { LinkButton } from "@/components/public/link-button";
 
 export const metadata: Metadata = {
   title: "Get Involved | Adeyinka Bakare Fellowship",
-  description: "Join the Adeyinka Bakare Fellowship as a volunteer or member",
+  description:
+    "Who can join the Adeyinka Bakare Fellowship, what members receive, and how to register.",
 };
+
+/** Source: ABF constitution, Section 3.2 (Membership Eligibility). */
+const requirements = [
+  "A registered student of the University of Ilorin",
+  "A registered student of any level of the Department of Information Technology",
+  "Registered with the Fellowship through the Fellowship registration link",
+];
+
+/** Source: ABF constitution, Section 3.4 (Rights of Members). */
+const rights = [
+  { icon: ShieldCheck, title: "Be treated fairly and respectfully" },
+  { icon: Vote, title: "Vote for and contest any executive position" },
+  { icon: Users, title: "Participate in Fellowship programmes" },
+  { icon: Award, title: "Access Fellowship opportunities" },
+  { icon: Compass, title: "Receive mentorship support" },
+];
 
 export default function GetInvolvedPage() {
   return (
-    <div className="min-h-screen bg-[#fffdf8]">
-        <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
-          <div className="text-center mb-12">
-            <span className="inline-block px-4 py-1.5 bg-[#aa322b]/10 text-[#922821] text-sm font-semibold rounded-full mb-4">
-              Get Involved
-            </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#2d1816] mb-4 font-['Libre_Baskerville']">
-              Join the Fellowship
-            </h1>
-            <p className="text-lg text-[#2d1816]/70 max-w-2xl mx-auto">
-              Become part of our community and help empower IT students at the University of Ilorin.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {/* Volunteer Card */}
-            <a
-              href="/get-involved/volunteer"
-              className="group relative bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-[#e9ddd3] hover:border-[#aa322b]/30"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#aa322b]/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative">
-                <div className="w-16 h-16 bg-[#aa322b]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-8 h-8 text-[#aa322b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-[#2d1816] mb-3 font-['Libre_Baskerville']">
-                  Volunteer
-                </h2>
-                <p className="text-[#2d1816]/70 mb-4">
-                  Share your time and skills to support our mission and help students succeed.
-                </p>
-                <div className="flex items-center text-[#aa322b] font-semibold group-hover:translate-x-2 transition-transform duration-300">
-                  Apply as Volunteer
-                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </div>
-              </div>
-            </a>
-
-            {/* Member Card */}
-            <a
-              href="/get-involved/member"
-              className="group relative bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-[#e9ddd3] hover:border-[#f8c84d]/30"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#f8c84d]/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative">
-                <div className="w-16 h-16 bg-[#f8c84d]/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-8 h-8 text-[#f8c84d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-[#2d1816] mb-3 font-['Libre_Baskerville']">
-                  Become a Member
-                </h2>
-                <p className="text-[#2d1816]/70 mb-4">
-                  Join our community of IT students and access exclusive benefits and opportunities.
-                </p>
-                <div className="flex items-center text-[#f8c84d] font-semibold group-hover:translate-x-2 transition-transform duration-300">
-                  Apply as Member
-                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </div>
-              </div>
-            </a>
-          </div>
-
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#e9ddd3]">
-            <h3 className="text-xl font-bold text-[#2d1816] mb-4 font-['Libre_Baskerville']">
-              Why Join ABF?
-            </h3>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <svg className="w-6 h-6 text-[#aa322b] mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-[#2d1816]/80">Access to scholarship opportunities</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-6 h-6 text-[#aa322b] mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-[#2d1816]/80">Mentorship from industry professionals</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-6 h-6 text-[#aa322b] mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-[#2d1816]/80">Career development and placement support</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-6 h-6 text-[#aa322b] mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-[#2d1816]/80">Networking with fellow IT students</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-6 h-6 text-[#aa322b] mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-[#2d1816]/80">Skill building workshops and training</span>
-              </li>
-            </ul>
-          </div>
+    <>
+      <PageHero
+        eyebrow="Get Involved"
+        title="Join the Fellowship"
+        description="Membership is open to students of the Department of Information Technology, University of Ilorin."
+      >
+        <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+          <LinkButton href={externalLinks.registrationForm}>
+            Register as a member
+            <ArrowRight aria-hidden />
+          </LinkButton>
+          <LinkButton href={externalLinks.whatsappCommunity} variant="outline">
+            <MessageCircle aria-hidden />
+            Join the WhatsApp community
+          </LinkButton>
         </div>
-      </div>
+      </PageHero>
+
+      <Section>
+        <SectionHeading eyebrow="Eligibility" title="Who can join" />
+        <div className="grid gap-6 md:grid-cols-3">
+          {requirements.map((requirement, index) => (
+            <Reveal key={requirement} delay={index * 0.08}>
+              <NumberedItem number={index + 1} title={requirement} />
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
+      <Section tone="tint">
+        <SectionHeading
+          eyebrow="Member rights"
+          title="What members can expect"
+          description="Every member has the right to:"
+        />
+        <div className="mx-auto grid max-w-4xl gap-4 sm:grid-cols-2">
+          {rights.map(({ icon: Icon, title }, index) => (
+            <Reveal key={title} delay={index * 0.06}>
+              <div className="flex min-h-[44px] items-center gap-4 rounded-2xl border bg-card p-4 shadow-sm">
+                <IconTile className="size-11">
+                  <Icon aria-hidden />
+                </IconTile>
+                <p className="font-semibold text-foreground">{title}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <p className="mx-auto mt-8 max-w-2xl text-center text-muted-foreground">
+          Members uphold the values of the Fellowship and attend its meetings and programmes. See{" "}
+          <Link href="/programmes" className="font-medium text-primary hover:text-maroon-600">
+            what ABF offers
+          </Link>
+          .
+        </p>
+      </Section>
+    </>
   );
 }
