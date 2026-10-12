@@ -55,7 +55,7 @@ export default function NewContentPage() {
         backHref="/admin/contents"
       />
 
-      <Card className="p-6 bg-[#fffdf8] border-[#e9ddd3]">
+      <Card className="p-6 bg-card border-border">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Key */}
           <div className="space-y-2">
@@ -67,7 +67,7 @@ export default function NewContentPage() {
               placeholder="e.g., hero_section, about_us"
               required
             />
-            <p className="text-xs text-[#2d1816]/60">
+            <p className="text-xs text-muted-foreground">
               Unique identifier for this content block
             </p>
           </div>
@@ -112,7 +112,7 @@ export default function NewContentPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Active</Label>
-              <p className="text-xs text-[#2d1816]/60">
+              <p className="text-xs text-muted-foreground">
                 Show this content on the website
               </p>
             </div>
@@ -136,7 +136,7 @@ export default function NewContentPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
             >
               {loading ? "Creating..." : "Create Content"}
             </Button>

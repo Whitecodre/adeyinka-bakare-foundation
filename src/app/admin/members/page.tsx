@@ -102,13 +102,13 @@ export default function MembersPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-success-soft text-green-800 border-green-200";
       case "inactive":
         return "bg-gray-100 text-gray-800 border-gray-200";
       case "graduated":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-info-soft text-blue-800 border-blue-200";
       case "archived":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-destructive/10 text-red-800 border-destructive/30";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -122,8 +122,8 @@ export default function MembersPage() {
     <div className="flex flex-col gap-5">
       <div className="flex justify-between items-start gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Members</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Manage fellowship members</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Members</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Manage fellowship members</p>
         </div>
         <Button onClick={() => router.push("/admin/members/new")} size="lg">
           <Plus className="w-4 h-4 mr-2" />
@@ -131,19 +131,19 @@ export default function MembersPage() {
         </Button>
       </div>
 
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-[#2d1816]">
+            <CardTitle className="text-lg font-semibold text-foreground">
               All Members ({filteredMembers.length})
             </CardTitle>
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2d1816]/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
               <Input
                 placeholder="Search members..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-[#e9ddd3]"
+                className="pl-10 border-border"
               />
             </div>
           </div>
@@ -166,24 +166,24 @@ export default function MembersPage() {
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-[#e9ddd3]">
-                      <TableHead className="text-[#2d1816] font-semibold">Name</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Email</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Department</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Level</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Status</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold text-right">Actions</TableHead>
+                    <TableRow className="border-border">
+                      <TableHead className="text-foreground font-semibold">Name</TableHead>
+                      <TableHead className="text-foreground font-semibold">Email</TableHead>
+                      <TableHead className="text-foreground font-semibold">Department</TableHead>
+                      <TableHead className="text-foreground font-semibold">Level</TableHead>
+                      <TableHead className="text-foreground font-semibold">Status</TableHead>
+                      <TableHead className="text-foreground font-semibold text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredMembers.map((member) => (
-                      <TableRow key={member.id} className="border-[#e9ddd3] hover:bg-[#e9ddd3]/30">
-                        <TableCell className="font-medium text-[#2d1816]">
+                      <TableRow key={member.id} className="border-border hover:bg-muted">
+                        <TableCell className="font-medium text-foreground">
                           {member.full_name}
                         </TableCell>
-                        <TableCell className="text-[#2d1816]/60">{member.email || "-"}</TableCell>
-                        <TableCell className="text-[#2d1816]/60">{member.department || "-"}</TableCell>
-                        <TableCell className="text-[#2d1816]/60">{member.level || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{member.email || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{member.department || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{member.level || "-"}</TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(member.status)} variant="outline">
                             {member.status}
@@ -203,7 +203,7 @@ export default function MembersPage() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteConfirm(member.id)}
-                                className="text-red-600"
+                                className="text-destructive"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
                                 Delete
@@ -220,27 +220,27 @@ export default function MembersPage() {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-4">
                 {filteredMembers.map((member) => (
-                  <Card key={member.id} className="border-[#e9ddd3]">
+                  <Card key={member.id} className="border-border">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-[#f8c84d]/20 flex items-center justify-center">
-                              <User className="w-5 h-5 text-[#f8c84d]" />
+                            <div className="w-10 h-10 rounded-full bg-gold-300/20 flex items-center justify-center">
+                              <User className="w-5 h-5 text-gold-300" />
                             </div>
                             <div>
-                              <h3 className="font-semibold text-[#2d1816]">{member.full_name}</h3>
-                              <p className="text-xs text-[#2d1816]/60">{member.email || "No email"}</p>
+                              <h3 className="font-semibold text-foreground">{member.full_name}</h3>
+                              <p className="text-xs text-muted-foreground">{member.email || "No email"}</p>
                             </div>
                           </div>
                           <div className="space-y-1 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-[#2d1816]/60">Department:</span>
-                              <span className="text-[#2d1816]">{member.department || "-"}</span>
+                              <span className="text-muted-foreground">Department:</span>
+                              <span className="text-foreground">{member.department || "-"}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-[#2d1816]/60">Level:</span>
-                              <span className="text-[#2d1816]">{member.level || "-"}</span>
+                              <span className="text-muted-foreground">Level:</span>
+                              <span className="text-foreground">{member.level || "-"}</span>
                             </div>
                           </div>
                         </div>
@@ -257,7 +257,7 @@ export default function MembersPage() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setDeleteConfirm(member.id)}
-                              className="text-red-600"
+                              className="text-destructive"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete

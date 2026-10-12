@@ -103,11 +103,11 @@ export default function AdminBeneficiariesPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "published":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-success-soft text-green-800 border-green-200";
       case "draft":
         return "bg-gray-100 text-gray-800 border-gray-200";
       case "archived":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-destructive/10 text-red-800 border-destructive/30";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -121,8 +121,8 @@ export default function AdminBeneficiariesPage() {
     <div className="flex flex-col gap-5">
       <div className="flex justify-between items-start gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Beneficiaries</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Manage fellowship beneficiaries</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Beneficiaries</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Manage fellowship beneficiaries</p>
         </div>
         <Button onClick={() => router.push("/admin/beneficiaries/new")} size="lg">
           <Plus className="w-4 h-4 mr-2" />
@@ -130,19 +130,19 @@ export default function AdminBeneficiariesPage() {
         </Button>
       </div>
 
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-[#2d1816]">
+            <CardTitle className="text-lg font-semibold text-foreground">
               All Beneficiaries ({filteredBeneficiaries.length})
             </CardTitle>
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2d1816]/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
               <Input
                 placeholder="Search beneficiaries..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-[#e9ddd3]"
+                className="pl-10 border-border"
               />
             </div>
           </div>
@@ -166,31 +166,31 @@ export default function AdminBeneficiariesPage() {
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-[#e9ddd3]">
-                      <TableHead className="text-[#2d1816] font-semibold">Name</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Department</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Level</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Session</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Programme</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Status</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold text-right">Actions</TableHead>
+                    <TableRow className="border-border">
+                      <TableHead className="text-foreground font-semibold">Name</TableHead>
+                      <TableHead className="text-foreground font-semibold">Department</TableHead>
+                      <TableHead className="text-foreground font-semibold">Level</TableHead>
+                      <TableHead className="text-foreground font-semibold">Session</TableHead>
+                      <TableHead className="text-foreground font-semibold">Programme</TableHead>
+                      <TableHead className="text-foreground font-semibold">Status</TableHead>
+                      <TableHead className="text-foreground font-semibold text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredBeneficiaries.map((beneficiary) => (
-                      <TableRow key={beneficiary.id} className="border-[#e9ddd3] hover:bg-[#e9ddd3]/30">
-                        <TableCell className="font-medium text-[#2d1816]">
+                      <TableRow key={beneficiary.id} className="border-border hover:bg-muted">
+                        <TableCell className="font-medium text-foreground">
                           <div className="flex items-center gap-2">
                             {beneficiary.featured && (
-                              <Badge className="bg-[#f8c84d] text-[#2d1816] border-[#f8c84d]">Featured</Badge>
+                              <Badge className="bg-gold-300 text-foreground border-gold-300">Featured</Badge>
                             )}
                             {beneficiary.full_name}
                           </div>
                         </TableCell>
-                        <TableCell className="text-[#2d1816]/60">{beneficiary.department || "-"}</TableCell>
-                        <TableCell className="text-[#2d1816]/60">{beneficiary.level || "-"}</TableCell>
-                        <TableCell className="text-[#2d1816]/60">{beneficiary.session || "-"}</TableCell>
-                        <TableCell className="text-[#2d1816]/60">{beneficiary.programme || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{beneficiary.department || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{beneficiary.level || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{beneficiary.session || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{beneficiary.programme || "-"}</TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(beneficiary.status)} variant="outline">
                             {beneficiary.status}
@@ -214,7 +214,7 @@ export default function AdminBeneficiariesPage() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteConfirm(beneficiary.id)}
-                                className="text-red-600"
+                                className="text-destructive"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
                                 Delete
@@ -231,33 +231,33 @@ export default function AdminBeneficiariesPage() {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-4">
                 {filteredBeneficiaries.map((beneficiary) => (
-                  <Card key={beneficiary.id} className="border-[#e9ddd3]">
+                  <Card key={beneficiary.id} className="border-border">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-[#f8c84d]/20 flex items-center justify-center">
-                              <GraduationCap className="w-5 h-5 text-[#f8c84d]" />
+                            <div className="w-10 h-10 rounded-full bg-gold-300/20 flex items-center justify-center">
+                              <GraduationCap className="w-5 h-5 text-gold-300" />
                             </div>
                             <div>
-                              <h3 className="font-semibold text-[#2d1816]">{beneficiary.full_name}</h3>
+                              <h3 className="font-semibold text-foreground">{beneficiary.full_name}</h3>
                               {beneficiary.featured && (
-                                <Badge className="bg-[#f8c84d] text-[#2d1816] border-[#f8c84d] text-xs">Featured</Badge>
+                                <Badge className="bg-gold-300 text-foreground border-gold-300 text-xs">Featured</Badge>
                               )}
                             </div>
                           </div>
                           <div className="space-y-1 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-[#2d1816]/60">Department:</span>
-                              <span className="text-[#2d1816]">{beneficiary.department || "-"}</span>
+                              <span className="text-muted-foreground">Department:</span>
+                              <span className="text-foreground">{beneficiary.department || "-"}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-[#2d1816]/60">Level:</span>
-                              <span className="text-[#2d1816]">{beneficiary.level || "-"}</span>
+                              <span className="text-muted-foreground">Level:</span>
+                              <span className="text-foreground">{beneficiary.level || "-"}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-[#2d1816]/60">Programme:</span>
-                              <span className="text-[#2d1816]">{beneficiary.programme || "-"}</span>
+                              <span className="text-muted-foreground">Programme:</span>
+                              <span className="text-foreground">{beneficiary.programme || "-"}</span>
                             </div>
                           </div>
                         </div>
@@ -278,7 +278,7 @@ export default function AdminBeneficiariesPage() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setDeleteConfirm(beneficiary.id)}
-                              className="text-red-600"
+                              className="text-destructive"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete

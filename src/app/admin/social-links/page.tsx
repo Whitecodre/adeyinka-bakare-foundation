@@ -266,8 +266,8 @@ export default function SocialLinksPage() {
     <div className="flex flex-col gap-5">
       <div className="flex justify-between items-start gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Social Links</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Manage social media links</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Social Links</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Manage social media links</p>
         </div>
         <Button onClick={() => handleOpenDialog()} size="lg">
           <Plus className="w-4 h-4 mr-2" />
@@ -275,19 +275,19 @@ export default function SocialLinksPage() {
         </Button>
       </div>
 
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-[#2d1816]">
+            <CardTitle className="text-lg font-semibold text-foreground">
               All Social Links ({filteredLinks.length})
             </CardTitle>
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2d1816]/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
               <Input
                 placeholder="Search links..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-[#e9ddd3]"
+                className="pl-10 border-border"
               />
             </div>
           </div>
@@ -308,7 +308,7 @@ export default function SocialLinksPage() {
           ) : (
             <div className="space-y-3">
               {filteredLinks.map((link, index) => (
-                <Card key={link.id} className="border-[#e9ddd3]">
+                <Card key={link.id} className="border-border">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
@@ -317,7 +317,7 @@ export default function SocialLinksPage() {
                           size="icon"
                           onClick={() => handleMoveUp(index)}
                           disabled={index === 0}
-                          className="hover:bg-[#e9ddd3]/30"
+                          className="hover:bg-muted"
                         >
                           <ArrowUp className="w-4 h-4" />
                         </Button>
@@ -326,19 +326,19 @@ export default function SocialLinksPage() {
                           size="icon"
                           onClick={() => handleMoveDown(index)}
                           disabled={index === filteredLinks.length - 1}
-                          className="hover:bg-[#e9ddd3]/30"
+                          className="hover:bg-muted"
                         >
                           <ArrowDown className="w-4 h-4" />
                         </Button>
                       </div>
 
-                      <div className="w-10 h-10 rounded-full bg-[#e9ddd3]/30 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                         {getPlatformIcon(link.platform)}
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-[#2d1816] capitalize">
+                          <h3 className="font-semibold text-foreground capitalize">
                             {link.platform}
                           </h3>
                           {!link.active && (
@@ -347,7 +347,7 @@ export default function SocialLinksPage() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-[#2d1816]/60 truncate">
+                        <p className="text-sm text-muted-foreground truncate">
                           {link.url}
                         </p>
                       </div>
@@ -357,7 +357,7 @@ export default function SocialLinksPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => window.open(link.url, '_blank')}
-                          className="hover:bg-[#e9ddd3]/30"
+                          className="hover:bg-muted"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </Button>
@@ -365,7 +365,7 @@ export default function SocialLinksPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenDialog(link)}
-                          className="hover:bg-[#e9ddd3]/30"
+                          className="hover:bg-muted"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -373,7 +373,7 @@ export default function SocialLinksPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => setDeleteConfirm(link.id)}
-                          className="hover:bg-red-100 hover:text-red-600"
+                          className="hover:bg-destructive/10 hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -388,16 +388,16 @@ export default function SocialLinksPage() {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">
+            <DialogTitle className="text-foreground">
               {editingLink ? "Edit Social Link" : "Add Social Link"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="platform" className="text-[#2d1816]">
-                Platform <span className="text-red-500">*</span>
+              <Label htmlFor="platform" className="text-foreground">
+                Platform <span className="text-destructive">*</span>
               </Label>
               <Select
                 value={formData.platform}
@@ -406,7 +406,7 @@ export default function SocialLinksPage() {
                   if (errors.platform) setErrors(prev => ({ ...prev, platform: "" }));
                 }}
               >
-                <SelectTrigger className={`border-[#e9ddd3] ${errors.platform ? "border-red-500" : ""}`}>
+                <SelectTrigger className={`border-border ${errors.platform ? "border-destructive" : ""}`}>
                   <SelectValue placeholder="Select platform" />
                 </SelectTrigger>
                 <SelectContent>
@@ -421,13 +421,13 @@ export default function SocialLinksPage() {
                 </SelectContent>
               </Select>
               {errors.platform && (
-                <p className="text-sm text-red-500">{errors.platform}</p>
+                <p className="text-sm text-destructive">{errors.platform}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="url" className="text-[#2d1816]">
-                URL <span className="text-red-500">*</span>
+              <Label htmlFor="url" className="text-foreground">
+                URL <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="url"
@@ -437,15 +437,15 @@ export default function SocialLinksPage() {
                   if (errors.url) setErrors(prev => ({ ...prev, url: "" }));
                 }}
                 placeholder="https://facebook.com/yourpage"
-                className={`border-[#e9ddd3] ${errors.url ? "border-red-500" : ""}`}
+                className={`border-border ${errors.url ? "border-destructive" : ""}`}
               />
               {errors.url && (
-                <p className="text-sm text-red-500">{errors.url}</p>
+                <p className="text-sm text-destructive">{errors.url}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="sort_order" className="text-[#2d1816]">
+              <Label htmlFor="sort_order" className="text-foreground">
                 Sort Order
               </Label>
               <Input
@@ -453,20 +453,20 @@ export default function SocialLinksPage() {
                 type="number"
                 value={formData.sort_order}
                 onChange={(e) => setFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
-              <p className="text-xs text-[#2d1816]/60">
+              <p className="text-xs text-muted-foreground">
                 Lower numbers appear first
               </p>
             </div>
 
-            <div className="flex items-center gap-3 p-4 border border-[#e9ddd3] rounded-lg bg-[#fffdf8]">
+            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
               <Switch
                 id="active"
                 checked={formData.active}
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, active: checked }))}
               />
-              <Label htmlFor="active" className="text-[#2d1816] cursor-pointer">
+              <Label htmlFor="active" className="text-foreground cursor-pointer">
                 Active
               </Label>
             </div>
@@ -477,7 +477,7 @@ export default function SocialLinksPage() {
               variant="outline"
               onClick={handleCloseDialog}
               disabled={saving}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>
@@ -485,7 +485,7 @@ export default function SocialLinksPage() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] text-white hover:from-[#922821] hover:to-[#7a221b]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
             >
               {saving ? (
                 <>

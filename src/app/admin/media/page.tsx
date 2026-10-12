@@ -101,7 +101,7 @@ export default function MediaPage() {
       case "image":
         return "bg-purple-100 text-purple-800 border-purple-200";
       case "video":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-info-soft text-blue-800 border-blue-200";
       case "document":
         return "bg-orange-100 text-orange-800 border-orange-200";
       default:
@@ -138,8 +138,8 @@ export default function MediaPage() {
     <div className="flex flex-col gap-5">
       <div className="flex justify-between items-start gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Media</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Manage media files</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Media</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Manage media files</p>
         </div>
         <Button onClick={() => router.push("/admin/media/new")} size="lg">
           <Plus className="w-4 h-4 mr-2" />
@@ -147,19 +147,19 @@ export default function MediaPage() {
         </Button>
       </div>
 
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-[#2d1816]">
+            <CardTitle className="text-lg font-semibold text-foreground">
               All Media ({filteredMedia.length})
             </CardTitle>
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2d1816]/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
               <Input
                 placeholder="Search media..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-[#e9ddd3]"
+                className="pl-10 border-border"
               />
             </div>
           </div>
@@ -183,19 +183,19 @@ export default function MediaPage() {
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-[#e9ddd3]">
-                      <TableHead className="text-[#2d1816] font-semibold">Filename</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Type</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">MIME Type</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Size</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Uploaded By</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold text-right">Actions</TableHead>
+                    <TableRow className="border-border">
+                      <TableHead className="text-foreground font-semibold">Filename</TableHead>
+                      <TableHead className="text-foreground font-semibold">Type</TableHead>
+                      <TableHead className="text-foreground font-semibold">MIME Type</TableHead>
+                      <TableHead className="text-foreground font-semibold">Size</TableHead>
+                      <TableHead className="text-foreground font-semibold">Uploaded By</TableHead>
+                      <TableHead className="text-foreground font-semibold text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredMedia.map((item) => (
-                      <TableRow key={item.id} className="border-[#e9ddd3] hover:bg-[#e9ddd3]/30">
-                        <TableCell className="font-medium text-[#2d1816]">
+                      <TableRow key={item.id} className="border-border hover:bg-muted">
+                        <TableCell className="font-medium text-foreground">
                           {item.filename}
                         </TableCell>
                         <TableCell>
@@ -206,9 +206,9 @@ export default function MediaPage() {
                             </div>
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-[#2d1816]/60">{item.mime_type || "-"}</TableCell>
-                        <TableCell className="text-[#2d1816]/60">{formatFileSize(item.size_bytes)}</TableCell>
-                        <TableCell className="text-[#2d1816]/60">{item.uploaded_by || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{item.mime_type || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{formatFileSize(item.size_bytes)}</TableCell>
+                        <TableCell className="text-muted-foreground">{item.uploaded_by || "-"}</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -227,7 +227,7 @@ export default function MediaPage() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteConfirm(item.id)}
-                                className="text-red-600"
+                                className="text-destructive"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
                                 Delete
@@ -244,16 +244,16 @@ export default function MediaPage() {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-4">
                 {filteredMedia.map((item) => (
-                  <Card key={item.id} className="border-[#e9ddd3]">
+                  <Card key={item.id} className="border-border">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-[#f8c84d]/20 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-gold-300/20 flex items-center justify-center">
                               {getTypeIcon(item.type)}
                             </div>
                             <div>
-                              <h3 className="font-semibold text-[#2d1816] truncate max-w-[150px]">{item.filename}</h3>
+                              <h3 className="font-semibold text-foreground truncate max-w-[150px]">{item.filename}</h3>
                               <Badge className={getTypeColor(item.type)} variant="outline">
                                 <div className="flex items-center gap-1 text-xs">
                                   {getTypeIcon(item.type)}
@@ -264,15 +264,15 @@ export default function MediaPage() {
                           </div>
                           <div className="space-y-1 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-[#2d1816]/60">Size:</span>
-                              <span className="text-[#2d1816]">{formatFileSize(item.size_bytes)}</span>
+                              <span className="text-muted-foreground">Size:</span>
+                              <span className="text-foreground">{formatFileSize(item.size_bytes)}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-[#2d1816]/60">MIME:</span>
-                              <span className="text-[#2d1816] truncate max-w-[100px]">{item.mime_type || "-"}</span>
+                              <span className="text-muted-foreground">MIME:</span>
+                              <span className="text-foreground truncate max-w-[100px]">{item.mime_type || "-"}</span>
                             </div>
                             {item.uploaded_by && (
-                              <div className="text-[#2d1816]/60 text-xs">
+                              <div className="text-muted-foreground text-xs">
                                 By: {item.uploaded_by}
                               </div>
                             )}
@@ -295,7 +295,7 @@ export default function MediaPage() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setDeleteConfirm(item.id)}
-                              className="text-red-600"
+                              className="text-destructive"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete

@@ -55,14 +55,14 @@ export default function NewMediaPage() {
         backHref="/admin/media"
       />
 
-      <Card className="p-6 bg-[#fffdf8] border-[#e9ddd3]">
+      <Card className="p-6 bg-card border-border">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* File Upload */}
           <div className="space-y-2">
             <Label>File</Label>
-            <div className="border-2 border-dashed border-[#e9ddd3] rounded-lg p-8 text-center hover:border-[#f8c84d] transition-colors">
-              <Upload className="w-12 h-12 mx-auto mb-4 text-[#aa322b]" />
-              <p className="text-sm text-[#2d1816]/60 mb-2">
+            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-gold-300 transition-colors">
+              <Upload className="w-12 h-12 mx-auto mb-4 text-primary" />
+              <p className="text-sm text-muted-foreground mb-2">
                 Drag and drop a file here, or click to select
               </p>
               <Input
@@ -153,7 +153,7 @@ export default function NewMediaPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
             >
               {loading ? "Uploading..." : "Upload Media"}
             </Button>

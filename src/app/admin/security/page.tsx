@@ -355,9 +355,9 @@ export default function SecurityPage() {
       />
 
       {/* Password Section */}
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816] flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Lock className="w-5 h-5" />
             Password
           </CardTitle>
@@ -365,15 +365,15 @@ export default function SecurityPage() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-[#2d1816]">Change your password</p>
-              <p className="text-xs text-[#2d1816]/60 mt-1">
+              <p className="text-sm text-foreground">Change your password</p>
+              <p className="text-xs text-muted-foreground mt-1">
                 Ensure your password is strong and unique
               </p>
             </div>
             <Button
               variant="outline"
               onClick={() => setShowPasswordDialog(true)}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Change Password
             </Button>
@@ -382,9 +382,9 @@ export default function SecurityPage() {
       </Card>
 
       {/* Two-Factor Authentication */}
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816] flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Smartphone className="w-5 h-5" />
             Two-Factor Authentication
           </CardTitle>
@@ -393,15 +393,15 @@ export default function SecurityPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-sm text-[#2d1816]">Two-Factor Authentication</p>
+                <p className="text-sm text-foreground">Two-Factor Authentication</p>
                 {mfaEnabled && (
-                  <Badge className="bg-green-100 text-green-700 border-green-200">
+                  <Badge className="bg-success-soft text-success border-success/20">
                     <Check className="w-3 h-3 mr-1" />
                     Enabled
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-[#2d1816]/60 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Add an extra layer of security to your account
               </p>
             </div>
@@ -409,14 +409,14 @@ export default function SecurityPage() {
               <Button
                 variant="outline"
                 onClick={handleDisableMfa}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 Disable
               </Button>
             ) : (
               <Button
                 onClick={handleEnableMfa}
-                className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+                className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
               >
                 Enable
               </Button>
@@ -424,11 +424,11 @@ export default function SecurityPage() {
           </div>
 
           {mfaEnabled && (
-            <div className="pt-4 border-t border-[#e9ddd3]">
+            <div className="pt-4 border-t border-border">
               <Button
                 variant="outline"
                 onClick={handleGenerateRecoveryCodes}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 <Key className="w-4 h-4 mr-2" />
                 Generate Recovery Codes
@@ -439,9 +439,9 @@ export default function SecurityPage() {
       </Card>
 
       {/* Passkeys */}
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816] flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Fingerprint className="w-5 h-5" />
             Passkeys
           </CardTitle>
@@ -450,22 +450,22 @@ export default function SecurityPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-sm text-[#2d1816]">Passkeys</p>
+                <p className="text-sm text-foreground">Passkeys</p>
                 {passkeysEnabled && (
-                  <Badge className="bg-green-100 text-green-700 border-green-200">
+                  <Badge className="bg-success-soft text-success border-success/20">
                     <Check className="w-3 h-3 mr-1" />
                     Enabled
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-[#2d1816]/60 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Use biometric authentication for secure, passwordless login
               </p>
             </div>
             <Button
               variant="outline"
               onClick={() => setShowPasskeyDialog(true)}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Passkey
@@ -473,15 +473,15 @@ export default function SecurityPage() {
           </div>
 
           {passkeys.length > 0 && (
-            <div className="space-y-2 pt-4 border-t border-[#e9ddd3]">
+            <div className="space-y-2 pt-4 border-t border-border">
               {passkeys.map((passkey) => (
                 <div
                   key={passkey.id}
-                  className="flex items-center justify-between p-3 bg-[#e9ddd3]/10 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-muted rounded-lg"
                 >
                   <div>
-                    <p className="text-sm font-medium text-[#2d1816]">{passkey.name}</p>
-                    <p className="text-xs text-[#2d1816]/60">
+                    <p className="text-sm font-medium text-foreground">{passkey.name}</p>
+                    <p className="text-xs text-muted-foreground">
                       Added {new Date(passkey.added_at).toLocaleDateString()} · Last used{" "}
                       {timeAgo(passkey.last_used)}
                     </p>
@@ -490,7 +490,7 @@ export default function SecurityPage() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setPasskeyToDelete(passkey.id)}
-                    className="hover:bg-red-100 hover:text-red-600"
+                    className="hover:bg-destructive/10 hover:text-destructive"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -502,9 +502,9 @@ export default function SecurityPage() {
       </Card>
 
       {/* Active Sessions */}
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816] flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Globe className="w-5 h-5" />
             Active Sessions
           </CardTitle>
@@ -513,25 +513,25 @@ export default function SecurityPage() {
           {sessions.map((session) => (
             <div
               key={session.id}
-              className="flex items-center justify-between p-4 bg-[#e9ddd3]/10 rounded-lg"
+              className="flex items-center justify-between p-4 bg-muted rounded-lg"
             >
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-[#e9ddd3]/30 flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-[#2d1816]" />
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                  <Globe className="w-5 h-5 text-foreground" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-[#2d1816]">{session.device}</p>
+                    <p className="text-sm font-medium text-foreground">{session.device}</p>
                     {session.current && (
-                      <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">
+                      <Badge className="bg-success-soft text-success border-success/20 text-xs">
                         Current
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-[#2d1816]/60">
+                  <p className="text-xs text-muted-foreground">
                     {session.location} · {session.ip_address}
                   </p>
-                  <p className="text-xs text-[#2d1816]/40">
+                  <p className="text-xs text-muted-foreground/70">
                     Last active {timeAgo(session.last_active)}
                   </p>
                 </div>
@@ -541,7 +541,7 @@ export default function SecurityPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setSessionToDelete(session.id)}
-                  className="hover:bg-red-100 hover:text-red-600"
+                  className="hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -553,13 +553,13 @@ export default function SecurityPage() {
 
       {/* Password Change Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">Change Password</DialogTitle>
+            <DialogTitle className="text-foreground">Change Password</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword" className="text-[#2d1816]">
+              <Label htmlFor="currentPassword" className="text-foreground">
                 Current Password
               </Label>
               <Input
@@ -569,15 +569,15 @@ export default function SecurityPage() {
                 onChange={(e) =>
                   setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
                 }
-                className={`border-[#e9ddd3] ${passwordErrors.currentPassword ? "border-red-500" : ""}`}
+                className={`border-border ${passwordErrors.currentPassword ? "border-destructive" : ""}`}
               />
               {passwordErrors.currentPassword && (
-                <p className="text-sm text-red-500">{passwordErrors.currentPassword}</p>
+                <p className="text-sm text-destructive">{passwordErrors.currentPassword}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword" className="text-[#2d1816]">
+              <Label htmlFor="newPassword" className="text-foreground">
                 New Password
               </Label>
               <Input
@@ -587,15 +587,15 @@ export default function SecurityPage() {
                 onChange={(e) =>
                   setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
                 }
-                className={`border-[#e9ddd3] ${passwordErrors.newPassword ? "border-red-500" : ""}`}
+                className={`border-border ${passwordErrors.newPassword ? "border-destructive" : ""}`}
               />
               {passwordErrors.newPassword && (
-                <p className="text-sm text-red-500">{passwordErrors.newPassword}</p>
+                <p className="text-sm text-destructive">{passwordErrors.newPassword}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-[#2d1816]">
+              <Label htmlFor="confirmPassword" className="text-foreground">
                 Confirm New Password
               </Label>
               <Input
@@ -605,10 +605,10 @@ export default function SecurityPage() {
                 onChange={(e) =>
                   setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))
                 }
-                className={`border-[#e9ddd3] ${passwordErrors.confirmPassword ? "border-red-500" : ""}`}
+                className={`border-border ${passwordErrors.confirmPassword ? "border-destructive" : ""}`}
               />
               {passwordErrors.confirmPassword && (
-                <p className="text-sm text-red-500">{passwordErrors.confirmPassword}</p>
+                <p className="text-sm text-destructive">{passwordErrors.confirmPassword}</p>
               )}
             </div>
           </div>
@@ -616,13 +616,13 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setShowPasswordDialog(false)}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>
             <Button
               onClick={handlePasswordChange}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
             >
               Change Password
             </Button>
@@ -632,16 +632,16 @@ export default function SecurityPage() {
 
       {/* Passkey Dialog */}
       <Dialog open={showPasskeyDialog} onOpenChange={setShowPasskeyDialog}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">Add New Passkey</DialogTitle>
-            <DialogDescription className="text-[#2d1816]/60">
+            <DialogTitle className="text-foreground">Add New Passkey</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Give your passkey a name to identify it easily
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="passkeyName" className="text-[#2d1816]">
+              <Label htmlFor="passkeyName" className="text-foreground">
                 Passkey Name
               </Label>
               <Input
@@ -649,7 +649,7 @@ export default function SecurityPage() {
                 value={newPasskeyName}
                 onChange={(e) => setNewPasskeyName(e.target.value)}
                 placeholder="e.g., My iPhone, Work Laptop"
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
             </div>
           </div>
@@ -657,13 +657,13 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setShowPasskeyDialog(false)}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>
             <Button
               onClick={handleAddPasskey}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
             >
               Add Passkey
             </Button>
@@ -673,10 +673,10 @@ export default function SecurityPage() {
 
       {/* Recovery Codes Dialog */}
       <Dialog open={showRecoveryCodes} onOpenChange={setShowRecoveryCodes}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3] max-w-lg">
+        <DialogContent className="bg-card border-border max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">Recovery Codes</DialogTitle>
-            <DialogDescription className="text-[#2d1816]/60">
+            <DialogTitle className="text-foreground">Recovery Codes</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Save these codes in a secure location. You can use them to access your account if you lose your 2FA device.
             </DialogDescription>
           </DialogHeader>
@@ -685,7 +685,7 @@ export default function SecurityPage() {
               {recoveryCodes.map((code, index) => (
                 <div
                   key={index}
-                  className="p-2 bg-[#e9ddd3]/20 rounded font-mono text-sm text-[#2d1816] border border-[#e9ddd3]"
+                  className="p-2 bg-muted rounded font-mono text-sm text-foreground border border-border"
                 >
                   {code.code}
                 </div>
@@ -703,7 +703,7 @@ export default function SecurityPage() {
                     description: "Recovery codes copied to clipboard",
                   });
                 }}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 <Copy className="w-4 h-4 mr-2" />
                 Copy All
@@ -722,7 +722,7 @@ export default function SecurityPage() {
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download
@@ -732,7 +732,7 @@ export default function SecurityPage() {
           <DialogFooter>
             <Button
               onClick={() => setShowRecoveryCodes(false)}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
             >
               I've Saved My Codes
             </Button>
@@ -742,10 +742,10 @@ export default function SecurityPage() {
 
       {/* Session Delete Confirm */}
       <Dialog open={!!sessionToDelete} onOpenChange={() => setSessionToDelete(null)}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">Revoke Session?</DialogTitle>
-            <DialogDescription className="text-[#2d1816]/60">
+            <DialogTitle className="text-foreground">Revoke Session?</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               This will sign out the device and require it to sign in again.
             </DialogDescription>
           </DialogHeader>
@@ -753,7 +753,7 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setSessionToDelete(null)}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>
@@ -769,10 +769,10 @@ export default function SecurityPage() {
 
       {/* Passkey Delete Confirm */}
       <Dialog open={!!passkeyToDelete} onOpenChange={() => setPasskeyToDelete(null)}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">Remove Passkey?</DialogTitle>
-            <DialogDescription className="text-[#2d1816]/60">
+            <DialogTitle className="text-foreground">Remove Passkey?</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               This will remove the passkey from your account. You can add it again later.
             </DialogDescription>
           </DialogHeader>
@@ -780,7 +780,7 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setPasskeyToDelete(null)}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>

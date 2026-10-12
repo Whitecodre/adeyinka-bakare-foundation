@@ -129,19 +129,19 @@ export default function NewMemberPage() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="hover:bg-[#e9ddd3]/30"
+          className="hover:bg-muted"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Add New Member</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Create a new fellowship member</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Add New Member</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Create a new fellowship member</p>
         </div>
       </div>
 
-      <Card className="border-[#e9ddd3] bg-[#fffdf8]">
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816]">
+          <CardTitle className="text-lg font-semibold text-foreground">
             Member Information
           </CardTitle>
         </CardHeader>
@@ -149,25 +149,25 @@ export default function NewMemberPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="full_name" className="text-[#2d1816]">
-                  Full Name <span className="text-red-500">*</span>
+                <Label htmlFor="full_name" className="text-foreground">
+                  Full Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="full_name"
                   value={formData.full_name}
                   onChange={(e) => handleInputChange("full_name", e.target.value)}
                   placeholder="Enter full name"
-                  className={`border-[#e9ddd3] ${errors.full_name ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.full_name ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.full_name && (
-                  <p className="text-sm text-red-500">{errors.full_name}</p>
+                  <p className="text-sm text-destructive">{errors.full_name}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[#2d1816]">
-                  Email <span className="text-red-500">*</span>
+                <Label htmlFor="email" className="text-foreground">
+                  Email <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="email"
@@ -175,84 +175,84 @@ export default function NewMemberPage() {
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="member@example.com"
-                  className={`border-[#e9ddd3] ${errors.email ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.email ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email}</p>
+                  <p className="text-sm text-destructive">{errors.email}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-[#2d1816]">
-                  Phone Number <span className="text-red-500">*</span>
+                <Label htmlFor="phone" className="text-foreground">
+                  Phone Number <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
                   placeholder="+234 800 000 0000"
-                  className={`border-[#e9ddd3] ${errors.phone ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.phone ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.phone && (
-                  <p className="text-sm text-red-500">{errors.phone}</p>
+                  <p className="text-sm text-destructive">{errors.phone}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="department" className="text-[#2d1816]">
-                  Department <span className="text-red-500">*</span>
+                <Label htmlFor="department" className="text-foreground">
+                  Department <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="department"
                   value={formData.department}
                   onChange={(e) => handleInputChange("department", e.target.value)}
                   placeholder="e.g., Computer Science"
-                  className={`border-[#e9ddd3] ${errors.department ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.department ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.department && (
-                  <p className="text-sm text-red-500">{errors.department}</p>
+                  <p className="text-sm text-destructive">{errors.department}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="level" className="text-[#2d1816]">
-                  Level <span className="text-red-500">*</span>
+                <Label htmlFor="level" className="text-foreground">
+                  Level <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="level"
                   value={formData.level}
                   onChange={(e) => handleInputChange("level", e.target.value)}
                   placeholder="e.g., 400 Level"
-                  className={`border-[#e9ddd3] ${errors.level ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.level ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.level && (
-                  <p className="text-sm text-red-500">{errors.level}</p>
+                  <p className="text-sm text-destructive">{errors.level}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="session" className="text-[#2d1816]">
-                  Session <span className="text-red-500">*</span>
+                <Label htmlFor="session" className="text-foreground">
+                  Session <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="session"
                   value={formData.session}
                   onChange={(e) => handleInputChange("session", e.target.value)}
                   placeholder="e.g., 2024/2025"
-                  className={`border-[#e9ddd3] ${errors.session ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.session ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.session && (
-                  <p className="text-sm text-red-500">{errors.session}</p>
+                  <p className="text-sm text-destructive">{errors.session}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status" className="text-[#2d1816]">
+                <Label htmlFor="status" className="text-foreground">
                   Status
                 </Label>
                 <Select
@@ -260,7 +260,7 @@ export default function NewMemberPage() {
                   onValueChange={(value) => handleInputChange("status", value)}
                   disabled={loading}
                 >
-                  <SelectTrigger className="border-[#e9ddd3]">
+                  <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -273,7 +273,7 @@ export default function NewMemberPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="joined_at" className="text-[#2d1816]">
+                <Label htmlFor="joined_at" className="text-foreground">
                   Joined Date
                 </Label>
                 <Input
@@ -281,26 +281,26 @@ export default function NewMemberPage() {
                   type="date"
                   value={formData.joined_at}
                   onChange={(e) => handleInputChange("joined_at", e.target.value)}
-                  className="border-[#e9ddd3]"
+                  className="border-border"
                   disabled={loading}
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-[#e9ddd3]">
+            <div className="flex items-center gap-3 pt-4 border-t border-border">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={loading}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={loading}
-                className="bg-gradient-to-r from-[#aa322b] to-[#922821] text-white hover:from-[#922821] hover:to-[#7a221b]"
+                className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
               >
                 {loading ? (
                   <>

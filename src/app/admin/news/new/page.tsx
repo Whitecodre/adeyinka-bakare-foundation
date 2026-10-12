@@ -260,8 +260,8 @@ export default function NewNewsPage() {
   // Link insertion
   const handleLinkInsert = () => {
     const html = linkText
-      ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="text-[#aa322b] underline hover:text-[#922821]">${linkText}</a>`
-      : `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="text-[#aa322b] underline hover:text-[#922821]">${linkUrl}</a>`;
+      ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-maroon-600">${linkText}</a>`
+      : `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-maroon-600">${linkUrl}</a>`;
 
     insertAtCursor(html);
     setShowLinkDialog(false);
@@ -271,7 +271,7 @@ export default function NewNewsPage() {
 
   // CTA button insertion
   const handleCtaInsert = () => {
-    const html = `<a href="${ctaUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-md bg-gradient-to-r from-[#aa322b] to-[#922821] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:from-[#922821] hover:to-[#73201c]">${ctaText}</a>`;
+    const html = `<a href="${ctaUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-md bg-linear-to-r from-maroon-500 to-maroon-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:from-maroon-600 hover:to-maroon-700">${ctaText}</a>`;
     insertAtCursor(html);
     setShowCtaDialog(false);
     setCtaText("");
@@ -380,7 +380,7 @@ export default function NewNewsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-4">
-          <Card className="bg-[#fffdf8] border-[#e9ddd3]">
+          <Card className="bg-card border-border">
             <div className="p-6 space-y-4">
               {/* Title */}
               <div>
@@ -399,7 +399,7 @@ export default function NewNewsPage() {
                     }))
                   }
                   placeholder="Enter news article title..."
-                  className="text-lg font-['Libre_Baskerville'] border-[#e9ddd3]"
+                  className="text-lg border-border"
                 />
               </div>
 
@@ -420,9 +420,9 @@ export default function NewNewsPage() {
                     }))
                   }
                   placeholder="clean-url-slug"
-                  className="border-[#e9ddd3]"
+                  className="border-border"
                 />
-                <p className="text-xs text-[#2d1816]/60 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Auto-generated from title. Edit for keywords if needed.
                 </p>
               </div>
@@ -435,19 +435,19 @@ export default function NewNewsPage() {
                   value={formData.authorName}
                   onChange={(e) => setFormData((prev) => ({ ...prev, authorName: e.target.value }))}
                   placeholder="Author name if different from admin"
-                  className="border-[#e9ddd3]"
+                  className="border-border"
                 />
               </div>
 
               {/* Formatting Toolbar */}
-              <div className="flex flex-wrap gap-1 p-2 border border-[#e9ddd3] rounded-lg bg-[#f8f2e8]/30 overflow-x-auto">
+              <div className="flex flex-wrap gap-1 p-2 border border-border rounded-lg bg-muted/50 overflow-x-auto">
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => exec("bold")}
                   title="Bold (Ctrl+B)"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <Bold className="h-4 w-4" />
                 </Button>
@@ -457,7 +457,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("italic")}
                   title="Italic (Ctrl+I)"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <Italic className="h-4 w-4" />
                 </Button>
@@ -467,16 +467,16 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("underline")}
                   title="Underline (Ctrl+U)"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <Underline className="h-4 w-4" />
                 </Button>
-                <span className="w-px h-6 bg-[#e9ddd3] mx-1 flex-shrink-0" />
+                <span className="w-px h-6 bg-muted mx-1 shrink-0" />
 
                 {/* Font Family Selector */}
-                <div className="relative flex-shrink-0">
+                <div className="relative shrink-0">
                   <Select value={selectedFontFamily} onValueChange={applyFontFamily}>
-                    <SelectTrigger className="h-8 w-[100px] sm:w-[140px] text-xs border-[#e9ddd3]">
+                    <SelectTrigger className="h-8 w-[100px] sm:w-[140px] text-xs border-border">
                       <Type className="h-3 w-3 mr-1" />
                       <SelectValue />
                     </SelectTrigger>
@@ -495,9 +495,9 @@ export default function NewNewsPage() {
                 </div>
 
                 {/* Font Size Selector */}
-                <div className="relative flex-shrink-0">
+                <div className="relative shrink-0">
                   <Select value={selectedFontSize} onValueChange={applyFontSize}>
-                    <SelectTrigger className="h-8 w-[80px] sm:w-[100px] text-xs border-[#e9ddd3]">
+                    <SelectTrigger className="h-8 w-[80px] sm:w-[100px] text-xs border-border">
                       <span className="text-xs">Size</span>
                       <SelectValue />
                     </SelectTrigger>
@@ -513,7 +513,7 @@ export default function NewNewsPage() {
                 </div>
 
                 {/* Text Color Picker */}
-                <div className="relative flex items-center flex-shrink-0">
+                <div className="relative flex items-center shrink-0">
                   <input
                     type="color"
                     value={selectedTextColor}
@@ -521,10 +521,10 @@ export default function NewNewsPage() {
                     className="w-8 h-8 rounded cursor-pointer border-0 p-0"
                     title="Text Color"
                   />
-                  <Palette className="h-4 w-4 absolute pointer-events-none text-[#2d1816]" />
+                  <Palette className="h-4 w-4 absolute pointer-events-none text-foreground" />
                 </div>
 
-                <span className="w-px h-6 bg-[#e9ddd3] mx-1 flex-shrink-0" />
+                <span className="w-px h-6 bg-muted mx-1 shrink-0" />
                 <Button
                   type="button"
                   variant="ghost"
@@ -535,7 +535,7 @@ export default function NewNewsPage() {
                     setShowImageDialog(true);
                   }}
                   title="Insert Image"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <Image className="h-4 w-4" />
                 </Button>
@@ -551,7 +551,7 @@ export default function NewNewsPage() {
                     setLinkText("");
                   }}
                   title="Insert Link (Ctrl+K)"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <LinkIcon className="h-4 w-4" />
                 </Button>
@@ -567,18 +567,18 @@ export default function NewNewsPage() {
                     setCtaUrl("");
                   }}
                   title="Insert CTA Button"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <MousePointer2 className="h-4 w-4" />
                 </Button>
-                <span className="w-px h-6 bg-[#e9ddd3] mx-1 flex-shrink-0" />
+                <span className="w-px h-6 bg-muted mx-1 shrink-0" />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => exec("formatBlock", "H1")}
                   title="Heading 1 (Ctrl+1)"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <Heading className="h-4 w-4" />
                   <span className="text-[10px]">1</span>
@@ -589,7 +589,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("formatBlock", "H2")}
                   title="Heading 2 (Ctrl+2)"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <Heading className="h-4 w-4" />
                   <span className="text-[10px]">2</span>
@@ -600,19 +600,19 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("formatBlock", "H3")}
                   title="Heading 3 (Ctrl+3)"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <Heading className="h-4 w-4" />
                   <span className="text-[10px]">3</span>
                 </Button>
-                <span className="w-px h-6 bg-[#e9ddd3] mx-1 flex-shrink-0" />
+                <span className="w-px h-6 bg-muted mx-1 shrink-0" />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => exec("justifyLeft")}
                   title="Align Left"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <AlignLeft className="h-4 w-4" />
                 </Button>
@@ -622,7 +622,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("justifyCenter")}
                   title="Align Center"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <AlignCenter className="h-4 w-4" />
                 </Button>
@@ -632,7 +632,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("justifyRight")}
                   title="Align Right"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <AlignRight className="h-4 w-4" />
                 </Button>
@@ -642,7 +642,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("justifyFull")}
                   title="Justify"
-                  className="flex-shrink-0 hover:bg-[#e9ddd3]/30"
+                  className="shrink-0 hover:bg-muted"
                 >
                   <AlignJustify className="h-4 w-4" />
                 </Button>
@@ -651,7 +651,7 @@ export default function NewNewsPage() {
               {/* Content Editor */}
               <div>
                 <Label>Content</Label>
-                <div className="relative border border-[#e9ddd3] rounded-md overflow-hidden">
+                <div className="relative border border-border rounded-md overflow-hidden">
                   <div
                     ref={contentRef}
                     contentEditable
@@ -659,10 +659,10 @@ export default function NewNewsPage() {
                     onInput={updateContent}
                     onKeyUp={updateContent}
                     onPaste={handlePaste}
-                    className="min-h-[400px] p-4 text-[#2d1816] max-w-none focus:outline-none focus:ring-1 focus:ring-[#aa322b] text-base bg-[#fffdf8]"
+                    className="min-h-[400px] p-4 text-foreground max-w-none focus:outline-none focus:ring-1 focus:ring-primary text-base bg-card"
                   />
                   {contentIsEmpty && (
-                    <div className="absolute top-4 left-4 text-[#2d1816]/40 pointer-events-none select-none text-sm">
+                    <div className="absolute top-4 left-4 text-muted-foreground/70 pointer-events-none select-none text-sm">
                       Write your news article content here...
                     </div>
                   )}
@@ -677,7 +677,7 @@ export default function NewNewsPage() {
                   value={formData.excerpt}
                   onChange={(e) => setFormData((prev) => ({ ...prev, excerpt: e.target.value }))}
                   placeholder="Brief description for preview..."
-                  className="min-h-[100px] resize-none border-[#e9ddd3]"
+                  className="min-h-[100px] resize-none border-border"
                 />
               </div>
             </div>
@@ -687,9 +687,9 @@ export default function NewNewsPage() {
         {/* Sidebar */}
         <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
           {/* News Settings */}
-          <Card className="bg-[#fffdf8] border-[#e9ddd3]">
+          <Card className="bg-card border-border">
             <div className="p-6 space-y-4">
-              <h3 className="font-semibold text-[#2d1816]">Publish Settings</h3>
+              <h3 className="font-semibold text-foreground">Publish Settings</h3>
 
               {/* Status */}
               <div>
@@ -700,7 +700,7 @@ export default function NewNewsPage() {
                     setFormData((prev) => ({ ...prev, status: value }))
                   }
                 >
-                  <SelectTrigger id="status" className="border-[#e9ddd3]">
+                  <SelectTrigger id="status" className="border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -714,7 +714,7 @@ export default function NewNewsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Featured</Label>
-                  <p className="text-xs text-[#2d1816]/60">Show on homepage</p>
+                  <p className="text-xs text-muted-foreground">Show on homepage</p>
                 </div>
                 <Switch
                   checked={formData.featured}
@@ -731,7 +731,7 @@ export default function NewNewsPage() {
                     setFormData((prev) => ({ ...prev, schemaType: value }))
                   }
                 >
-                  <SelectTrigger id="schemaType" className="border-[#e9ddd3]">
+                  <SelectTrigger id="schemaType" className="border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -757,29 +757,29 @@ export default function NewNewsPage() {
           </Card>
 
           {/* Tags */}
-          <Card className="bg-[#fffdf8] border-[#e9ddd3]">
+          <Card className="bg-card border-border">
             <div className="p-6 space-y-4">
-              <h3 className="font-semibold text-[#2d1816]">Tags</h3>
+              <h3 className="font-semibold text-foreground">Tags</h3>
               <div className="flex gap-2">
                 <Input
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                   placeholder="Add tag..."
-                  className="border-[#e9ddd3]"
+                  className="border-border"
                 />
-                <Button type="button" onClick={addTag} variant="outline" className="border-[#e9ddd3]">
+                <Button type="button" onClick={addTag} variant="outline" className="border-border">
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
                 {formData.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="bg-[#e9ddd3]/30 text-[#2d1816] border-[#e9ddd3]">
+                  <Badge key={tag} variant="secondary" className="bg-muted text-foreground border-border">
                     {tag}
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
-                      className="ml-2 hover:text-[#aa322b]"
+                      className="ml-2 hover:text-primary"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -790,9 +790,9 @@ export default function NewNewsPage() {
           </Card>
 
           {/* SEO */}
-          <Card className="bg-[#fffdf8] border-[#e9ddd3]">
+          <Card className="bg-card border-border">
             <div className="p-6 space-y-4">
-              <h3 className="font-semibold text-[#2d1816]">SEO</h3>
+              <h3 className="font-semibold text-foreground">SEO</h3>
               <div>
                 <Label htmlFor="seoTitle">SEO Title</Label>
                 <Input
@@ -800,7 +800,7 @@ export default function NewNewsPage() {
                   value={formData.seoTitle}
                   onChange={(e) => setFormData((prev) => ({ ...prev, seoTitle: e.target.value }))}
                   placeholder="SEO meta title"
-                  className="border-[#e9ddd3]"
+                  className="border-border"
                 />
               </div>
               <div>
@@ -811,7 +811,7 @@ export default function NewNewsPage() {
                   onChange={(e) => setFormData((prev) => ({ ...prev, seoDescription: e.target.value }))}
                   placeholder="SEO meta description"
                   rows={3}
-                  className="resize-none border-[#e9ddd3]"
+                  className="resize-none border-border"
                 />
               </div>
             </div>
@@ -824,7 +824,7 @@ export default function NewNewsPage() {
               variant="outline"
               onClick={() => handleSubmit("draft")}
               disabled={isLoading}
-              className="flex-1 border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="flex-1 border-border text-foreground hover:bg-muted"
             >
               {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
               Save Draft
@@ -833,7 +833,7 @@ export default function NewNewsPage() {
               type="button"
               onClick={() => handleSubmit("published")}
               disabled={isLoading}
-              className="flex-1 bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+              className="flex-1 bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
             >
               {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
               Publish
@@ -844,9 +844,9 @@ export default function NewNewsPage() {
 
       {/* Image Dialog */}
       <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">Insert Image</DialogTitle>
+            <DialogTitle className="text-foreground">Insert Image</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
@@ -856,7 +856,7 @@ export default function NewNewsPage() {
                 value={selectedImageForInsert || ""}
                 onChange={(e) => setSelectedImageForInsert(e.target.value)}
                 placeholder="https://..."
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
             </div>
             <div>
@@ -866,13 +866,13 @@ export default function NewNewsPage() {
                 value={imageAltText}
                 onChange={(e) => setImageAltText(e.target.value)}
                 placeholder="Image description"
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
             </div>
             <div>
               <Label htmlFor="imageSize">Size</Label>
               <Select value={imageSizeOption} onValueChange={(value: any) => setImageSizeOption(value)}>
-                <SelectTrigger id="imageSize" className="border-[#e9ddd3]">
+                <SelectTrigger id="imageSize" className="border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -889,14 +889,14 @@ export default function NewNewsPage() {
               type="button"
               variant="outline"
               onClick={() => setShowImageDialog(false)}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>
             <Button
               type="button"
               onClick={handleImageInsert}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
             >
               Insert
             </Button>
@@ -906,9 +906,9 @@ export default function NewNewsPage() {
 
       {/* Link Dialog */}
       <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">Insert Link</DialogTitle>
+            <DialogTitle className="text-foreground">Insert Link</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
@@ -918,7 +918,7 @@ export default function NewNewsPage() {
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
                 placeholder="https://..."
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
             </div>
             <div>
@@ -928,7 +928,7 @@ export default function NewNewsPage() {
                 value={linkText}
                 onChange={(e) => setLinkText(e.target.value)}
                 placeholder="Leave empty to use URL as text"
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
             </div>
           </div>
@@ -937,14 +937,14 @@ export default function NewNewsPage() {
               type="button"
               variant="outline"
               onClick={() => setShowLinkDialog(false)}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>
             <Button
               type="button"
               onClick={handleLinkInsert}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
             >
               Insert
             </Button>
@@ -954,9 +954,9 @@ export default function NewNewsPage() {
 
       {/* CTA Dialog */}
       <Dialog open={showCtaDialog} onOpenChange={setShowCtaDialog}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">Insert CTA Button</DialogTitle>
+            <DialogTitle className="text-foreground">Insert CTA Button</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
@@ -966,7 +966,7 @@ export default function NewNewsPage() {
                 value={ctaText}
                 onChange={(e) => setCtaText(e.target.value)}
                 placeholder="e.g., Learn More"
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
             </div>
             <div>
@@ -976,7 +976,7 @@ export default function NewNewsPage() {
                 value={ctaUrl}
                 onChange={(e) => setCtaUrl(e.target.value)}
                 placeholder="https://..."
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
             </div>
           </div>
@@ -985,14 +985,14 @@ export default function NewNewsPage() {
               type="button"
               variant="outline"
               onClick={() => setShowCtaDialog(false)}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>
             <Button
               type="button"
               onClick={handleCtaInsert}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
             >
               Insert
             </Button>

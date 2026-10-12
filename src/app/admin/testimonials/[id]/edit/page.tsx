@@ -181,19 +181,19 @@ export default function EditTestimonialPage() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="hover:bg-[#e9ddd3]/30"
+          className="hover:bg-muted"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Edit Testimonial</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Update testimonial information</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Edit Testimonial</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Update testimonial information</p>
         </div>
       </div>
 
-      <Card className="border-[#e9ddd3] bg-[#fffdf8]">
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816]">
+          <CardTitle className="text-lg font-semibold text-foreground">
             Testimonial Information
           </CardTitle>
         </CardHeader>
@@ -201,15 +201,15 @@ export default function EditTestimonialPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="beneficiary_id" className="text-[#2d1816]">
-                  Beneficiary <span className="text-red-500">*</span>
+                <Label htmlFor="beneficiary_id" className="text-foreground">
+                  Beneficiary <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   value={formData.beneficiary_id}
                   onValueChange={(value) => handleInputChange("beneficiary_id", value)}
                   disabled={submitting}
                 >
-                  <SelectTrigger className={`border-[#e9ddd3] ${errors.beneficiary_id ? "border-red-500" : ""}`}>
+                  <SelectTrigger className={`border-border ${errors.beneficiary_id ? "border-destructive" : ""}`}>
                     <SelectValue placeholder="Select beneficiary" />
                   </SelectTrigger>
                   <SelectContent>
@@ -220,12 +220,12 @@ export default function EditTestimonialPage() {
                   </SelectContent>
                 </Select>
                 {errors.beneficiary_id && (
-                  <p className="text-sm text-red-500">{errors.beneficiary_id}</p>
+                  <p className="text-sm text-destructive">{errors.beneficiary_id}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="media_type" className="text-[#2d1816]">
+                <Label htmlFor="media_type" className="text-foreground">
                   Media Type
                 </Label>
                 <Select
@@ -233,7 +233,7 @@ export default function EditTestimonialPage() {
                   onValueChange={(value) => handleInputChange("media_type", value)}
                   disabled={submitting}
                 >
-                  <SelectTrigger className="border-[#e9ddd3]">
+                  <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select media type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -245,7 +245,7 @@ export default function EditTestimonialPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status" className="text-[#2d1816]">
+                <Label htmlFor="status" className="text-foreground">
                   Status
                 </Label>
                 <Select
@@ -253,7 +253,7 @@ export default function EditTestimonialPage() {
                   onValueChange={(value) => handleInputChange("status", value)}
                   disabled={submitting}
                 >
-                  <SelectTrigger className="border-[#e9ddd3]">
+                  <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -276,8 +276,8 @@ export default function EditTestimonialPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content" className="text-[#2d1816]">
-                Content <span className="text-red-500">*</span>
+              <Label htmlFor="content" className="text-foreground">
+                Content <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="content"
@@ -285,40 +285,40 @@ export default function EditTestimonialPage() {
                 onChange={(e) => handleInputChange("content", e.target.value)}
                 placeholder="Enter testimonial content..."
                 rows={6}
-                className={`border-[#e9ddd3] resize-none ${errors.content ? "border-red-500" : ""}`}
+                className={`border-border resize-none ${errors.content ? "border-destructive" : ""}`}
                 disabled={submitting}
               />
               {errors.content && (
-                <p className="text-sm text-red-500">{errors.content}</p>
+                <p className="text-sm text-destructive">{errors.content}</p>
               )}
             </div>
 
-            <div className="flex items-center gap-3 p-4 border border-[#e9ddd3] rounded-lg bg-[#fffdf8]">
+            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
               <Switch
                 id="featured"
                 checked={formData.featured}
                 onCheckedChange={(checked) => handleInputChange("featured", checked)}
                 disabled={submitting}
               />
-              <Label htmlFor="featured" className="text-[#2d1816] cursor-pointer">
+              <Label htmlFor="featured" className="text-foreground cursor-pointer">
                 Featured Testimonial
               </Label>
             </div>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-[#e9ddd3]">
+            <div className="flex items-center gap-3 pt-4 border-t border-border">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={submitting}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-gradient-to-r from-[#aa322b] to-[#922821] text-white hover:from-[#922821] hover:to-[#7a221b]"
+                className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
               >
                 {submitting ? (
                   <>

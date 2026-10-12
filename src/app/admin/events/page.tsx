@@ -103,11 +103,11 @@ export default function EventsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "published":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-success-soft text-green-800 border-green-200";
       case "draft":
         return "bg-gray-100 text-gray-800 border-gray-200";
       case "cancelled":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-destructive/10 text-red-800 border-destructive/30";
       case "archived":
         return "bg-orange-100 text-orange-800 border-orange-200";
       default:
@@ -131,8 +131,8 @@ export default function EventsPage() {
     <div className="flex flex-col gap-5">
       <div className="flex justify-between items-start gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Events</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Manage foundation events</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Events</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Manage foundation events</p>
         </div>
         <Button onClick={() => router.push("/admin/events/new")} size="lg">
           <Plus className="w-4 h-4 mr-2" />
@@ -140,19 +140,19 @@ export default function EventsPage() {
         </Button>
       </div>
 
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-[#2d1816]">
+            <CardTitle className="text-lg font-semibold text-foreground">
               All Events ({filteredEvents.length})
             </CardTitle>
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2d1816]/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
               <Input
                 placeholder="Search events..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-[#e9ddd3]"
+                className="pl-10 border-border"
               />
             </div>
           </div>
@@ -176,29 +176,29 @@ export default function EventsPage() {
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-[#e9ddd3]">
-                      <TableHead className="text-[#2d1816] font-semibold">Title</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Location</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Start Date</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">End Date</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Status</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold text-right">Actions</TableHead>
+                    <TableRow className="border-border">
+                      <TableHead className="text-foreground font-semibold">Title</TableHead>
+                      <TableHead className="text-foreground font-semibold">Location</TableHead>
+                      <TableHead className="text-foreground font-semibold">Start Date</TableHead>
+                      <TableHead className="text-foreground font-semibold">End Date</TableHead>
+                      <TableHead className="text-foreground font-semibold">Status</TableHead>
+                      <TableHead className="text-foreground font-semibold text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredEvents.map((event) => (
-                      <TableRow key={event.id} className="border-[#e9ddd3] hover:bg-[#e9ddd3]/30">
-                        <TableCell className="font-medium text-[#2d1816]">
+                      <TableRow key={event.id} className="border-border hover:bg-muted">
+                        <TableCell className="font-medium text-foreground">
                           <div className="flex items-center gap-2">
                             {event.featured && (
-                              <Badge className="bg-[#f8c84d] text-[#2d1816] border-[#f8c84d]">Featured</Badge>
+                              <Badge className="bg-gold-300 text-foreground border-gold-300">Featured</Badge>
                             )}
                             {event.title}
                           </div>
                         </TableCell>
-                        <TableCell className="text-[#2d1816]/60">{event.location || "-"}</TableCell>
-                        <TableCell className="text-[#2d1816]/60">{formatDate(event.start_at)}</TableCell>
-                        <TableCell className="text-[#2d1816]/60">{formatDate(event.end_at)}</TableCell>
+                        <TableCell className="text-muted-foreground">{event.location || "-"}</TableCell>
+                        <TableCell className="text-muted-foreground">{formatDate(event.start_at)}</TableCell>
+                        <TableCell className="text-muted-foreground">{formatDate(event.end_at)}</TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(event.status)} variant="outline">
                             {event.status}
@@ -218,7 +218,7 @@ export default function EventsPage() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteConfirm(event.id)}
-                                className="text-red-600"
+                                className="text-destructive"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
                                 Delete
@@ -235,29 +235,29 @@ export default function EventsPage() {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-4">
                 {filteredEvents.map((event) => (
-                  <Card key={event.id} className="border-[#e9ddd3]">
+                  <Card key={event.id} className="border-border">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-[#f8c84d]/20 flex items-center justify-center">
-                              <Calendar className="w-5 h-5 text-[#f8c84d]" />
+                            <div className="w-10 h-10 rounded-full bg-gold-300/20 flex items-center justify-center">
+                              <Calendar className="w-5 h-5 text-gold-300" />
                             </div>
                             <div>
-                              <h3 className="font-semibold text-[#2d1816]">{event.title}</h3>
+                              <h3 className="font-semibold text-foreground">{event.title}</h3>
                               {event.featured && (
-                                <Badge className="bg-[#f8c84d] text-[#2d1816] border-[#f8c84d] text-xs">Featured</Badge>
+                                <Badge className="bg-gold-300 text-foreground border-gold-300 text-xs">Featured</Badge>
                               )}
                             </div>
                           </div>
                           <div className="space-y-1 text-sm">
                             {event.location && (
-                              <div className="flex items-center gap-2 text-[#2d1816]/60">
+                              <div className="flex items-center gap-2 text-muted-foreground">
                                 <MapPin className="w-3 h-3" />
                                 {event.location}
                               </div>
                             )}
-                            <div className="flex items-center gap-2 text-[#2d1816]/60">
+                            <div className="flex items-center gap-2 text-muted-foreground">
                               <Clock className="w-3 h-3" />
                               {formatDate(event.start_at)} - {formatDate(event.end_at)}
                             </div>
@@ -276,7 +276,7 @@ export default function EventsPage() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setDeleteConfirm(event.id)}
-                              className="text-red-600"
+                              className="text-destructive"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete

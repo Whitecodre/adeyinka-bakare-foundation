@@ -406,8 +406,8 @@ export default function FooterPage() {
     <div className="flex flex-col gap-5">
       <div className="flex justify-between items-start gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Footer Management</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Manage footer sections and links</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Footer Management</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Manage footer sections and links</p>
         </div>
         <Button onClick={() => handleOpenSectionDialog()} size="lg">
           <Plus className="w-4 h-4 mr-2" />
@@ -415,19 +415,19 @@ export default function FooterPage() {
         </Button>
       </div>
 
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-[#2d1816]">
+            <CardTitle className="text-lg font-semibold text-foreground">
               Footer Sections ({filteredSections.length})
             </CardTitle>
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2d1816]/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
               <Input
                 placeholder="Search sections..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-[#e9ddd3]"
+                className="pl-10 border-border"
               />
             </div>
           </div>
@@ -448,7 +448,7 @@ export default function FooterPage() {
           ) : (
             <div className="space-y-3">
               {filteredSections.map((section, sectionIndex) => (
-                <Card key={section.id} className="border-[#e9ddd3]">
+                <Card key={section.id} className="border-border">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
@@ -457,7 +457,7 @@ export default function FooterPage() {
                           size="icon"
                           onClick={() => handleMoveSection(sectionIndex, "up")}
                           disabled={sectionIndex === 0}
-                          className="hover:bg-[#e9ddd3]/30"
+                          className="hover:bg-muted"
                         >
                           <ArrowUp className="w-4 h-4" />
                         </Button>
@@ -466,7 +466,7 @@ export default function FooterPage() {
                           size="icon"
                           onClick={() => handleMoveSection(sectionIndex, "down")}
                           disabled={sectionIndex === filteredSections.length - 1}
-                          className="hover:bg-[#e9ddd3]/30"
+                          className="hover:bg-muted"
                         >
                           <ArrowDown className="w-4 h-4" />
                         </Button>
@@ -476,7 +476,7 @@ export default function FooterPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => toggleSection(section.id)}
-                        className="hover:bg-[#e9ddd3]/30"
+                        className="hover:bg-muted"
                       >
                         {expandedSections.has(section.id) ? (
                           <ChevronDown className="w-4 h-4" />
@@ -485,13 +485,13 @@ export default function FooterPage() {
                         )}
                       </Button>
 
-                      <div className="w-10 h-10 rounded-full bg-[#e9ddd3]/30 flex items-center justify-center">
-                        <FolderOpen className="w-5 h-5 text-[#2d1816]" />
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                        <FolderOpen className="w-5 h-5 text-foreground" />
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-[#2d1816]">
+                          <h3 className="font-semibold text-foreground">
                             {section.title}
                           </h3>
                           {!section.active && (
@@ -510,7 +510,7 @@ export default function FooterPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenLinkDialog(section.id)}
-                          className="hover:bg-[#e9ddd3]/30"
+                          className="hover:bg-muted"
                         >
                           <Plus className="w-4 h-4" />
                         </Button>
@@ -518,7 +518,7 @@ export default function FooterPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenSectionDialog(section)}
-                          className="hover:bg-[#e9ddd3]/30"
+                          className="hover:bg-muted"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -526,7 +526,7 @@ export default function FooterPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => setDeleteConfirm({ type: "section", id: section.id })}
-                          className="hover:bg-red-100 hover:text-red-600"
+                          className="hover:bg-destructive/10 hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -536,14 +536,14 @@ export default function FooterPage() {
                     {expandedSections.has(section.id) && (
                       <div className="mt-4 ml-16 space-y-2">
                         {section.links.length === 0 ? (
-                          <div className="text-center py-4 text-sm text-[#2d1816]/60">
+                          <div className="text-center py-4 text-sm text-muted-foreground">
                             No links in this section
                           </div>
                         ) : (
                           section.links.map((link, linkIndex) => (
                             <div
                               key={link.id}
-                              className="flex items-center gap-3 p-3 bg-[#e9ddd3]/10 rounded-lg"
+                              className="flex items-center gap-3 p-3 bg-muted rounded-lg"
                             >
                               <div className="flex items-center gap-1">
                                 <Button
@@ -551,7 +551,7 @@ export default function FooterPage() {
                                   size="icon"
                                   onClick={() => handleMoveLink(section.id, linkIndex, "up")}
                                   disabled={linkIndex === 0}
-                                  className="h-6 w-6 hover:bg-[#e9ddd3]/30"
+                                  className="h-6 w-6 hover:bg-muted"
                                 >
                                   <ArrowUp className="w-3 h-3" />
                                 </Button>
@@ -560,19 +560,19 @@ export default function FooterPage() {
                                   size="icon"
                                   onClick={() => handleMoveLink(section.id, linkIndex, "down")}
                                   disabled={linkIndex === section.links.length - 1}
-                                  className="h-6 w-6 hover:bg-[#e9ddd3]/30"
+                                  className="h-6 w-6 hover:bg-muted"
                                 >
                                   <ArrowDown className="w-3 h-3" />
                                 </Button>
                               </div>
 
-                              <div className="w-8 h-8 rounded-full bg-[#fffdf8] flex items-center justify-center">
-                                <LinkIcon className="w-4 h-4 text-[#2d1816]/60" />
+                              <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center">
+                                <LinkIcon className="w-4 h-4 text-muted-foreground" />
                               </div>
 
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-medium text-[#2d1816] text-sm">
+                                  <span className="font-medium text-foreground text-sm">
                                     {link.label}
                                   </span>
                                   {!link.active && (
@@ -581,7 +581,7 @@ export default function FooterPage() {
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-xs text-[#2d1816]/60 truncate">
+                                <p className="text-xs text-muted-foreground truncate">
                                   {link.url}
                                 </p>
                               </div>
@@ -591,7 +591,7 @@ export default function FooterPage() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => window.open(link.url, '_blank')}
-                                  className="h-8 w-8 hover:bg-[#e9ddd3]/30"
+                                  className="h-8 w-8 hover:bg-muted"
                                 >
                                   <ExternalLink className="w-3 h-3" />
                                 </Button>
@@ -599,7 +599,7 @@ export default function FooterPage() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => handleOpenLinkDialog(section.id, link)}
-                                  className="h-8 w-8 hover:bg-[#e9ddd3]/30"
+                                  className="h-8 w-8 hover:bg-muted"
                                 >
                                   <Edit className="w-3 h-3" />
                                 </Button>
@@ -607,7 +607,7 @@ export default function FooterPage() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => setDeleteConfirm({ type: "link", id: link.id })}
-                                  className="h-8 w-8 hover:bg-red-100 hover:text-red-600"
+                                  className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </Button>
@@ -627,16 +627,16 @@ export default function FooterPage() {
 
       {/* Section Dialog */}
       <Dialog open={isSectionDialogOpen} onOpenChange={handleCloseSectionDialog}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">
+            <DialogTitle className="text-foreground">
               {editingSection ? "Edit Footer Section" : "Add Footer Section"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-[#2d1816]">
-                Section Title <span className="text-red-500">*</span>
+              <Label htmlFor="title" className="text-foreground">
+                Section Title <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="title"
@@ -646,15 +646,15 @@ export default function FooterPage() {
                   if (errors.title) setErrors(prev => ({ ...prev, title: "" }));
                 }}
                 placeholder="e.g., Quick Links"
-                className={`border-[#e9ddd3] ${errors.title ? "border-red-500" : ""}`}
+                className={`border-border ${errors.title ? "border-destructive" : ""}`}
               />
               {errors.title && (
-                <p className="text-sm text-red-500">{errors.title}</p>
+                <p className="text-sm text-destructive">{errors.title}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="sort_order" className="text-[#2d1816]">
+              <Label htmlFor="sort_order" className="text-foreground">
                 Sort Order
               </Label>
               <Input
@@ -662,20 +662,20 @@ export default function FooterPage() {
                 type="number"
                 value={sectionFormData.sort_order}
                 onChange={(e) => setSectionFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
-              <p className="text-xs text-[#2d1816]/60">
+              <p className="text-xs text-muted-foreground">
                 Lower numbers appear first
               </p>
             </div>
 
-            <div className="flex items-center gap-3 p-4 border border-[#e9ddd3] rounded-lg bg-[#fffdf8]">
+            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
               <Switch
                 id="active"
                 checked={sectionFormData.active}
                 onCheckedChange={(checked) => setSectionFormData(prev => ({ ...prev, active: checked }))}
               />
-              <Label htmlFor="active" className="text-[#2d1816] cursor-pointer">
+              <Label htmlFor="active" className="text-foreground cursor-pointer">
                 Active
               </Label>
             </div>
@@ -686,7 +686,7 @@ export default function FooterPage() {
               variant="outline"
               onClick={handleCloseSectionDialog}
               disabled={saving}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>
@@ -694,7 +694,7 @@ export default function FooterPage() {
               type="button"
               onClick={handleSaveSection}
               disabled={saving}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] text-white hover:from-[#922821] hover:to-[#7a221b]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
             >
               {saving ? (
                 <>
@@ -711,16 +711,16 @@ export default function FooterPage() {
 
       {/* Link Dialog */}
       <Dialog open={isLinkDialogOpen} onOpenChange={handleCloseLinkDialog}>
-        <DialogContent className="bg-[#fffdf8] border-[#e9ddd3]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-[#2d1816]">
+            <DialogTitle className="text-foreground">
               {editingLink?.link.id ? "Edit Footer Link" : "Add Footer Link"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="label" className="text-[#2d1816]">
-                Link Label <span className="text-red-500">*</span>
+              <Label htmlFor="label" className="text-foreground">
+                Link Label <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="label"
@@ -730,16 +730,16 @@ export default function FooterPage() {
                   if (errors.label) setErrors(prev => ({ ...prev, label: "" }));
                 }}
                 placeholder="e.g., About Us"
-                className={`border-[#e9ddd3] ${errors.label ? "border-red-500" : ""}`}
+                className={`border-border ${errors.label ? "border-destructive" : ""}`}
               />
               {errors.label && (
-                <p className="text-sm text-red-500">{errors.label}</p>
+                <p className="text-sm text-destructive">{errors.label}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="url" className="text-[#2d1816]">
-                URL <span className="text-red-500">*</span>
+              <Label htmlFor="url" className="text-foreground">
+                URL <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="url"
@@ -749,15 +749,15 @@ export default function FooterPage() {
                   if (errors.url) setErrors(prev => ({ ...prev, url: "" }));
                 }}
                 placeholder="https://example.com/about"
-                className={`border-[#e9ddd3] ${errors.url ? "border-red-500" : ""}`}
+                className={`border-border ${errors.url ? "border-destructive" : ""}`}
               />
               {errors.url && (
-                <p className="text-sm text-red-500">{errors.url}</p>
+                <p className="text-sm text-destructive">{errors.url}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="link_sort_order" className="text-[#2d1816]">
+              <Label htmlFor="link_sort_order" className="text-foreground">
                 Sort Order
               </Label>
               <Input
@@ -765,20 +765,20 @@ export default function FooterPage() {
                 type="number"
                 value={linkFormData.sort_order}
                 onChange={(e) => setLinkFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                className="border-[#e9ddd3]"
+                className="border-border"
               />
-              <p className="text-xs text-[#2d1816]/60">
+              <p className="text-xs text-muted-foreground">
                 Lower numbers appear first
               </p>
             </div>
 
-            <div className="flex items-center gap-3 p-4 border border-[#e9ddd3] rounded-lg bg-[#fffdf8]">
+            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
               <Switch
                 id="link_active"
                 checked={linkFormData.active}
                 onCheckedChange={(checked) => setLinkFormData(prev => ({ ...prev, active: checked }))}
               />
-              <Label htmlFor="link_active" className="text-[#2d1816] cursor-pointer">
+              <Label htmlFor="link_active" className="text-foreground cursor-pointer">
                 Active
               </Label>
             </div>
@@ -789,7 +789,7 @@ export default function FooterPage() {
               variant="outline"
               onClick={handleCloseLinkDialog}
               disabled={saving}
-              className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancel
             </Button>
@@ -797,7 +797,7 @@ export default function FooterPage() {
               type="button"
               onClick={handleSaveLink}
               disabled={saving}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] text-white hover:from-[#922821] hover:to-[#7a221b]"
+              className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
             >
               {saving ? (
                 <>

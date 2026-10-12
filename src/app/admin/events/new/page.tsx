@@ -153,19 +153,19 @@ export default function NewEventPage() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="hover:bg-[#e9ddd3]/30"
+          className="hover:bg-muted"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Add New Event</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Create a new fellowship event</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Add New Event</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Create a new fellowship event</p>
         </div>
       </div>
 
-      <Card className="border-[#e9ddd3] bg-[#fffdf8]">
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816]">
+          <CardTitle className="text-lg font-semibold text-foreground">
             Event Information
           </CardTitle>
         </CardHeader>
@@ -173,58 +173,58 @@ export default function NewEventPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="title" className="text-[#2d1816]">
-                  Title <span className="text-red-500">*</span>
+                <Label htmlFor="title" className="text-foreground">
+                  Title <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="Enter event title"
-                  className={`border-[#e9ddd3] ${errors.title ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.title ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.title && (
-                  <p className="text-sm text-red-500">{errors.title}</p>
+                  <p className="text-sm text-destructive">{errors.title}</p>
                 )}
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="slug" className="text-[#2d1816]">
-                  Slug <span className="text-red-500">*</span>
+                <Label htmlFor="slug" className="text-foreground">
+                  Slug <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="slug"
                   value={formData.slug}
                   onChange={(e) => handleInputChange("slug", e.target.value)}
                   placeholder="event-slug"
-                  className={`border-[#e9ddd3] ${errors.slug ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.slug ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.slug && (
-                  <p className="text-sm text-red-500">{errors.slug}</p>
+                  <p className="text-sm text-destructive">{errors.slug}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location" className="text-[#2d1816]">
-                  Location <span className="text-red-500">*</span>
+                <Label htmlFor="location" className="text-foreground">
+                  Location <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="location"
                   value={formData.location}
                   onChange={(e) => handleInputChange("location", e.target.value)}
                   placeholder="e.g., Main Hall, Campus"
-                  className={`border-[#e9ddd3] ${errors.location ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.location ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.location && (
-                  <p className="text-sm text-red-500">{errors.location}</p>
+                  <p className="text-sm text-destructive">{errors.location}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status" className="text-[#2d1816]">
+                <Label htmlFor="status" className="text-foreground">
                   Status
                 </Label>
                 <Select
@@ -232,7 +232,7 @@ export default function NewEventPage() {
                   onValueChange={(value) => handleInputChange("status", value)}
                   disabled={loading}
                 >
-                  <SelectTrigger className="border-[#e9ddd3]">
+                  <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -244,36 +244,36 @@ export default function NewEventPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="start_at" className="text-[#2d1816]">
-                  Start Date & Time <span className="text-red-500">*</span>
+                <Label htmlFor="start_at" className="text-foreground">
+                  Start Date & Time <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="start_at"
                   type="datetime-local"
                   value={formData.start_at}
                   onChange={(e) => handleInputChange("start_at", e.target.value)}
-                  className={`border-[#e9ddd3] ${errors.start_at ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.start_at ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.start_at && (
-                  <p className="text-sm text-red-500">{errors.start_at}</p>
+                  <p className="text-sm text-destructive">{errors.start_at}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="end_at" className="text-[#2d1816]">
-                  End Date & Time <span className="text-red-500">*</span>
+                <Label htmlFor="end_at" className="text-foreground">
+                  End Date & Time <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="end_at"
                   type="datetime-local"
                   value={formData.end_at}
                   onChange={(e) => handleInputChange("end_at", e.target.value)}
-                  className={`border-[#e9ddd3] ${errors.end_at ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.end_at ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.end_at && (
-                  <p className="text-sm text-red-500">{errors.end_at}</p>
+                  <p className="text-sm text-destructive">{errors.end_at}</p>
                 )}
               </div>
 
@@ -291,8 +291,8 @@ export default function NewEventPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-[#2d1816]">
-                Description <span className="text-red-500">*</span>
+              <Label htmlFor="description" className="text-foreground">
+                Description <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="description"
@@ -300,40 +300,40 @@ export default function NewEventPage() {
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 placeholder="Enter event description..."
                 rows={6}
-                className={`border-[#e9ddd3] resize-none ${errors.description ? "border-red-500" : ""}`}
+                className={`border-border resize-none ${errors.description ? "border-destructive" : ""}`}
                 disabled={loading}
               />
               {errors.description && (
-                <p className="text-sm text-red-500">{errors.description}</p>
+                <p className="text-sm text-destructive">{errors.description}</p>
               )}
             </div>
 
-            <div className="flex items-center gap-3 p-4 border border-[#e9ddd3] rounded-lg bg-[#fffdf8]">
+            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
               <Switch
                 id="featured"
                 checked={formData.featured}
                 onCheckedChange={(checked) => handleInputChange("featured", checked)}
                 disabled={loading}
               />
-              <Label htmlFor="featured" className="text-[#2d1816] cursor-pointer">
+              <Label htmlFor="featured" className="text-foreground cursor-pointer">
                 Featured Event
               </Label>
             </div>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-[#e9ddd3]">
+            <div className="flex items-center gap-3 pt-4 border-t border-border">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={loading}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={loading}
-                className="bg-gradient-to-r from-[#aa322b] to-[#922821] text-white hover:from-[#922821] hover:to-[#7a221b]"
+                className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
               >
                 {loading ? (
                   <>

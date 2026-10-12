@@ -213,19 +213,19 @@ export default function EditNewsPage() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="hover:bg-[#e9ddd3]/30"
+          className="hover:bg-muted"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Edit News Article</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Update article information</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Edit News Article</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Update article information</p>
         </div>
       </div>
 
-      <Card className="border-[#e9ddd3] bg-[#fffdf8]">
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816]">
+          <CardTitle className="text-lg font-semibold text-foreground">
             Article Information
           </CardTitle>
         </CardHeader>
@@ -233,41 +233,41 @@ export default function EditNewsPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="title" className="text-[#2d1816]">
-                  Title <span className="text-red-500">*</span>
+                <Label htmlFor="title" className="text-foreground">
+                  Title <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="Enter article title"
-                  className={`border-[#e9ddd3] ${errors.title ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.title ? "border-destructive" : ""}`}
                   disabled={submitting}
                 />
                 {errors.title && (
-                  <p className="text-sm text-red-500">{errors.title}</p>
+                  <p className="text-sm text-destructive">{errors.title}</p>
                 )}
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="slug" className="text-[#2d1816]">
-                  Slug <span className="text-red-500">*</span>
+                <Label htmlFor="slug" className="text-foreground">
+                  Slug <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="slug"
                   value={formData.slug}
                   onChange={(e) => handleInputChange("slug", e.target.value)}
                   placeholder="article-slug"
-                  className={`border-[#e9ddd3] ${errors.slug ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.slug ? "border-destructive" : ""}`}
                   disabled={submitting}
                 />
                 {errors.slug && (
-                  <p className="text-sm text-red-500">{errors.slug}</p>
+                  <p className="text-sm text-destructive">{errors.slug}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status" className="text-[#2d1816]">
+                <Label htmlFor="status" className="text-foreground">
                   Status
                 </Label>
                 <Select
@@ -275,7 +275,7 @@ export default function EditNewsPage() {
                   onValueChange={(value) => handleInputChange("status", value)}
                   disabled={submitting}
                 >
-                  <SelectTrigger className="border-[#e9ddd3]">
+                  <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -287,7 +287,7 @@ export default function EditNewsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="published_at" className="text-[#2d1816]">
+                <Label htmlFor="published_at" className="text-foreground">
                   Published Date
                 </Label>
                 <Input
@@ -295,7 +295,7 @@ export default function EditNewsPage() {
                   type="datetime-local"
                   value={formData.published_at}
                   onChange={(e) => handleInputChange("published_at", e.target.value)}
-                  className="border-[#e9ddd3]"
+                  className="border-border"
                   disabled={submitting}
                 />
               </div>
@@ -314,8 +314,8 @@ export default function EditNewsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="excerpt" className="text-[#2d1816]">
-                Excerpt <span className="text-red-500">*</span>
+              <Label htmlFor="excerpt" className="text-foreground">
+                Excerpt <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="excerpt"
@@ -323,17 +323,17 @@ export default function EditNewsPage() {
                 onChange={(e) => handleInputChange("excerpt", e.target.value)}
                 placeholder="Enter a brief excerpt..."
                 rows={3}
-                className={`border-[#e9ddd3] resize-none ${errors.excerpt ? "border-red-500" : ""}`}
+                className={`border-border resize-none ${errors.excerpt ? "border-destructive" : ""}`}
                 disabled={submitting}
               />
               {errors.excerpt && (
-                <p className="text-sm text-red-500">{errors.excerpt}</p>
+                <p className="text-sm text-destructive">{errors.excerpt}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content" className="text-[#2d1816]">
-                Content <span className="text-red-500">*</span>
+              <Label htmlFor="content" className="text-foreground">
+                Content <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="content"
@@ -341,40 +341,40 @@ export default function EditNewsPage() {
                 onChange={(e) => handleInputChange("content", e.target.value)}
                 placeholder="Enter article content..."
                 rows={10}
-                className={`border-[#e9ddd3] resize-none ${errors.content ? "border-red-500" : ""}`}
+                className={`border-border resize-none ${errors.content ? "border-destructive" : ""}`}
                 disabled={submitting}
               />
               {errors.content && (
-                <p className="text-sm text-red-500">{errors.content}</p>
+                <p className="text-sm text-destructive">{errors.content}</p>
               )}
             </div>
 
-            <div className="flex items-center gap-3 p-4 border border-[#e9ddd3] rounded-lg bg-[#fffdf8]">
+            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
               <Switch
                 id="featured"
                 checked={formData.featured}
                 onCheckedChange={(checked) => handleInputChange("featured", checked)}
                 disabled={submitting}
               />
-              <Label htmlFor="featured" className="text-[#2d1816] cursor-pointer">
+              <Label htmlFor="featured" className="text-foreground cursor-pointer">
                 Featured Article
               </Label>
             </div>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-[#e9ddd3]">
+            <div className="flex items-center gap-3 pt-4 border-t border-border">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={submitting}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-gradient-to-r from-[#aa322b] to-[#922821] text-white hover:from-[#922821] hover:to-[#7a221b]"
+                className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
               >
                 {submitting ? (
                   <>

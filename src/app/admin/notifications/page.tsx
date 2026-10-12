@@ -165,13 +165,13 @@ export default function NotificationsPage() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "success":
-        return "bg-green-100 text-green-700 border-green-200";
+        return "bg-success-soft text-success border-success/20";
       case "warning":
-        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+        return "bg-warning-soft text-warning border-warning/25";
       case "error":
-        return "bg-red-100 text-red-700 border-red-200";
+        return "bg-destructive/10 text-destructive border-destructive/30";
       default:
-        return "bg-blue-100 text-blue-700 border-blue-200";
+        return "bg-info-soft text-info border-blue-200";
     }
   };
 
@@ -210,20 +210,20 @@ export default function NotificationsPage() {
         }
       />
 
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-[#2d1816]">
+            <CardTitle className="text-lg font-semibold text-foreground">
               All Notifications ({filteredNotifications.length})
             </CardTitle>
             <div className="flex gap-3 w-full sm:w-auto">
               <div className="relative flex-1 sm:flex-none sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2d1816]/40" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                 <Input
                   placeholder="Search notifications..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-[#e9ddd3]"
+                  className="pl-10 border-border"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ export default function NotificationsPage() {
                   checked={showUnreadOnly}
                   onCheckedChange={setShowUnreadOnly}
                 />
-                <span className="text-sm text-[#2d1816]/60">Unread only</span>
+                <span className="text-sm text-muted-foreground">Unread only</span>
               </div>
             </div>
           </div>
@@ -252,19 +252,19 @@ export default function NotificationsPage() {
               {filteredNotifications.map((notif) => (
                 <Card
                   key={notif.id}
-                  className={`border-[#e9ddd3] ${
-                    !notif.read ? "bg-[#f8c84d]/5" : "bg-[#fffdf8]"
+                  className={`border-border ${
+                    !notif.read ? "bg-gold-300/5" : "bg-card"
                   }`}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-[#e9ddd3]/30 flex items-center justify-center flex-shrink-0">
-                        <Bell className="w-5 h-5 text-[#2d1816]" />
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                        <Bell className="w-5 h-5 text-foreground" />
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <h3 className="font-semibold text-[#2d1816]">
+                          <h3 className="font-semibold text-foreground">
                             {notif.title}
                           </h3>
                           <Badge className={getTypeColor(notif.type)}>
@@ -276,10 +276,10 @@ export default function NotificationsPage() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-[#2d1816]/70 mb-2">
+                        <p className="text-sm text-muted-foreground mb-2">
                           {notif.body}
                         </p>
-                        <div className="flex items-center gap-4 text-xs text-[#2d1816]/40">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground/70">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {timeAgo(notif.created_at)}
@@ -299,7 +299,7 @@ export default function NotificationsPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleMarkAsRead(notif.id)}
-                            className="hover:bg-[#e9ddd3]/30"
+                            className="hover:bg-muted"
                             title="Mark as read"
                           >
                             <Check className="w-4 h-4" />
@@ -309,7 +309,7 @@ export default function NotificationsPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => setDeleteConfirm(notif.id)}
-                          className="hover:bg-red-100 hover:text-red-600"
+                          className="hover:bg-destructive/10 hover:text-destructive"
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -323,11 +323,11 @@ export default function NotificationsPage() {
           )}
 
           {notifications.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-[#e9ddd3]">
+            <div className="mt-4 pt-4 border-t border-border">
               <Button
                 variant="outline"
                 onClick={() => setDeleteConfirm("all")}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete All Notifications

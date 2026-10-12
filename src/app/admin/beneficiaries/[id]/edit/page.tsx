@@ -204,19 +204,19 @@ export default function EditBeneficiaryPage() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="hover:bg-[#e9ddd3]/30"
+          className="hover:bg-muted"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Edit Beneficiary</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Update beneficiary information</p>
+          <h1 className="text-2xl font-bold text-foreground m-0">Edit Beneficiary</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Update beneficiary information</p>
         </div>
       </div>
 
-      <Card className="border-[#e9ddd3] bg-[#fffdf8]">
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816]">
+          <CardTitle className="text-lg font-semibold text-foreground">
             Beneficiary Information
           </CardTitle>
         </CardHeader>
@@ -224,92 +224,92 @@ export default function EditBeneficiaryPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="full_name" className="text-[#2d1816]">
-                  Full Name <span className="text-red-500">*</span>
+                <Label htmlFor="full_name" className="text-foreground">
+                  Full Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="full_name"
                   value={formData.full_name}
                   onChange={(e) => handleInputChange("full_name", e.target.value)}
                   placeholder="Enter full name"
-                  className={`border-[#e9ddd3] ${errors.full_name ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.full_name ? "border-destructive" : ""}`}
                   disabled={submitting}
                 />
                 {errors.full_name && (
-                  <p className="text-sm text-red-500">{errors.full_name}</p>
+                  <p className="text-sm text-destructive">{errors.full_name}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="department" className="text-[#2d1816]">
-                  Department <span className="text-red-500">*</span>
+                <Label htmlFor="department" className="text-foreground">
+                  Department <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="department"
                   value={formData.department}
                   onChange={(e) => handleInputChange("department", e.target.value)}
                   placeholder="e.g., Computer Science"
-                  className={`border-[#e9ddd3] ${errors.department ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.department ? "border-destructive" : ""}`}
                   disabled={submitting}
                 />
                 {errors.department && (
-                  <p className="text-sm text-red-500">{errors.department}</p>
+                  <p className="text-sm text-destructive">{errors.department}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="level" className="text-[#2d1816]">
-                  Level <span className="text-red-500">*</span>
+                <Label htmlFor="level" className="text-foreground">
+                  Level <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="level"
                   value={formData.level}
                   onChange={(e) => handleInputChange("level", e.target.value)}
                   placeholder="e.g., 400 Level"
-                  className={`border-[#e9ddd3] ${errors.level ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.level ? "border-destructive" : ""}`}
                   disabled={submitting}
                 />
                 {errors.level && (
-                  <p className="text-sm text-red-500">{errors.level}</p>
+                  <p className="text-sm text-destructive">{errors.level}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="session" className="text-[#2d1816]">
-                  Session <span className="text-red-500">*</span>
+                <Label htmlFor="session" className="text-foreground">
+                  Session <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="session"
                   value={formData.session}
                   onChange={(e) => handleInputChange("session", e.target.value)}
                   placeholder="e.g., 2024/2025"
-                  className={`border-[#e9ddd3] ${errors.session ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.session ? "border-destructive" : ""}`}
                   disabled={submitting}
                 />
                 {errors.session && (
-                  <p className="text-sm text-red-500">{errors.session}</p>
+                  <p className="text-sm text-destructive">{errors.session}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="programme" className="text-[#2d1816]">
-                  Programme <span className="text-red-500">*</span>
+                <Label htmlFor="programme" className="text-foreground">
+                  Programme <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="programme"
                   value={formData.programme}
                   onChange={(e) => handleInputChange("programme", e.target.value)}
                   placeholder="e.g., Scholarship Programme"
-                  className={`border-[#e9ddd3] ${errors.programme ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.programme ? "border-destructive" : ""}`}
                   disabled={submitting}
                 />
                 {errors.programme && (
-                  <p className="text-sm text-red-500">{errors.programme}</p>
+                  <p className="text-sm text-destructive">{errors.programme}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status" className="text-[#2d1816]">
+                <Label htmlFor="status" className="text-foreground">
                   Status
                 </Label>
                 <Select
@@ -317,7 +317,7 @@ export default function EditBeneficiaryPage() {
                   onValueChange={(value) => handleInputChange("status", value)}
                   disabled={submitting}
                 >
-                  <SelectTrigger className="border-[#e9ddd3]">
+                  <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -340,7 +340,7 @@ export default function EditBeneficiaryPage() {
             />
 
             <div className="space-y-2">
-              <Label htmlFor="bio" className="text-[#2d1816]">
+              <Label htmlFor="bio" className="text-foreground">
                 Bio
               </Label>
               <Textarea
@@ -349,37 +349,37 @@ export default function EditBeneficiaryPage() {
                 onChange={(e) => handleInputChange("bio", e.target.value)}
                 placeholder="Enter beneficiary bio..."
                 rows={4}
-                className="border-[#e9ddd3] resize-none"
+                className="border-border resize-none"
                 disabled={submitting}
               />
             </div>
 
-            <div className="flex items-center gap-3 p-4 border border-[#e9ddd3] rounded-lg bg-[#fffdf8]">
+            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
               <Switch
                 id="featured"
                 checked={formData.featured}
                 onCheckedChange={(checked) => handleInputChange("featured", checked)}
                 disabled={submitting}
               />
-              <Label htmlFor="featured" className="text-[#2d1816] cursor-pointer">
+              <Label htmlFor="featured" className="text-foreground cursor-pointer">
                 Featured Beneficiary
               </Label>
             </div>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-[#e9ddd3]">
+            <div className="flex items-center gap-3 pt-4 border-t border-border">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={submitting}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-gradient-to-r from-[#aa322b] to-[#922821] text-white hover:from-[#922821] hover:to-[#7a221b]"
+                className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
               >
                 {submitting ? (
                   <>
