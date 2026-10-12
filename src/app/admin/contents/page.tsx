@@ -2,29 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreVertical, Edit, Trash2, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { FileText } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { LoadingState } from "@/components/admin/loading-state";
+
+import { ResourceList } from "@/components/admin/resource-list";
+import { StatusBadge } from "@/components/admin/status-badge";
+import { Toolbar } from "@/components/admin/toolbar";
+import { ListSkeleton } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface Content {
   id: string;
@@ -96,55 +85,27 @@ export default function ContentsPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "published":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "draft":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      case "archived":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  if (loading) {
-    return <LoadingState message="Loading contents..." />;
-  }
-
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Contents</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Manage website content</p>
-        </div>
-        <Button onClick={() => router.push("/admin/contents/new")} size="lg">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Content
-        </Button>
-      </div>
+      <PageHeader
+        title="Contents"
+        subtitle="Manage website content"
+        actions={[{ label: "Add Content", onClick: () => router.push("/admin/contents/new"), variant: "primary" }]}
+      />
 
-      <Card className="border-[#e9ddd3]">
+      <Card className="border-border">
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-[#2d1816]">
+            <CardTitle className="text-lg font-semibold text-foreground">
               All Contents ({filteredContents.length})
             </CardTitle>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2d1816]/40" />
-              <Input
-                placeholder="Search contents..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-[#e9ddd3]"
-              />
-            </div>
+            <Toolbar search={searchQuery} onSearchChange={setSearchQuery} placeholder="Search contents..." className="w-full sm:w-auto" />
           </div>
         </CardHeader>
         <CardContent>
-          {filteredContents.length === 0 ? (
+          {loading ? (
+            <ListSkeleton rows={4} />
+          ) : filteredContents.length === 0 ? (
             <EmptyState
               title="No contents found"
               description={searchQuery ? "Try a different search term" : "Get started by adding your first content"}
@@ -157,117 +118,26 @@ export default function ContentsPage() {
               icon={FileText}
             />
           ) : (
-            <>
-              {/* Desktop Table */}
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-[#e9ddd3]">
-                      <TableHead className="text-[#2d1816] font-semibold">Title</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Key</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Content</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold">Status</TableHead>
-                      <TableHead className="text-[#2d1816] font-semibold text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredContents.map((item) => (
-                      <TableRow key={item.id} className="border-[#e9ddd3] hover:bg-[#e9ddd3]/30">
-                        <TableCell className="font-medium text-[#2d1816]">
-                          {item.title}
-                        </TableCell>
-                        <TableCell className="text-[#2d1816]/60">
-                          <code className="text-xs bg-[#e9ddd3] px-2 py-1 rounded">{item.key}</code>
-                        </TableCell>
-                        <TableCell className="text-[#2d1816]/60 max-w-xs truncate">
-                          {item.content || "-"}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(item.status)} variant="outline">
-                            {item.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => router.push(`/admin/contents/${item.id}`)}>
-                                <Edit className="w-4 h-4 mr-2" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setDeleteConfirm(item.id)}
-                                className="text-red-600"
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Mobile Cards */}
-              <div className="md:hidden space-y-4">
-                {filteredContents.map((item) => (
-                  <Card key={item.id} className="border-[#e9ddd3]">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-[#f8c84d]/20 flex items-center justify-center">
-                              <FileText className="w-5 h-5 text-[#f8c84d]" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-[#2d1816]">{item.title}</h3>
-                              <code className="text-xs bg-[#e9ddd3] px-2 py-1 rounded text-[#2d1816]/60">{item.key}</code>
-                            </div>
-                          </div>
-                          <div className="space-y-1 text-sm">
-                            <div className="text-[#2d1816]/60 truncate">
-                              {item.content || "No content"}
-                            </div>
-                          </div>
-                        </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => router.push(`/admin/contents/${item.id}`)}>
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setDeleteConfirm(item.id)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                      <div className="mt-3">
-                        <Badge className={getStatusColor(item.status)} variant="outline">
-                          {item.status}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </>
+            <ResourceList
+              rows={filteredContents}
+              getKey={(r) => r.id}
+              getName={(r) => r.title}
+              icon={FileText}
+              columns={[
+                { header: "Title", cell: (r) => <span className="font-medium text-foreground">{r.title}</span> },
+                { header: "Key", cell: (r) => (<code className="rounded bg-muted px-2 py-1 text-xs text-muted-foreground">{r.key}</code>) },
+                { header: "Content", cell: (r) => r.content || "-", className: "max-w-xs truncate text-muted-foreground" },
+                { header: "Status", cell: (r) => <StatusBadge status={r.status} /> },
+              ]}
+              title={(r) => r.title}
+              badges={(r) => (<><StatusBadge status={r.status} /></>)}
+              meta={(r) => (<>
+                  <p><code className="rounded bg-muted px-1.5 py-0.5 text-xs">{r.key}</code></p>
+                  <p className="line-clamp-2">{r.content || "-"}</p>
+                </>)}
+              onEdit={(r) => router.push(`/admin/contents/${r.id}`)}
+              onDelete={(r) => setDeleteConfirm(r.id)}
+            />
           )}
         </CardContent>
       </Card>
@@ -279,6 +149,7 @@ export default function ContentsPage() {
         title="Delete Content?"
         description="This action cannot be undone. This will permanently delete the content from the database."
         confirmLabel="Delete"
+        destructive
         cancelLabel="Cancel"
       />
     </div>

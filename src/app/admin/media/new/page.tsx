@@ -55,14 +55,14 @@ export default function NewMediaPage() {
         backHref="/admin/media"
       />
 
-      <Card className="p-6 bg-[#fffdf8] border-[#e9ddd3]">
+      <Card className="p-6 bg-card border-border">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* File Upload */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label>File</Label>
-            <div className="border-2 border-dashed border-[#e9ddd3] rounded-lg p-8 text-center hover:border-[#f8c84d] transition-colors">
-              <Upload className="w-12 h-12 mx-auto mb-4 text-[#aa322b]" />
-              <p className="text-sm text-[#2d1816]/60 mb-2">
+            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-gold-300 transition-colors">
+              <Upload className="w-12 h-12 mx-auto mb-4 text-primary" />
+              <p className="text-sm text-muted-foreground mb-2">
                 Drag and drop a file here, or click to select
               </p>
               <Input
@@ -75,7 +75,7 @@ export default function NewMediaPage() {
           </div>
 
           {/* Title */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
@@ -87,7 +87,7 @@ export default function NewMediaPage() {
           </div>
 
           {/* Type */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="type">Type</Label>
             <Select
               value={formData.type}
@@ -106,7 +106,7 @@ export default function NewMediaPage() {
           </div>
 
           {/* Category */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="category">Category</Label>
             <Input
               id="category"
@@ -117,7 +117,7 @@ export default function NewMediaPage() {
           </div>
 
           {/* Alt Text */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="altText">Alt Text</Label>
             <Input
               id="altText"
@@ -128,7 +128,7 @@ export default function NewMediaPage() {
           </div>
 
           {/* Caption */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="caption">Caption</Label>
             <Textarea
               id="caption"
@@ -140,21 +140,20 @@ export default function NewMediaPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-4">
+          <div className="mt-2 flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end [&>button]:h-11 [&>button]:w-full sm:[&>button]:h-10 sm:[&>button]:w-auto">
             <Button
               type="button"
               variant="outline"
               onClick={() => router.back()}
               disabled={loading}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4" />
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
-            >
+>
               {loading ? "Uploading..." : "Upload Media"}
             </Button>
           </div>

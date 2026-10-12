@@ -9,6 +9,7 @@ Everything here is derived from what is **already implemented** (`src/app/global
 |---|---|
 | [foundations.md](foundations.md) | Colour, typography, spacing, radius, shadow, motion, accessibility |
 | [components.md](components.md) | Every component: existing ones, rules for using them, and new ones to build |
+| [admin.md](admin.md) | Admin dashboard: token map, page anatomy, admin component catalogue, interaction and responsive rules, rollout order |
 | [about-page.md](about-page.md) | Design and rationale for the About page |
 | [index.html](index.html) | **Interactive** visual reference: colour (click to copy), type, buttons, motion lab, searchable icon gallery, device-size tester |
 | [about-preview.html](about-preview.html) | **Interactive** mock of the About page (scroll, hover, tap; responsive) |

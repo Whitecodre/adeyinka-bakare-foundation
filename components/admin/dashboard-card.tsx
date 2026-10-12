@@ -1,4 +1,9 @@
-import { LucideIcon } from "lucide-react";
+"use client";
+
+import type { LucideIcon } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+
+import { cn } from "@/lib/utils";
 
 interface DashboardCardProps {
   title: string;
@@ -7,50 +12,56 @@ interface DashboardCardProps {
   color?: "maroon" | "gold";
   change?: string;
   trend?: "up" | "down";
+  className?: string;
 }
 
-export function DashboardCard({ title, value, icon: Icon, color = "maroon", change, trend }: DashboardCardProps) {
-  const colorClasses = {
-    maroon: {
-      bg: "bg-[#aa322b]/10",
-      icon: "text-[#aa322b]",
-      text: "text-[#922821]",
-      hoverBg: "group-hover:bg-[#aa322b]/20",
-      hoverBorder: "group-hover:border-[#aa322b]/50",
-      hoverText: "group-hover:text-[#aa322b]",
-    },
-    gold: {
-      bg: "bg-[#f8c84d]/20",
-      icon: "text-[#f8c84d]",
-      text: "text-[#b8860b]",
-      hoverBg: "group-hover:bg-[#f8c84d]/30",
-      hoverBorder: "group-hover:border-[#f8c84d]/50",
-      hoverText: "group-hover:text-[#f8c84d]",
-    },
-  };
+const tones = {
+  maroon: "bg-primary/10 text-primary group-hover:bg-primary/15",
+  gold: "bg-secondary/25 text-gold-700 group-hover:bg-secondary/35",
+} as const;
 
-  const classes = colorClasses[color];
+/** One headline number with an icon. Lifts slightly on hover. */
+export function DashboardCard({
+  title,
+  value,
+  icon: Icon,
+  color = "maroon",
+  change,
+  trend,
+  className,
+}: DashboardCardProps) {
+  const reduceMotion = useReducedMotion();
 
   return (
-    <div className="bg-[#fffdf8] rounded-2xl p-6 shadow-sm border border-[#e9ddd3] hover:shadow-lg hover:border-[#e9ddd3]/70 transition-all duration-300 group">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-[#2d1816]/70 mb-2 group-hover:text-[#2d1816] transition-colors duration-300">{title}</p>
-          <p className="text-3xl font-bold text-[#2d1816] group-hover:text-[#aa322b] transition-colors duration-300">{value}</p>
+    <motion.div
+      whileHover={reduceMotion ? undefined : { y: -3 }}
+      transition={{ duration: 0.2 }}
+      className={cn(
+        "group rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-lg md:p-6",
+        className,
+      )}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="mb-2 text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="truncate text-3xl font-bold text-foreground transition-colors group-hover:text-primary">
+            {value}
+          </p>
           {change && trend && (
-            <p
-              className={`text-sm mt-2 font-medium transition-colors duration-300 ${
-                trend === "up" ? "text-green-600" : "text-red-600"
-              }`}
-            >
+            <p className={cn("mt-2 text-sm font-medium", trend === "up" ? "text-success" : "text-destructive")}>
               {change} from last month
             </p>
           )}
         </div>
-        <div className={`w-12 h-12 ${classes.bg} ${classes.hoverBg} rounded-xl flex items-center justify-center flex-shrink-0 transition-colors duration-300`}>
-          <Icon className={`w-6 h-6 ${classes.icon}`} />
+        <div
+          className={cn(
+            "flex size-12 shrink-0 items-center justify-center rounded-xl transition-colors",
+            tones[color],
+          )}
+        >
+          <Icon className="size-6" />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

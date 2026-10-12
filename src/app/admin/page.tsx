@@ -87,17 +87,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Dashboard Overview</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Platform performance metrics and insights</p>
-        </div>
-        <div className="flex gap-3 items-center">
-          <span className="inline-flex items-center gap-1.5 text-[#10b981] text-xs font-semibold">
-            <CheckCircle2 size={14} /> Live data
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        title="Dashboard Overview"
+        subtitle="Platform performance metrics and insights"
+        aside={
+          <span className="inline-flex items-center gap-1.5 text-success text-xs font-semibold"> <CheckCircle2 size={14} /> Live data </span>
+        }
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -150,8 +146,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-[#fffdf8] border border-[#e9ddd3] rounded-xl p-5">
-        <h3 className="text-base font-bold text-[#2d1816] mb-4">Recent Activity</h3>
+      <div className="bg-card border border-border rounded-xl p-5">
+        <h3 className="text-base font-bold text-foreground mb-4">Recent Activity</h3>
         {recentActivity.length === 0 ? (
           <EmptyState
             title="No recent activity yet"
@@ -161,12 +157,12 @@ export default function AdminDashboard() {
           <div className="flex flex-col gap-3">
             {recentActivity.map((activity) => (
               <div key={activity.id} className="flex gap-3 items-start">
-                <div className="w-2 h-2 rounded-full bg-[#f8c84d] mt-2.5 flex-shrink-0" />
+                <div className="w-2 h-2 rounded-full bg-gold-300 mt-2.5 shrink-0" />
                 <div className="flex-1">
-                  <div className="font-semibold text-[#2d1816] text-sm">{activity.action}</div>
+                  <div className="font-semibold text-foreground text-sm">{activity.action}</div>
                   <div className="flex gap-3 mt-1">
-                    <span className="text-[#2d1816]/60 text-xs">{activity.user}</span>
-                    <span className="text-[#2d1816]/40 text-xs">{activity.time}</span>
+                    <span className="text-muted-foreground text-xs">{activity.user}</span>
+                    <span className="text-muted-foreground/70 text-xs">{activity.time}</span>
                   </div>
                 </div>
               </div>

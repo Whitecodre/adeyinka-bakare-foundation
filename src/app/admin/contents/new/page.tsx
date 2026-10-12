@@ -55,10 +55,10 @@ export default function NewContentPage() {
         backHref="/admin/contents"
       />
 
-      <Card className="p-6 bg-[#fffdf8] border-[#e9ddd3]">
+      <Card className="p-6 bg-card border-border">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Key */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="key">Content Key</Label>
             <Input
               id="key"
@@ -67,13 +67,13 @@ export default function NewContentPage() {
               placeholder="e.g., hero_section, about_us"
               required
             />
-            <p className="text-xs text-[#2d1816]/60">
+            <p className="text-xs text-muted-foreground">
               Unique identifier for this content block
             </p>
           </div>
 
           {/* Title */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
@@ -85,7 +85,7 @@ export default function NewContentPage() {
           </div>
 
           {/* Content */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="content">Content</Label>
             <Textarea
               id="content"
@@ -112,7 +112,7 @@ export default function NewContentPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Active</Label>
-              <p className="text-xs text-[#2d1816]/60">
+              <p className="text-xs text-muted-foreground">
                 Show this content on the website
               </p>
             </div>
@@ -123,21 +123,20 @@ export default function NewContentPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-4">
+          <div className="mt-2 flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end [&>button]:h-11 [&>button]:w-full sm:[&>button]:h-10 sm:[&>button]:w-auto">
             <Button
               type="button"
               variant="outline"
               onClick={() => router.back()}
               disabled={loading}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4" />
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c]"
-            >
+>
               {loading ? "Creating..." : "Create Content"}
             </Button>
           </div>

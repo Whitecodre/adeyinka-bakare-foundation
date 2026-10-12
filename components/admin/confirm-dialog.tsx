@@ -16,6 +16,9 @@ interface ConfirmDialogProps {
   description: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  /** Red confirm button, for delete and deactivate. */
+  destructive?: boolean;
+  loading?: boolean;
 }
 
 export function ConfirmDialog({
@@ -26,6 +29,8 @@ export function ConfirmDialog({
   description,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
+  destructive = false,
+  loading = false,
 }: ConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,10 +40,17 @@ export function ConfirmDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" className="h-11 sm:h-10" onClick={() => onOpenChange(false)} disabled={loading}>
             {cancelLabel}
           </Button>
-          <Button onClick={onConfirm}>{confirmLabel}</Button>
+          <Button
+            variant={destructive ? "destructive" : "brand"}
+            className="h-11 sm:h-10"
+            loading={loading}
+            onClick={onConfirm}
+          >
+            {confirmLabel}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

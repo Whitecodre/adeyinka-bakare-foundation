@@ -1,5 +1,7 @@
-import { Button } from "@/components/ui/button";
+import type { LucideIcon } from "lucide-react";
 import { Inbox } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 interface EmptyStateProps {
   title: string;
@@ -8,22 +10,22 @@ interface EmptyStateProps {
     label: string;
     onClick: () => void;
   };
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: LucideIcon;
 }
 
-export function EmptyState({ title, description, action, icon: DefaultIcon }: EmptyStateProps) {
-  const Icon = DefaultIcon || Inbox;
+/** Shown when a list has nothing to display. Always say what to do next. */
+export function EmptyState({ title, description, action, icon: Icon = Inbox }: EmptyStateProps) {
   return (
-    <div className="text-center py-12">
-      <div className="w-20 h-20 mx-auto mb-4 bg-[#e9ddd3]/30 rounded-full flex items-center justify-center">
-        <Icon className="w-10 h-10 text-[#922821]/40" />
+    <div className="flex flex-col items-center px-4 py-12 text-center">
+      <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <Icon className="size-8" />
       </div>
-      <h3 className="text-xl font-semibold text-[#2d1816] mb-2">{title}</h3>
-      {description && (
-        <p className="text-[#2d1816]/60 mb-6">{description}</p>
-      )}
+      <h3 className="mb-1 text-lg font-semibold text-foreground">{title}</h3>
+      {description && <p className="mb-6 max-w-sm text-sm text-muted-foreground">{description}</p>}
       {action && (
-        <Button onClick={action.onClick}>{action.label}</Button>
+        <Button variant="brand" className="h-11 px-6" onClick={action.onClick}>
+          {action.label}
+        </Button>
       )}
     </div>
   );

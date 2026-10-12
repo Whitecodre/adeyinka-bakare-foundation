@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Libre_Baskerville, Manrope } from "next/font/google";
+import { Libre_Baskerville, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const bodyFont = Manrope({
+const bodyFont = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-body",
 });

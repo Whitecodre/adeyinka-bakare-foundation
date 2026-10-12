@@ -64,23 +64,24 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex flex-col h-full relative">
-      <Link href="/admin-auth/login" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-fit">
-        <ArrowLeft size={16} />
+    <div className="relative flex h-full flex-col">
+      <Link
+        href="/admin-auth/login"
+        className="inline-flex min-h-[44px] w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" />
         Back to sign in
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-8 pb-8">
+      <div className="mx-auto mt-8 flex w-full max-w-sm flex-1 flex-col justify-center lg:mt-0">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
           <div>
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">
-              Reset Password
-            </h1>
-            <p className="text-sm text-muted-foreground mt-2">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Reset Password</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
               {submitted
                 ? "Check your email for the reset link"
                 : "Enter your email to receive a password reset link"}
@@ -88,36 +89,35 @@ export default function ForgotPasswordPage() {
           </div>
 
           {!submitted ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email */}
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium text-foreground/80">Email</Label>
+                <Label htmlFor="email" className="text-xs font-medium">
+                  Email
+                </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
+                    id="email"
                     type="email"
+                    autoComplete="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="admin@abf.org"
-                    className={`pl-10 border-border bg-background focus:border-gold-300 focus:ring-gold-300/20 ${
-                      errors.email ? "border-destructive" : ""
-                    }`}
+                    placeholder="admin@example.com"
+                    aria-invalid={!!errors.email}
+                    className={`h-11 pl-10 ${errors.email ? "border-destructive" : ""}`}
                     disabled={loading}
                   />
                 </div>
-                {errors.email && <p className="text-[11px] text-destructive">{errors.email}</p>}
+                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-2">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
-                >
-                  {loading ? "Sending..." : "Send Reset Link"}
-                </Button>
-              </div>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
+              >
+                {loading ? "Sending..." : "Send Reset Link"}
+              </Button>
             </form>
           ) : (
             <div className="text-center space-y-6">
@@ -139,7 +139,7 @@ export default function ForgotPasswordPage() {
                   setFormData({ email: "" });
                 }}
                 variant="outline"
-                className="border-border text-foreground hover:bg-border/30"
+                className="h-11"
               >
                 Send another email
               </Button>

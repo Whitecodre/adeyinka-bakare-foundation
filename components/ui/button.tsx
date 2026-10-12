@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -21,12 +22,14 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        brand:
+          "bg-linear-to-r from-maroon-500 to-maroon-600 text-white shadow-md shadow-primary/25 hover:from-maroon-600 hover:to-maroon-700",
       },
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
+        lg: "h-11 rounded-md px-6",
+        icon: "h-11 w-11 md:h-9 md:w-9",
       },
     },
     defaultVariants: {
@@ -40,10 +43,12 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  /** Shows a spinner and disables the button while an action is running. */
+  loading?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, onPointerDown, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, loading = false, disabled, children, onPointerDown, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
 
     // Press ripple: a circle that grows from the pointer position.
@@ -65,8 +70,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         onPointerDown={handlePointerDown}
+        disabled={disabled || loading}
+        aria-busy={loading || undefined}
         {...props}
-      />
+      >
+        {asChild ? (
+          children
+        ) : (
+          <>
+            {loading && <Loader2 className="animate-spin" aria-hidden="true" />}
+            {children}
+          </>
+        )}
+      </Comp>
     )
   }
 )

@@ -80,12 +80,15 @@ function ResetPasswordForm() {
   if (!validToken) {
     return (
       <div className="flex flex-col h-full relative">
-        <Link href="/admin-auth/forgot-password" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-fit">
-          <ArrowLeft size={16} />
+        <Link
+          href="/admin-auth/forgot-password"
+          className="inline-flex min-h-[44px] w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
           Back to forgot password
         </Link>
 
-        <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-8 pb-8">
+        <div className="mx-auto mt-8 flex w-full max-w-sm flex-1 flex-col justify-center lg:mt-0">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -101,7 +104,7 @@ function ResetPasswordForm() {
               </p>
             </div>
             <Link href="/admin-auth/forgot-password">
-              <Button className="bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700">
+              <Button className="h-11 bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white hover:from-maroon-600 hover:to-maroon-700">
                 Request New Link
               </Button>
             </Link>
@@ -132,7 +135,7 @@ function ResetPasswordForm() {
               </p>
             </div>
             <Link href="/admin-auth/login">
-              <Button className="bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700">
+              <Button className="h-11 bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white hover:from-maroon-600 hover:to-maroon-700">
                 Sign In
               </Button>
             </Link>
@@ -143,90 +146,94 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="flex flex-col h-full relative">
-      <Link href="/admin-auth/login" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-fit">
-        <ArrowLeft size={16} />
+    <div className="relative flex h-full flex-col">
+      <Link
+        href="/admin-auth/login"
+        className="inline-flex min-h-[44px] w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" />
         Back to sign in
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto mt-8 pb-8">
+      <div className="mx-auto mt-8 flex w-full max-w-sm flex-1 flex-col justify-center lg:mt-0">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
           <div>
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">
-              Reset Password
-            </h1>
-            <p className="text-sm text-muted-foreground mt-2">
-              Enter your new password below
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Reset Password</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Enter your new password below</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Password */}
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-foreground/80">New Password</Label>
+              <Label htmlFor="password" className="text-xs font-medium">
+                New Password
+              </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
+                  id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="•••••••••"
-                  className={`pl-10 pr-10 border-border bg-background focus:border-gold-300 focus:ring-gold-300/20 ${
-                    errors.password ? "border-destructive" : ""
-                  }`}
+                  placeholder="At least 8 characters"
+                  aria-invalid={!!errors.password}
+                  className={`h-11 pl-10 pr-12 ${errors.password ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-0 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
                 </button>
               </div>
-              {errors.password && <p className="text-[11px] text-destructive">{errors.password}</p>}
+              {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
             </div>
 
-            {/* Confirm Password */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-foreground/80">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword" className="text-xs font-medium">
+                Confirm New Password
+              </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
+                  id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  placeholder="•••••••••"
-                  className={`pl-10 pr-10 border-border bg-background focus:border-gold-300 focus:ring-gold-300/20 ${
-                    errors.confirmPassword ? "border-destructive" : ""
-                  }`}
+                  placeholder="Repeat your new password"
+                  aria-invalid={!!errors.confirmPassword}
+                  className={`h-11 pl-10 pr-12 ${errors.confirmPassword ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  className="absolute right-0 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
                 </button>
               </div>
-              {errors.confirmPassword && <p className="text-[11px] text-destructive">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && (
+                <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+              )}
             </div>
 
-            {/* Submit Button */}
-            <div className="pt-2">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
-              >
-                {loading ? "Resetting..." : "Reset Password"}
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
+            >
+              {loading ? "Resetting..." : "Reset Password"}
+            </Button>
           </form>
         </motion.div>
       </div>

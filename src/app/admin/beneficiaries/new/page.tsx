@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { PageHeader } from "@/components/admin/page-header";
 
 export default function NewBeneficiaryPage() {
   const router = useRouter();
@@ -122,117 +123,104 @@ export default function NewBeneficiaryPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.back()}
-          className="hover:bg-[#e9ddd3]/30"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-[#2d1816] m-0">Add New Beneficiary</h1>
-          <p className="text-[#2d1816]/60 mt-1 text-sm">Create a new fellowship beneficiary</p>
-        </div>
-      </div>
+      <PageHeader title="Add New Beneficiary" subtitle="Create a new fellowship beneficiary" backHref="/admin/beneficiaries" />
 
-      <Card className="border-[#e9ddd3] bg-[#fffdf8]">
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-[#2d1816]">
+          <CardTitle className="text-lg font-semibold text-foreground">
             Beneficiary Information
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="full_name" className="text-[#2d1816]">
-                  Full Name <span className="text-red-500">*</span>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="full_name">
+                  Full Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="full_name"
                   value={formData.full_name}
                   onChange={(e) => handleInputChange("full_name", e.target.value)}
                   placeholder="Enter full name"
-                  className={`border-[#e9ddd3] ${errors.full_name ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.full_name ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.full_name && (
-                  <p className="text-sm text-red-500">{errors.full_name}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.full_name}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="department" className="text-[#2d1816]">
-                  Department <span className="text-red-500">*</span>
+              <div className="space-y-1.5">
+                <Label htmlFor="department">
+                  Department <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="department"
                   value={formData.department}
                   onChange={(e) => handleInputChange("department", e.target.value)}
                   placeholder="e.g., Computer Science"
-                  className={`border-[#e9ddd3] ${errors.department ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.department ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.department && (
-                  <p className="text-sm text-red-500">{errors.department}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.department}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="level" className="text-[#2d1816]">
-                  Level <span className="text-red-500">*</span>
+              <div className="space-y-1.5">
+                <Label htmlFor="level">
+                  Level <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="level"
                   value={formData.level}
                   onChange={(e) => handleInputChange("level", e.target.value)}
                   placeholder="e.g., 400 Level"
-                  className={`border-[#e9ddd3] ${errors.level ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.level ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.level && (
-                  <p className="text-sm text-red-500">{errors.level}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.level}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="session" className="text-[#2d1816]">
-                  Session <span className="text-red-500">*</span>
+              <div className="space-y-1.5">
+                <Label htmlFor="session">
+                  Session <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="session"
                   value={formData.session}
                   onChange={(e) => handleInputChange("session", e.target.value)}
                   placeholder="e.g., 2024/2025"
-                  className={`border-[#e9ddd3] ${errors.session ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.session ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.session && (
-                  <p className="text-sm text-red-500">{errors.session}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.session}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="programme" className="text-[#2d1816]">
-                  Programme <span className="text-red-500">*</span>
+              <div className="space-y-1.5">
+                <Label htmlFor="programme">
+                  Programme <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="programme"
                   value={formData.programme}
                   onChange={(e) => handleInputChange("programme", e.target.value)}
                   placeholder="e.g., Scholarship Programme"
-                  className={`border-[#e9ddd3] ${errors.programme ? "border-red-500" : ""}`}
+                  className={`border-border ${errors.programme ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
                 {errors.programme && (
-                  <p className="text-sm text-red-500">{errors.programme}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.programme}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="status" className="text-[#2d1816]">
+              <div className="space-y-1.5">
+                <Label htmlFor="status">
                   Status
                 </Label>
                 <Select
@@ -240,7 +228,7 @@ export default function NewBeneficiaryPage() {
                   onValueChange={(value) => handleInputChange("status", value)}
                   disabled={loading}
                 >
-                  <SelectTrigger className="border-[#e9ddd3]">
+                  <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -262,8 +250,8 @@ export default function NewBeneficiaryPage() {
               accept="image/*"
             />
 
-            <div className="space-y-2">
-              <Label htmlFor="bio" className="text-[#2d1816]">
+            <div className="space-y-1.5">
+              <Label htmlFor="bio">
                 Bio
               </Label>
               <Textarea
@@ -272,41 +260,41 @@ export default function NewBeneficiaryPage() {
                 onChange={(e) => handleInputChange("bio", e.target.value)}
                 placeholder="Enter beneficiary bio..."
                 rows={4}
-                className="border-[#e9ddd3] resize-none"
+                className="border-border resize-none"
                 disabled={loading}
               />
             </div>
 
-            <div className="flex items-center gap-3 p-4 border border-[#e9ddd3] rounded-lg bg-[#fffdf8]">
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
               <Switch
                 id="featured"
                 checked={formData.featured}
                 onCheckedChange={(checked) => handleInputChange("featured", checked)}
                 disabled={loading}
               />
-              <Label htmlFor="featured" className="text-[#2d1816] cursor-pointer">
+              <Label htmlFor="featured" className="text-foreground cursor-pointer">
                 Featured Beneficiary
               </Label>
             </div>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-[#e9ddd3]">
+            <div className="mt-2 flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={loading}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="h-11 w-full sm:h-10 sm:w-auto"
               >
                 Cancel
               </Button>
-              <Button
+              <Button variant="brand"
                 type="submit"
                 disabled={loading}
-                className="bg-gradient-to-r from-[#aa322b] to-[#922821] text-white hover:from-[#922821] hover:to-[#7a221b]"
+                className="h-11 w-full sm:h-10 sm:w-auto"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Creating...
                   </>
                 ) : (
