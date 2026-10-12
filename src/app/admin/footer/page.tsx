@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, MoreVertical, Edit, Trash2, ExternalLink, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Loader2, FolderOpen, Link as LinkIcon } from "lucide-react";
+import { Plus, Search, Edit, Trash2, ExternalLink, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Loader2, FolderOpen, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ import { LoadingState } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface FooterLink {
   id: string;
@@ -404,16 +405,11 @@ export default function FooterPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Footer Management</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage footer sections and links</p>
-        </div>
-        <Button onClick={() => handleOpenSectionDialog()} size="lg">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Section
-        </Button>
-      </div>
+      <PageHeader
+        title="Footer Management"
+        subtitle="Manage footer sections and links"
+        actions={[{ label: "Add Section", onClick: () => handleOpenSectionDialog(), variant: "primary" }]}
+      />
 
       <Card className="border-border">
         <CardHeader>
@@ -457,8 +453,7 @@ export default function FooterPage() {
                           size="icon"
                           onClick={() => handleMoveSection(sectionIndex, "up")}
                           disabled={sectionIndex === 0}
-                          className="hover:bg-muted"
-                        >
+>
                           <ArrowUp className="w-4 h-4" />
                         </Button>
                         <Button
@@ -466,8 +461,7 @@ export default function FooterPage() {
                           size="icon"
                           onClick={() => handleMoveSection(sectionIndex, "down")}
                           disabled={sectionIndex === filteredSections.length - 1}
-                          className="hover:bg-muted"
-                        >
+>
                           <ArrowDown className="w-4 h-4" />
                         </Button>
                       </div>
@@ -476,8 +470,7 @@ export default function FooterPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => toggleSection(section.id)}
-                        className="hover:bg-muted"
-                      >
+>
                         {expandedSections.has(section.id) ? (
                           <ChevronDown className="w-4 h-4" />
                         ) : (
@@ -510,16 +503,14 @@ export default function FooterPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenLinkDialog(section.id)}
-                          className="hover:bg-muted"
-                        >
+>
                           <Plus className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenSectionDialog(section)}
-                          className="hover:bg-muted"
-                        >
+>
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
@@ -551,7 +542,7 @@ export default function FooterPage() {
                                   size="icon"
                                   onClick={() => handleMoveLink(section.id, linkIndex, "up")}
                                   disabled={linkIndex === 0}
-                                  className="h-6 w-6 hover:bg-muted"
+                                  className="h-6 w-6"
                                 >
                                   <ArrowUp className="w-3 h-3" />
                                 </Button>
@@ -560,7 +551,7 @@ export default function FooterPage() {
                                   size="icon"
                                   onClick={() => handleMoveLink(section.id, linkIndex, "down")}
                                   disabled={linkIndex === section.links.length - 1}
-                                  className="h-6 w-6 hover:bg-muted"
+                                  className="h-6 w-6"
                                 >
                                   <ArrowDown className="w-3 h-3" />
                                 </Button>
@@ -591,7 +582,7 @@ export default function FooterPage() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => window.open(link.url, '_blank')}
-                                  className="h-8 w-8 hover:bg-muted"
+                                  className="h-8 w-8"
                                 >
                                   <ExternalLink className="w-3 h-3" />
                                 </Button>
@@ -599,7 +590,7 @@ export default function FooterPage() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => handleOpenLinkDialog(section.id, link)}
-                                  className="h-8 w-8 hover:bg-muted"
+                                  className="h-8 w-8"
                                 >
                                   <Edit className="w-3 h-3" />
                                 </Button>
@@ -686,19 +677,17 @@ export default function FooterPage() {
               variant="outline"
               onClick={handleCloseSectionDialog}
               disabled={saving}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               type="button"
               onClick={handleSaveSection}
               disabled={saving}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               {saving ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Saving...
                 </>
               ) : (
@@ -789,19 +778,17 @@ export default function FooterPage() {
               variant="outline"
               onClick={handleCloseLinkDialog}
               disabled={saving}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               type="button"
               onClick={handleSaveLink}
               disabled={saving}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               {saving ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Saving...
                 </>
               ) : (

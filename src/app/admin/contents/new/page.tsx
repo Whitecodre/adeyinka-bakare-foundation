@@ -58,7 +58,7 @@ export default function NewContentPage() {
       <Card className="p-6 bg-card border-border">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Key */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="key">Content Key</Label>
             <Input
               id="key"
@@ -73,7 +73,7 @@ export default function NewContentPage() {
           </div>
 
           {/* Title */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
@@ -85,7 +85,7 @@ export default function NewContentPage() {
           </div>
 
           {/* Content */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="content">Content</Label>
             <Textarea
               id="content"
@@ -123,21 +123,20 @@ export default function NewContentPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-4">
+          <div className="mt-2 flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end [&>button]:h-11 [&>button]:w-full sm:[&>button]:h-10 sm:[&>button]:w-auto">
             <Button
               type="button"
               variant="outline"
               onClick={() => router.back()}
               disabled={loading}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4" />
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               type="submit"
               disabled={loading}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               {loading ? "Creating..." : "Create Content"}
             </Button>
           </div>

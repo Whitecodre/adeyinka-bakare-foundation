@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreVertical, Edit, Trash2, User } from "lucide-react";
+import { Search, MoreVertical, Edit, Trash2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ import { LoadingState } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface Member {
   id: string;
@@ -120,16 +121,11 @@ export default function MembersPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Members</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage fellowship members</p>
-        </div>
-        <Button onClick={() => router.push("/admin/members/new")} size="lg">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Member
-        </Button>
-      </div>
+      <PageHeader
+        title="Members"
+        subtitle="Manage fellowship members"
+        actions={[{ label: "Add Member", onClick: () => router.push("/admin/members/new"), variant: "primary" }]}
+      />
 
       <Card className="border-border">
         <CardHeader>
@@ -198,14 +194,14 @@ export default function MembersPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => router.push(`/admin/members/${member.id}`)}>
-                                <Edit className="w-4 h-4 mr-2" />
+                                <Edit className="w-4 h-4" />
                                 Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteConfirm(member.id)}
                                 className="text-destructive"
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
+                                <Trash2 className="w-4 h-4" />
                                 Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -252,14 +248,14 @@ export default function MembersPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => router.push(`/admin/members/${member.id}`)}>
-                              <Edit className="w-4 h-4 mr-2" />
+                              <Edit className="w-4 h-4" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setDeleteConfirm(member.id)}
                               className="text-destructive"
                             >
-                              <Trash2 className="w-4 h-4 mr-2" />
+                              <Trash2 className="w-4 h-4" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>

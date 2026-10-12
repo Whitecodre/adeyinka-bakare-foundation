@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Save, Loader2, Globe, Mail, Phone, MapPin, MessageSquare, Image as ImageIcon } from "lucide-react";
+import { Save, Loader2, Globe, Mail, Phone, MapPin, MessageSquare, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -113,12 +113,12 @@ export default function SettingsPage() {
         <Button onClick={handleSave} size="lg" disabled={saving}>
           {saving ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
               Saving...
             </>
           ) : (
             <>
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="w-4 h-4" />
               Save Changes
             </>
           )}

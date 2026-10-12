@@ -447,7 +447,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("bold")}
                   title="Bold (Ctrl+B)"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <Bold className="h-4 w-4" />
                 </Button>
@@ -457,7 +457,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("italic")}
                   title="Italic (Ctrl+I)"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <Italic className="h-4 w-4" />
                 </Button>
@@ -467,7 +467,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("underline")}
                   title="Underline (Ctrl+U)"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <Underline className="h-4 w-4" />
                 </Button>
@@ -535,7 +535,7 @@ export default function NewNewsPage() {
                     setShowImageDialog(true);
                   }}
                   title="Insert Image"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <Image className="h-4 w-4" />
                 </Button>
@@ -551,7 +551,7 @@ export default function NewNewsPage() {
                     setLinkText("");
                   }}
                   title="Insert Link (Ctrl+K)"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <LinkIcon className="h-4 w-4" />
                 </Button>
@@ -567,7 +567,7 @@ export default function NewNewsPage() {
                     setCtaUrl("");
                   }}
                   title="Insert CTA Button"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <MousePointer2 className="h-4 w-4" />
                 </Button>
@@ -578,7 +578,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("formatBlock", "H1")}
                   title="Heading 1 (Ctrl+1)"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <Heading className="h-4 w-4" />
                   <span className="text-[10px]">1</span>
@@ -589,7 +589,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("formatBlock", "H2")}
                   title="Heading 2 (Ctrl+2)"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <Heading className="h-4 w-4" />
                   <span className="text-[10px]">2</span>
@@ -600,7 +600,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("formatBlock", "H3")}
                   title="Heading 3 (Ctrl+3)"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <Heading className="h-4 w-4" />
                   <span className="text-[10px]">3</span>
@@ -612,7 +612,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("justifyLeft")}
                   title="Align Left"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <AlignLeft className="h-4 w-4" />
                 </Button>
@@ -622,7 +622,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("justifyCenter")}
                   title="Align Center"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <AlignCenter className="h-4 w-4" />
                 </Button>
@@ -632,7 +632,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("justifyRight")}
                   title="Align Right"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <AlignRight className="h-4 w-4" />
                 </Button>
@@ -642,7 +642,7 @@ export default function NewNewsPage() {
                   size="sm"
                   onClick={() => exec("justifyFull")}
                   title="Justify"
-                  className="shrink-0 hover:bg-muted"
+                  className="shrink-0"
                 >
                   <AlignJustify className="h-4 w-4" />
                 </Button>
@@ -768,7 +768,7 @@ export default function NewNewsPage() {
                   placeholder="Add tag..."
                   className="border-border"
                 />
-                <Button type="button" onClick={addTag} variant="outline" className="border-border">
+                <Button type="button" onClick={addTag} variant="outline" >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
@@ -824,18 +824,18 @@ export default function NewNewsPage() {
               variant="outline"
               onClick={() => handleSubmit("draft")}
               disabled={isLoading}
-              className="flex-1 border-border text-foreground hover:bg-muted"
+              className="flex-1"
             >
-              {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Save Draft
             </Button>
-            <Button
+            <Button variant="brand"
               type="button"
               onClick={() => handleSubmit("published")}
               disabled={isLoading}
-              className="flex-1 bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
+              className="flex-1"
             >
-              {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
               Publish
             </Button>
           </div>
@@ -889,15 +889,13 @@ export default function NewNewsPage() {
               type="button"
               variant="outline"
               onClick={() => setShowImageDialog(false)}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               type="button"
               onClick={handleImageInsert}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               Insert
             </Button>
           </DialogFooter>
@@ -937,15 +935,13 @@ export default function NewNewsPage() {
               type="button"
               variant="outline"
               onClick={() => setShowLinkDialog(false)}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               type="button"
               onClick={handleLinkInsert}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               Insert
             </Button>
           </DialogFooter>
@@ -985,15 +981,13 @@ export default function NewNewsPage() {
               type="button"
               variant="outline"
               onClick={() => setShowCtaDialog(false)}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               type="button"
               onClick={handleCtaInsert}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               Insert
             </Button>
           </DialogFooter>

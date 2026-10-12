@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingState } from "@/components/admin/loading-state";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface Programme {
   id: string;
@@ -194,20 +195,7 @@ export default function EditProgrammePage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.back()}
-          className="hover:bg-muted"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Edit Programme</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Update programme information</p>
-        </div>
-      </div>
+      <PageHeader title="Edit Programme" subtitle="Update programme information" backHref="/admin/programmes" />
 
       <Card className="border-border bg-card">
         <CardHeader>
@@ -217,9 +205,9 @@ export default function EditProgrammePage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="title" className="text-foreground">
+                <Label htmlFor="title">
                   Title <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -231,12 +219,12 @@ export default function EditProgrammePage() {
                   disabled={submitting}
                 />
                 {errors.title && (
-                  <p className="text-sm text-destructive">{errors.title}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.title}</p>
                 )}
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="slug" className="text-foreground">
+                <Label htmlFor="slug">
                   Slug <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -248,12 +236,12 @@ export default function EditProgrammePage() {
                   disabled={submitting}
                 />
                 {errors.slug && (
-                  <p className="text-sm text-destructive">{errors.slug}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.slug}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="status" className="text-foreground">
+              <div className="space-y-1.5">
+                <Label htmlFor="status">
                   Status
                 </Label>
                 <Select
@@ -272,7 +260,7 @@ export default function EditProgrammePage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <ImageUpload
                   value={formData.image}
                   onChange={(value) => handleInputChange("image", value)}
@@ -285,8 +273,8 @@ export default function EditProgrammePage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-foreground">
+            <div className="space-y-1.5">
+              <Label htmlFor="description">
                 Description <span className="text-destructive">*</span>
               </Label>
               <Textarea
@@ -299,11 +287,11 @@ export default function EditProgrammePage() {
                 disabled={submitting}
               />
               {errors.description && (
-                <p className="text-sm text-destructive">{errors.description}</p>
+                <p className="text-xs text-destructive" role="alert">{errors.description}</p>
               )}
             </div>
 
-            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
               <Switch
                 id="featured"
                 checked={formData.featured}
@@ -315,24 +303,24 @@ export default function EditProgrammePage() {
               </Label>
             </div>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-border">
+            <div className="mt-2 flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={submitting}
-                className="border-border text-foreground hover:bg-muted"
+                className="h-11 w-full sm:h-10 sm:w-auto"
               >
                 Cancel
               </Button>
-              <Button
+              <Button variant="brand"
                 type="submit"
                 disabled={submitting}
-                className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
+                className="h-11 w-full sm:h-10 sm:w-auto"
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Updating...
                   </>
                 ) : (

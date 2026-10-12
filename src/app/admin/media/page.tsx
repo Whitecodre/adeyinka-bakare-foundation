@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreVertical, Edit, Trash2, File, Image as ImageIcon, Video, FileText, Download } from "lucide-react";
+import { Search, MoreVertical, Edit, Trash2, File, Image as ImageIcon, Video, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ import { LoadingState } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface Media {
   id: string;
@@ -136,16 +137,11 @@ export default function MediaPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Media</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage media files</p>
-        </div>
-        <Button onClick={() => router.push("/admin/media/new")} size="lg">
-          <Plus className="w-4 h-4 mr-2" />
-          Upload Media
-        </Button>
-      </div>
+      <PageHeader
+        title="Media"
+        subtitle="Manage media files"
+        actions={[{ label: "Upload Media", onClick: () => router.push("/admin/media/new"), variant: "primary" }]}
+      />
 
       <Card className="border-border">
         <CardHeader>
@@ -218,18 +214,18 @@ export default function MediaPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => window.open(item.storage_path, '_blank')}>
-                                <Download className="w-4 h-4 mr-2" />
+                                <Download className="w-4 h-4" />
                                 Download
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => router.push(`/admin/media/${item.id}`)}>
-                                <Edit className="w-4 h-4 mr-2" />
+                                <Edit className="w-4 h-4" />
                                 Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteConfirm(item.id)}
                                 className="text-destructive"
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
+                                <Trash2 className="w-4 h-4" />
                                 Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -286,18 +282,18 @@ export default function MediaPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => window.open(item.storage_path, '_blank')}>
-                              <Download className="w-4 h-4 mr-2" />
+                              <Download className="w-4 h-4" />
                               Download
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => router.push(`/admin/media/${item.id}`)}>
-                              <Edit className="w-4 h-4 mr-2" />
+                              <Edit className="w-4 h-4" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setDeleteConfirm(item.id)}
                               className="text-destructive"
                             >
-                              <Trash2 className="w-4 h-4 mr-2" />
+                              <Trash2 className="w-4 h-4" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>

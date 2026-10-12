@@ -194,14 +194,14 @@ export default function VolunteersPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => router.push(`/admin/volunteers/${volunteer.id}`)}>
-                                <Edit className="w-4 h-4 mr-2" />
+                                <Edit className="w-4 h-4" />
                                 View Details
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteConfirm(volunteer.id)}
                                 className="text-destructive"
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
+                                <Trash2 className="w-4 h-4" />
                                 Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -257,14 +257,14 @@ export default function VolunteersPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => router.push(`/admin/volunteers/${volunteer.id}`)}>
-                              <Edit className="w-4 h-4 mr-2" />
+                              <Edit className="w-4 h-4" />
                               View Details
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setDeleteConfirm(volunteer.id)}
                               className="text-destructive"
                             >
-                              <Trash2 className="w-4 h-4 mr-2" />
+                              <Trash2 className="w-4 h-4" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>

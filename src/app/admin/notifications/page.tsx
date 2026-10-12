@@ -10,8 +10,9 @@ import { Switch } from "@/components/ui/switch";
 import { LoadingState } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
-import { Bell, Trash2, Check, Search, Clock, User, X } from "lucide-react";
+import { Bell, Trash2, Check, Search, Clock, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Toolbar } from "@/components/admin/toolbar";
 
 interface Notification {
   id: string;
@@ -216,24 +217,17 @@ export default function NotificationsPage() {
             <CardTitle className="text-lg font-semibold text-foreground">
               All Notifications ({filteredNotifications.length})
             </CardTitle>
-            <div className="flex gap-3 w-full sm:w-auto">
-              <div className="relative flex-1 sm:flex-none sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
-                <Input
-                  placeholder="Search notifications..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-border"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={showUnreadOnly}
-                  onCheckedChange={setShowUnreadOnly}
-                />
-                <span className="text-sm text-muted-foreground">Unread only</span>
-              </div>
-            </div>
+            <Toolbar
+              search={searchQuery}
+              onSearchChange={setSearchQuery}
+              placeholder="Search notifications..."
+              className="w-full sm:w-auto"
+            >
+              <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-muted-foreground sm:min-h-10">
+                <Switch checked={showUnreadOnly} onCheckedChange={setShowUnreadOnly} />
+                Unread only
+              </label>
+            </Toolbar>
           </div>
         </CardHeader>
         <CardContent>
@@ -299,7 +293,7 @@ export default function NotificationsPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleMarkAsRead(notif.id)}
-                            className="hover:bg-muted"
+
                             title="Mark as read"
                           >
                             <Check className="w-4 h-4" />
@@ -327,9 +321,8 @@ export default function NotificationsPage() {
               <Button
                 variant="outline"
                 onClick={() => setDeleteConfirm("all")}
-                className="border-border text-foreground hover:bg-muted"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
+>
+                <Trash2 className="w-4 h-4" />
                 Delete All Notifications
               </Button>
             </div>

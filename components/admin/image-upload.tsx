@@ -125,7 +125,7 @@ export function ImageUpload({
                 asChild
               >
                 <span>
-                  <Upload className="w-4 h-4 mr-2" />
+                  <Upload className="w-4 h-4" />
                   {uploading ? "Uploading..." : "Upload File"}
                 </span>
               </Button>

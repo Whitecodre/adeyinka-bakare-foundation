@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreVertical, Edit, Trash2, FileText } from "lucide-react";
+import { Search, MoreVertical, Edit, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ import { LoadingState } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface Content {
   id: string;
@@ -115,16 +116,11 @@ export default function ContentsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Contents</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage website content</p>
-        </div>
-        <Button onClick={() => router.push("/admin/contents/new")} size="lg">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Content
-        </Button>
-      </div>
+      <PageHeader
+        title="Contents"
+        subtitle="Manage website content"
+        actions={[{ label: "Add Content", onClick: () => router.push("/admin/contents/new"), variant: "primary" }]}
+      />
 
       <Card className="border-border">
         <CardHeader>
@@ -196,14 +192,14 @@ export default function ContentsPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => router.push(`/admin/contents/${item.id}`)}>
-                                <Edit className="w-4 h-4 mr-2" />
+                                <Edit className="w-4 h-4" />
                                 Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setDeleteConfirm(item.id)}
                                 className="text-destructive"
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
+                                <Trash2 className="w-4 h-4" />
                                 Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -245,14 +241,14 @@ export default function ContentsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => router.push(`/admin/contents/${item.id}`)}>
-                              <Edit className="w-4 h-4 mr-2" />
+                              <Edit className="w-4 h-4" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setDeleteConfirm(item.id)}
                               className="text-destructive"
                             >
-                              <Trash2 className="w-4 h-4 mr-2" />
+                              <Trash2 className="w-4 h-4" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>

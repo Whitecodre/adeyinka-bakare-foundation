@@ -18,21 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { LoadingState } from "@/components/admin/loading-state";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Shield,
-  Lock,
-  Key,
-  Smartphone,
-  Fingerprint,
-  Clock,
-  Globe,
-  Trash2,
-  Copy,
-  Download,
-  Plus,
-  Check,
-  X,
-} from "lucide-react";
+import { Lock, Key, Smartphone, Fingerprint, Globe, Trash2, Copy, Download, Plus, Check } from "lucide-react";
 
 interface Session {
   id: string;
@@ -363,17 +349,17 @@ export default function SecurityPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-foreground">Change your password</p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-sm font-medium text-foreground">Change your password</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
                 Ensure your password is strong and unique
               </p>
             </div>
             <Button
               variant="outline"
               onClick={() => setShowPasswordDialog(true)}
-              className="border-border text-foreground hover:bg-muted"
+              className="w-full sm:w-auto"
             >
               Change Password
             </Button>
@@ -390,10 +376,10 @@ export default function SecurityPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-sm text-foreground">Two-Factor Authentication</p>
+                <p className="text-sm font-medium text-foreground">Two-Factor Authentication</p>
                 {mfaEnabled && (
                   <Badge className="bg-success-soft text-success border-success/20">
                     <Check className="w-3 h-3 mr-1" />
@@ -401,7 +387,7 @@ export default function SecurityPage() {
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="mt-0.5 text-sm text-muted-foreground">
                 Add an extra layer of security to your account
               </p>
             </div>
@@ -409,15 +395,15 @@ export default function SecurityPage() {
               <Button
                 variant="outline"
                 onClick={handleDisableMfa}
-                className="border-border text-foreground hover:bg-muted"
-              >
+              className="w-full sm:w-auto"
+            >
                 Disable
               </Button>
             ) : (
-              <Button
+              <Button variant="brand"
                 onClick={handleEnableMfa}
-                className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
-              >
+              className="w-full sm:w-auto"
+            >
                 Enable
               </Button>
             )}
@@ -428,9 +414,8 @@ export default function SecurityPage() {
               <Button
                 variant="outline"
                 onClick={handleGenerateRecoveryCodes}
-                className="border-border text-foreground hover:bg-muted"
-              >
-                <Key className="w-4 h-4 mr-2" />
+>
+                <Key className="w-4 h-4" />
                 Generate Recovery Codes
               </Button>
             </div>
@@ -447,10 +432,10 @@ export default function SecurityPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-sm text-foreground">Passkeys</p>
+                <p className="text-sm font-medium text-foreground">Passkeys</p>
                 {passkeysEnabled && (
                   <Badge className="bg-success-soft text-success border-success/20">
                     <Check className="w-3 h-3 mr-1" />
@@ -458,16 +443,16 @@ export default function SecurityPage() {
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="mt-0.5 text-sm text-muted-foreground">
                 Use biometric authentication for secure, passwordless login
               </p>
             </div>
             <Button
               variant="outline"
               onClick={() => setShowPasskeyDialog(true)}
-              className="border-border text-foreground hover:bg-muted"
+              className="w-full sm:w-auto"
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               Add Passkey
             </Button>
           </div>
@@ -616,14 +601,12 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setShowPasswordDialog(false)}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               onClick={handlePasswordChange}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               Change Password
             </Button>
           </DialogFooter>
@@ -657,14 +640,12 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setShowPasskeyDialog(false)}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               onClick={handleAddPasskey}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               Add Passkey
             </Button>
           </DialogFooter>
@@ -703,9 +684,8 @@ export default function SecurityPage() {
                     description: "Recovery codes copied to clipboard",
                   });
                 }}
-                className="border-border text-foreground hover:bg-muted"
-              >
-                <Copy className="w-4 h-4 mr-2" />
+>
+                <Copy className="w-4 h-4" />
                 Copy All
               </Button>
               <Button
@@ -722,18 +702,16 @@ export default function SecurityPage() {
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="border-border text-foreground hover:bg-muted"
-              >
-                <Download className="w-4 h-4 mr-2" />
+>
+                <Download className="w-4 h-4" />
                 Download
               </Button>
             </div>
           </div>
           <DialogFooter>
-            <Button
+            <Button variant="brand"
               onClick={() => setShowRecoveryCodes(false)}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               I've Saved My Codes
             </Button>
           </DialogFooter>
@@ -753,8 +731,7 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setSessionToDelete(null)}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
             <Button
@@ -780,8 +757,7 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setPasskeyToDelete(null)}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
             <Button

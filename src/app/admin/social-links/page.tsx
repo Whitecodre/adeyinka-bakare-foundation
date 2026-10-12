@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreVertical, Edit, Trash2, ExternalLink, X, ArrowUp, ArrowDown, Loader2, Globe, Share2 } from "lucide-react";
+import { Search, Edit, Trash2, ExternalLink, X, ArrowUp, ArrowDown, Loader2, Globe, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +27,7 @@ import { LoadingState } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface SocialLink {
   id: string;
@@ -264,16 +265,11 @@ export default function SocialLinksPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Social Links</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage social media links</p>
-        </div>
-        <Button onClick={() => handleOpenDialog()} size="lg">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Social Link
-        </Button>
-      </div>
+      <PageHeader
+        title="Social Links"
+        subtitle="Manage social media links"
+        actions={[{ label: "Add Social Link", onClick: () => handleOpenDialog(), variant: "primary" }]}
+      />
 
       <Card className="border-border">
         <CardHeader>
@@ -317,8 +313,7 @@ export default function SocialLinksPage() {
                           size="icon"
                           onClick={() => handleMoveUp(index)}
                           disabled={index === 0}
-                          className="hover:bg-muted"
-                        >
+>
                           <ArrowUp className="w-4 h-4" />
                         </Button>
                         <Button
@@ -326,8 +321,7 @@ export default function SocialLinksPage() {
                           size="icon"
                           onClick={() => handleMoveDown(index)}
                           disabled={index === filteredLinks.length - 1}
-                          className="hover:bg-muted"
-                        >
+>
                           <ArrowDown className="w-4 h-4" />
                         </Button>
                       </div>
@@ -357,16 +351,14 @@ export default function SocialLinksPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => window.open(link.url, '_blank')}
-                          className="hover:bg-muted"
-                        >
+>
                           <ExternalLink className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenDialog(link)}
-                          className="hover:bg-muted"
-                        >
+>
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
@@ -477,19 +469,17 @@ export default function SocialLinksPage() {
               variant="outline"
               onClick={handleCloseDialog}
               disabled={saving}
-              className="border-border text-foreground hover:bg-muted"
-            >
+>
               Cancel
             </Button>
-            <Button
+            <Button variant="brand"
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
-            >
+>
               {saving ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Saving...
                 </>
               ) : (

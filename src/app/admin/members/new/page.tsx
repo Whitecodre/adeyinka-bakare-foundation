@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/admin/page-header";
 
 export default function NewMemberPage() {
   const router = useRouter();
@@ -124,20 +125,7 @@ export default function NewMemberPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.back()}
-          className="hover:bg-muted"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Add New Member</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Create a new fellowship member</p>
-        </div>
-      </div>
+      <PageHeader title="Add New Member" subtitle="Create a new fellowship member" backHref="/admin/members" />
 
       <Card className="border-border bg-card">
         <CardHeader>
@@ -147,9 +135,9 @@ export default function NewMemberPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="full_name" className="text-foreground">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="full_name">
                   Full Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -161,12 +149,12 @@ export default function NewMemberPage() {
                   disabled={loading}
                 />
                 {errors.full_name && (
-                  <p className="text-sm text-destructive">{errors.full_name}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.full_name}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">
+              <div className="space-y-1.5">
+                <Label htmlFor="email">
                   Email <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -179,12 +167,12 @@ export default function NewMemberPage() {
                   disabled={loading}
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.email}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-foreground">
+              <div className="space-y-1.5">
+                <Label htmlFor="phone">
                   Phone Number <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -196,12 +184,12 @@ export default function NewMemberPage() {
                   disabled={loading}
                 />
                 {errors.phone && (
-                  <p className="text-sm text-destructive">{errors.phone}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.phone}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="department" className="text-foreground">
+              <div className="space-y-1.5">
+                <Label htmlFor="department">
                   Department <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -213,12 +201,12 @@ export default function NewMemberPage() {
                   disabled={loading}
                 />
                 {errors.department && (
-                  <p className="text-sm text-destructive">{errors.department}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.department}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="level" className="text-foreground">
+              <div className="space-y-1.5">
+                <Label htmlFor="level">
                   Level <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -230,12 +218,12 @@ export default function NewMemberPage() {
                   disabled={loading}
                 />
                 {errors.level && (
-                  <p className="text-sm text-destructive">{errors.level}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.level}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="session" className="text-foreground">
+              <div className="space-y-1.5">
+                <Label htmlFor="session">
                   Session <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -247,12 +235,12 @@ export default function NewMemberPage() {
                   disabled={loading}
                 />
                 {errors.session && (
-                  <p className="text-sm text-destructive">{errors.session}</p>
+                  <p className="text-xs text-destructive" role="alert">{errors.session}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="status" className="text-foreground">
+              <div className="space-y-1.5">
+                <Label htmlFor="status">
                   Status
                 </Label>
                 <Select
@@ -272,8 +260,8 @@ export default function NewMemberPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="joined_at" className="text-foreground">
+              <div className="space-y-1.5">
+                <Label htmlFor="joined_at">
                   Joined Date
                 </Label>
                 <Input
@@ -287,24 +275,24 @@ export default function NewMemberPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-border">
+            <div className="mt-2 flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={loading}
-                className="border-border text-foreground hover:bg-muted"
+                className="h-11 w-full sm:h-10 sm:w-auto"
               >
                 Cancel
               </Button>
-              <Button
+              <Button variant="brand"
                 type="submit"
                 disabled={loading}
-                className="bg-linear-to-r from-maroon-500 to-maroon-600 text-white hover:from-maroon-600 hover:to-maroon-700"
+                className="h-11 w-full sm:h-10 sm:w-auto"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Creating...
                   </>
                 ) : (
