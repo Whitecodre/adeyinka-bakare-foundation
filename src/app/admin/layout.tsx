@@ -53,8 +53,8 @@ export default function AdminLayout({
 
   if (!mounted) {
     return (
-      <div className="flex min-h-screen bg-[#fffdf8]">
-        <div className="w-64 h-screen bg-[#2d1816] flex-shrink-0" />
+      <div className="flex min-h-screen bg-background">
+        <div className="w-64 h-screen bg-ink shrink-0" />
         <div className="flex-1 flex flex-col min-w-0">
           <main className="flex-1 p-6 md:p-8 overflow-auto">
             {children}
@@ -65,7 +65,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[#fffdf8]">
+    <div className="flex min-h-screen bg-background">
       <Sidebar
         isMobile={isMobile}
         isOpen={sidebarOpen}
@@ -79,8 +79,8 @@ export default function AdminLayout({
           onToggleSidebar={handleToggleSidebar}
           onLogout={handleLogout}
         />
-        <main className="flex-1 p-6 md:p-8 overflow-auto">
-          {children}
+        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
+          <div className="abf-fade-in mx-auto w-full max-w-7xl">{children}</div>
         </main>
       </div>
       <LogoutDialog open={logoutOpen} onOpenChange={setLogoutOpen} />

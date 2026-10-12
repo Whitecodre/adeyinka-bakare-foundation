@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
   Users,
@@ -27,7 +28,7 @@ import {
 interface NavItem {
   label: string;
   href: string;
-  icon: any;
+  icon: LucideIcon;
   group?: string;
 }
 
@@ -154,51 +155,48 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onLogout, c
     <>
       {isMobile && isOpen && (
         <div
-          className="fixed inset-0 bg-black/55 backdrop-blur-sm z-[100] md:hidden"
+          className="fixed inset-0 z-[100] bg-ink/60 backdrop-blur-sm md:hidden"
           onClick={onClose}
+          aria-hidden="true"
         />
       )}
 
       <aside
+        aria-label="Admin navigation"
         className={`
-          ${width} 
-          ${isMobile ? "fixed left-0 top-0 h-screen z-[101]" : "sticky top-0 h-screen"}
-          bg-[#2d1816] 
-          border-r border-[#e9ddd3]/20 
-          flex 
-          flex-col 
-          gap-2.5 
-          transition-all duration-180
+          ${width}
+          ${isMobile ? "fixed left-0 top-0 z-[101] h-dvh" : "sticky top-0 h-screen"}
+          flex flex-col gap-2.5 border-r border-white/10 bg-ink transition-all duration-200
           ${isMobile ? (isOpen ? "translate-x-0" : "-translate-x-full") : ""}
           md:translate-x-0
         `}
       >
-        <div className="flex items-center gap-3 relative p-4 min-h-[72px]">
-          <div className="w-10 h-10 bg-[#f8c84d] rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="flex min-h-[72px] items-center gap-3 p-4">
+          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gold-300">
             <Image
               src="/brand/logo.png"
               alt="ABF Logo"
               width={40}
               height={40}
-              className="w-full h-full object-cover"
+              className="size-full object-cover"
             />
           </div>
           {showLabels && (
             <div>
-              <div className="text-white font-bold text-sm tracking-wider">ABF</div>
-              <div className="text-[#f8c84d] text-xs">Admin console</div>
+              <div className="text-sm font-bold tracking-wider text-white">ABF</div>
+              <div className="text-xs text-gold-300">Admin console</div>
             </div>
           )}
         </div>
 
-        <nav className="flex-1 flex flex-col gap-3.5 px-4 overflow-y-auto scrollbar-hide">
+        <nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-3 pb-2 scrollbar-hide">
           {navGroups.map((group) => {
             const items = adminNavigation.filter((i) => i.group === group);
             if (!items.length) return null;
             return (
               <div key={group} className="flex flex-col gap-1">
                 {showLabels && (
-                  <div className="text-[#e9ddd3]/60 text-[10px] font-bold tracking-widest uppercase px-2 pb-1">
+                  <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-white/50">
                     {group}
                   </div>
                 )}
@@ -210,6 +208,8 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onLogout, c
                       key={item.href}
                       href={item.href}
                       onClick={isMobile ? onClose : undefined}
+                      aria-current={active ? "page" : undefined}
+                      aria-label={!showLabels ? item.label : undefined}
                       onMouseEnter={(e) => {
                         if (!showLabels && !isMobile) {
                           const rect = e.currentTarget.getBoundingClientRect();
@@ -222,16 +222,21 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onLogout, c
                       }}
                       onMouseLeave={() => setTooltip(null)}
                       className={`
-                        flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-160
-                        ${active 
-                          ? "bg-[#f8c84d]/20 border border-[#f8c84d] text-[#f8c84d]" 
-                          : "text-[#e9ddd3] hover:bg-[#f8c84d]/10 hover:text-white border border-transparent"
+                        group relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors duration-150
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300
+                        ${
+                          active
+                            ? "bg-gold-300/15 text-gold-300"
+                            : "text-white/75 hover:bg-white/10 hover:text-white"
                         }
                         ${!showLabels ? "justify-center" : "justify-start"}
                       `}
                     >
-                      <Icon size={19} className="flex-shrink-0" />
-                      {showLabels && <span className="whitespace-nowrap flex-1">{item.label}</span>}
+                      {active && (
+                        <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-gold-300" />
+                      )}
+                      <Icon className="size-5 shrink-0 transition-transform duration-150 group-hover:scale-110" />
+                      {showLabels && <span className="flex-1 whitespace-nowrap">{item.label}</span>}
                     </Link>
                   );
                 })}
@@ -240,15 +245,13 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onLogout, c
           })}
         </nav>
 
-        <div className="p-4">
+        <div className="p-3">
           <button
             onClick={onLogout}
-            className={`
-              flex items-center gap-2.5 w-full px-3.5 py-2.75 rounded-xl border border-[#ef4444]/40 bg-[#ef4444]/12 text-[#f87171] font-bold cursor-pointer text-sm hover:bg-[#ef4444]/20 transition-colors
-              ${!showLabels ? "justify-center" : "justify-center"}
-            `}
+            aria-label="Sign out"
+            className="flex min-h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-destructive/40 bg-destructive/15 px-3.5 text-sm font-bold text-white transition-colors hover:bg-destructive/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300"
           >
-            <LogOut size={18} />
+            <LogOut className="size-[18px]" />
             {showLabels && <span>Sign out</span>}
           </button>
         </div>
@@ -256,11 +259,8 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onLogout, c
 
       {tooltip && !isMobile && (
         <div
-          className="fixed bg-[#2d1816] text-white text-xs px-2 py-1 rounded z-[102] pointer-events-none shadow-lg"
-          style={{
-            left: tooltip.x,
-            top: tooltip.y,
-          }}
+          className="pointer-events-none fixed z-[102] rounded bg-ink px-2 py-1 text-xs text-white shadow-lg ring-1 ring-white/10"
+          style={{ left: tooltip.x, top: tooltip.y }}
         >
           {tooltip.label}
         </div>

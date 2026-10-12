@@ -70,12 +70,12 @@ export function ImageUpload({
         title: "Upload successful",
         description: "Image uploaded successfully",
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Upload error:", error);
       toast({
         variant: "destructive",
         title: "Upload failed",
-        description: error.message || "Failed to upload image",
+        description: error instanceof Error ? error.message : "Failed to upload image",
       });
     } finally {
       setUploading(false);
@@ -92,7 +92,7 @@ export function ImageUpload({
 
       {value ? (
         <div className="relative group">
-          <div className="w-full h-48 rounded-lg overflow-hidden border border-[#e9ddd3] bg-[#fffdf8]">
+          <div className="w-full h-48 rounded-lg overflow-hidden border border-border bg-card">
             <img
               src={value}
               alt={label}
@@ -110,9 +110,9 @@ export function ImageUpload({
           </Button>
         </div>
       ) : (
-        <div className="border-2 border-dashed border-[#e9ddd3] rounded-lg p-8 text-center hover:border-[#f8c84d] transition-colors">
-          <ImageIcon className="w-12 h-12 mx-auto mb-4 text-[#aa322b]" />
-          <p className="text-sm text-[#2d1816]/60 mb-4">
+        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-gold-300 transition-colors">
+          <ImageIcon className="w-12 h-12 mx-auto mb-4 text-primary" />
+          <p className="text-sm text-muted-foreground mb-4">
             Upload an image or enter a URL below
           </p>
           <div className="flex gap-3 justify-center">
@@ -121,7 +121,7 @@ export function ImageUpload({
                 type="button"
                 variant="outline"
                 disabled={uploading}
-                className="border-[#e9ddd3] text-[#2d1816] hover:bg-[#e9ddd3]/30"
+                className="border-border text-foreground hover:bg-muted"
                 asChild
               >
                 <span>
@@ -142,12 +142,12 @@ export function ImageUpload({
       )}
 
       <div className="flex items-center gap-2">
-        <span className="text-xs text-[#2d1816]/60">Or paste URL:</span>
+        <span className="text-xs text-muted-foreground">Or paste URL:</span>
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="https://..."
-          className="border-[#e9ddd3] flex-1"
+          className="border-border flex-1"
         />
       </div>
     </div>
