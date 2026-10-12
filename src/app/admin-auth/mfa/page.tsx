@@ -302,8 +302,8 @@ export default function MFAPage() {
     return (
       <div className="flex flex-col h-full relative">
         <div className="flex-1 flex flex-col justify-center items-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#aa322b]" />
-          <p className="text-sm text-[#2d1816]/60 mt-4">Loading MFA settings...</p>
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground mt-4">Loading MFA settings...</p>
         </div>
       </div>
     );
@@ -311,22 +311,22 @@ export default function MFAPage() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <Link href="/admin" className="inline-flex items-center gap-2 text-sm font-medium text-[#2d1816]/60 hover:text-[#2d1816] transition-colors w-fit">
+      <Link href="/admin" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-fit">
         <ArrowLeft size={16} />
         Back to dashboard
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md w-full mx-auto mt-12 lg:mt-0">
+      <div className="flex-1 flex flex-col justify-center max-w-md w-full mx-auto mt-8 pb-8">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
           <div>
-            <h1 className="text-3xl font-bold text-[#2d1816] font-['Libre_Baskerville'] tracking-tight">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
               Two-Factor Authentication
             </h1>
-            <p className="text-sm text-[#2d1816]/60 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               Add an extra layer of security to your account
             </p>
           </div>
@@ -351,11 +351,11 @@ export default function MFAPage() {
             <TabsContent value="totp" className="space-y-4 mt-4">
               {!mfaSettings?.totpEnabled ? (
                 <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 bg-[#f8c84d]/10 rounded-xl border border-[#f8c84d]/20">
-                    <Shield className="w-6 h-6 text-[#f8c84d] flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-4 p-4 bg-gold-300/10 rounded-xl border border-gold-300/20">
+                    <Shield className="w-6 h-6 text-gold-800 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-[#2d1816] mb-1">Authenticator App</h3>
-                      <p className="text-sm text-[#2d1816]/60">
+                      <h3 className="font-semibold text-foreground mb-1">Authenticator App</h3>
+                      <p className="text-sm text-muted-foreground">
                         Use Google Authenticator, Authy, or another TOTP app to generate verification codes
                       </p>
                     </div>
@@ -365,7 +365,7 @@ export default function MFAPage() {
                     <Button
                       onClick={handleSetupTotp}
                       disabled={saving}
-                      className="w-full bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c] text-white font-semibold shadow-lg shadow-primary/30"
+                      className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
                     >
                       {saving ? "Setting up..." : "Set Up Authenticator App"}
                     </Button>
@@ -373,7 +373,7 @@ export default function MFAPage() {
                     <>
                       {/* QR Code */}
                       <div className="space-y-4">
-                        <div className="bg-white p-6 rounded-xl border border-[#e9ddd3] flex flex-col items-center">
+                        <div className="bg-white p-6 rounded-xl border border-border flex flex-col items-center">
                           {otpauthUrl && (
                             <img
                               src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(otpauthUrl)}`}
@@ -381,26 +381,26 @@ export default function MFAPage() {
                               className="w-48 h-48 mb-4"
                             />
                           )}
-                          <p className="text-sm text-[#2d1816]/60 text-center">
+                          <p className="text-sm text-muted-foreground text-center">
                             Scan this QR code with your authenticator app
                           </p>
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-xs font-medium text-[#2d1816]/80">Or enter this code manually</Label>
+                          <Label className="text-xs font-medium text-foreground/80">Or enter this code manually</Label>
                           <div className="flex gap-2">
                             <Input
                               value={totpSecret}
                               readOnly
                               type={showSecret ? "text" : "password"}
-                              className="border-[#e9ddd3] bg-[#fffdf8] font-mono"
+                              className="border-border bg-background font-mono"
                             />
                             <Button
                               type="button"
                               variant="outline"
                               size="icon"
                               onClick={() => setShowSecret(!showSecret)}
-                              className="border-[#e9ddd3]"
+                              className="border-border"
                             >
                               {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </Button>
@@ -409,7 +409,7 @@ export default function MFAPage() {
                               variant="outline"
                               size="icon"
                               onClick={() => copyToClipboard(totpSecret)}
-                              className="border-[#e9ddd3]"
+                              className="border-border"
                             >
                               <Copy className="w-4 h-4" />
                             </Button>
@@ -419,13 +419,13 @@ export default function MFAPage() {
 
                       {/* Verification */}
                       <div className="space-y-2">
-                        <Label className="text-xs font-medium text-[#2d1816]/80">Enter verification code</Label>
+                        <Label className="text-xs font-medium text-foreground/80">Enter verification code</Label>
                         <Input
                           value={totpCode}
                           onChange={(e) => setTotpCode(e.target.value)}
                           placeholder="123456"
                           maxLength={6}
-                          className="border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20"
+                          className="border-border bg-background focus:border-gold-300 focus:ring-gold-300/20"
                           disabled={saving}
                         />
                       </div>
@@ -433,19 +433,19 @@ export default function MFAPage() {
                       <Button
                         onClick={handleVerifyTotp}
                         disabled={saving || totpCode.length !== 6}
-                        className="w-full bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c] text-white font-semibold shadow-lg shadow-primary/30"
+                        className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
                       >
                         {saving ? "Verifying..." : "Verify and Enable"}
                       </Button>
 
                       {/* Recovery Codes */}
                       {recoveryCodes.length > 0 && (
-                        <div className="space-y-4 pt-4 border-t border-[#e9ddd3]">
+                        <div className="space-y-4 pt-4 border-t border-border">
                           <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
                             <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                             <div>
-                              <h3 className="font-semibold text-[#2d1816] mb-1">Save your recovery codes</h3>
-                              <p className="text-sm text-[#2d1816]/60">
+                              <h3 className="font-semibold text-foreground mb-1">Save your recovery codes</h3>
+                              <p className="text-sm text-muted-foreground">
                                 These codes can be used to access your account if you lose your authenticator device
                               </p>
                             </div>
@@ -453,14 +453,14 @@ export default function MFAPage() {
 
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <Label className="text-xs font-medium text-[#2d1816]/80">Recovery codes</Label>
+                              <Label className="text-xs font-medium text-foreground/80">Recovery codes</Label>
                               <div className="flex gap-2">
                                 <Button
                                   type="button"
                                   variant="outline"
                                   size="sm"
                                   onClick={() => setShowRecoveryCodes(!showRecoveryCodes)}
-                                  className="border-[#e9ddd3] text-xs"
+                                  className="border-border text-xs"
                                 >
                                   {showRecoveryCodes ? "Hide" : "Show"}
                                 </Button>
@@ -469,7 +469,7 @@ export default function MFAPage() {
                                   variant="outline"
                                   size="sm"
                                   onClick={downloadRecoveryCodes}
-                                  className="border-[#e9ddd3] text-xs"
+                                  className="border-border text-xs"
                                 >
                                   <Download className="w-3 h-3 mr-1" />
                                   Download
@@ -482,7 +482,7 @@ export default function MFAPage() {
                                 {recoveryCodes.map((code, index) => (
                                   <div
                                     key={index}
-                                    className="bg-[#e9ddd3]/20 p-2 rounded-lg font-mono text-sm text-[#2d1816] cursor-pointer hover:bg-[#e9ddd3]/40"
+                                    className="bg-border/20 p-2 rounded-lg font-mono text-sm text-foreground cursor-pointer hover:bg-border/40"
                                     onClick={() => copyToClipboard(code)}
                                   >
                                     {code}
@@ -503,8 +503,8 @@ export default function MFAPage() {
                       <Check className="w-8 h-8 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-[#2d1816] mb-1">Authenticator App Enabled</h3>
-                      <p className="text-sm text-[#2d1816]/60">
+                      <h3 className="font-semibold text-foreground mb-1">Authenticator App Enabled</h3>
+                      <p className="text-sm text-muted-foreground">
                         Your authenticator app is now configured for two-factor authentication
                       </p>
                     </div>
@@ -527,11 +527,11 @@ export default function MFAPage() {
             <TabsContent value="email" className="space-y-4 mt-4">
               {!mfaSettings?.emailOtpEnabled ? (
                 <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 bg-[#f8c84d]/10 rounded-xl border border-[#f8c84d]/20">
-                    <Mail className="w-6 h-6 text-[#f8c84d] flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-4 p-4 bg-gold-300/10 rounded-xl border border-gold-300/20">
+                    <Mail className="w-6 h-6 text-gold-800 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-[#2d1816] mb-1">Email Verification</h3>
-                      <p className="text-sm text-[#2d1816]/60">
+                      <h3 className="font-semibold text-foreground mb-1">Email Verification</h3>
+                      <p className="text-sm text-muted-foreground">
                         A verification code will be sent to your email on each login attempt (max 2 per 10 minutes)
                       </p>
                     </div>
@@ -541,20 +541,20 @@ export default function MFAPage() {
                     <Button
                       onClick={handleSendEmailCode}
                       disabled={saving}
-                      className="w-full bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c] text-white font-semibold shadow-lg shadow-primary/30"
+                      className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
                     >
                       {saving ? "Sending..." : "Send Verification Code"}
                     </Button>
                   ) : (
                     <>
                       <div className="space-y-2">
-                        <Label className="text-xs font-medium text-[#2d1816]/80">Enter verification code</Label>
+                        <Label className="text-xs font-medium text-foreground/80">Enter verification code</Label>
                         <Input
                           value={emailCode}
                           onChange={(e) => setEmailCode(e.target.value)}
                           placeholder="123456"
                           maxLength={6}
-                          className="border-[#e9ddd3] bg-[#fffdf8] focus:border-[#f8c84d] focus:ring-[#f8c84d]/20"
+                          className="border-border bg-background focus:border-gold-300 focus:ring-gold-300/20"
                           disabled={saving}
                         />
                       </div>
@@ -562,7 +562,7 @@ export default function MFAPage() {
                       <Button
                         onClick={handleVerifyEmailCode}
                         disabled={saving || emailCode.length !== 6}
-                        className="w-full bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c] text-white font-semibold shadow-lg shadow-primary/30"
+                        className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
                       >
                         {saving ? "Verifying..." : "Verify and Enable"}
                       </Button>
@@ -576,8 +576,8 @@ export default function MFAPage() {
                       <Check className="w-8 h-8 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-[#2d1816] mb-1">Email 2FA Enabled</h3>
-                      <p className="text-sm text-[#2d1816]/60">
+                      <h3 className="font-semibold text-foreground mb-1">Email 2FA Enabled</h3>
+                      <p className="text-sm text-muted-foreground">
                         A verification code will be sent to your email on each login
                       </p>
                     </div>
@@ -600,11 +600,11 @@ export default function MFAPage() {
             <TabsContent value="passkey" className="space-y-4 mt-4">
               {!mfaSettings?.passkeyEnabled ? (
                 <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 bg-[#f8c84d]/10 rounded-xl border border-[#f8c84d]/20">
-                    <Fingerprint className="w-6 h-6 text-[#f8c84d] flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-4 p-4 bg-gold-300/10 rounded-xl border border-gold-300/20">
+                    <Fingerprint className="w-6 h-6 text-gold-800 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-[#2d1816] mb-1">Passkey</h3>
-                      <p className="text-sm text-[#2d1816]/60">
+                      <h3 className="font-semibold text-foreground mb-1">Passkey</h3>
+                      <p className="text-sm text-muted-foreground">
                         Use your fingerprint, face recognition, or device PIN to sign in securely
                       </p>
                     </div>
@@ -613,7 +613,7 @@ export default function MFAPage() {
                   <Button
                     onClick={handleRegisterPasskey}
                     disabled={passkeyRegistering}
-                    className="w-full bg-gradient-to-r from-[#aa322b] to-[#922821] hover:from-[#922821] hover:to-[#73201c] text-white font-semibold shadow-lg shadow-primary/30"
+                    className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
                   >
                     {passkeyRegistering ? "Registering..." : "Register Passkey"}
                   </Button>
@@ -625,8 +625,8 @@ export default function MFAPage() {
                       <Check className="w-8 h-8 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-[#2d1816] mb-1">Passkey Enabled</h3>
-                      <p className="text-sm text-[#2d1816]/60">
+                      <h3 className="font-semibold text-foreground mb-1">Passkey Enabled</h3>
+                      <p className="text-sm text-muted-foreground">
                         You can now sign in using your fingerprint or face recognition
                       </p>
                     </div>
@@ -646,11 +646,11 @@ export default function MFAPage() {
             </TabsContent>
           </Tabs>
 
-          <div className="pt-4 border-t border-[#e9ddd3]">
+          <div className="pt-4 border-t border-border">
             <Button
               variant="ghost"
               onClick={handleSkip}
-              className="w-full text-[#2d1816]/60 hover:text-[#2d1816]"
+              className="w-full text-muted-foreground hover:text-foreground"
             >
               Skip for now
             </Button>

@@ -193,24 +193,24 @@ export default function MFAConfirmPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fffdf8]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#aa322b]" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fffdf8] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-[#e9ddd3]">
+        <div className="bg-white rounded-xl shadow-lg p-8 border border-border">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#f8c84d] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-8 h-8 text-[#2d1816]" />
+            <div className="w-16 h-16 bg-gold-300 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Shield className="w-8 h-8 text-foreground" />
             </div>
-            <h1 className="text-2xl font-bold text-[#2d1816] font-[Libre_Baskerville]">
+            <h1 className="text-2xl font-bold text-foreground font-[Libre_Baskerville]">
               Two-Factor Authentication
             </h1>
-            <p className="text-[#2d1816]/70 mt-2">
+            <p className="text-muted-foreground mt-2">
               Complete verification to access your account
             </p>
           </div>
@@ -221,19 +221,19 @@ export default function MFAConfirmPage() {
               <div
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                   selectedMethod === "email"
-                    ? "border-[#aa322b] bg-[#fffdf8]"
-                    : "border-[#e9ddd3] hover:border-[#f8c84d]"
+                    ? "border-maroon-500 bg-background"
+                    : "border-border hover:border-gold-300"
                 }`}
                 onClick={() => setSelectedMethod("email")}
               >
                 <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-[#aa322b]" />
+                  <Mail className="w-5 h-5 text-primary" />
                   <div className="flex-1">
-                    <p className="font-semibold text-[#2d1816]">Email Verification</p>
-                    <p className="text-sm text-[#2d1816]/70">Code sent to your email</p>
+                    <p className="font-semibold text-foreground">Email Verification</p>
+                    <p className="text-sm text-muted-foreground">Code sent to your email</p>
                   </div>
                   {selectedMethod === "email" && (
-                    <CheckCircle className="w-5 h-5 text-[#aa322b]" />
+                    <CheckCircle className="w-5 h-5 text-primary" />
                   )}
                 </div>
 
@@ -246,7 +246,7 @@ export default function MFAConfirmPage() {
                           sendEmailCode();
                         }}
                         disabled={verifying}
-                        className="w-full py-2 px-4 bg-[#aa322b] text-white rounded-lg hover:bg-[#922821] transition-colors disabled:opacity-50"
+                        className="w-full py-2 px-4 bg-maroon-500 text-white rounded-lg hover:bg-maroon-600 transition-colors disabled:opacity-50"
                       >
                         {verifying ? "Sending..." : "Send Code"}
                       </button>
@@ -257,7 +257,7 @@ export default function MFAConfirmPage() {
                           value={emailCode}
                           onChange={(e) => setEmailCode(e.target.value)}
                           placeholder="Enter 6-digit code"
-                          className="w-full px-4 py-2 border border-[#e9ddd3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f8c84d]"
+                          className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-300"
                           maxLength={6}
                         />
                         <button
@@ -266,7 +266,7 @@ export default function MFAConfirmPage() {
                             verifyEmailCode();
                           }}
                           disabled={verifying || emailCode.length !== 6}
-                          className="w-full py-2 px-4 bg-[#aa322b] text-white rounded-lg hover:bg-[#922821] transition-colors disabled:opacity-50"
+                          className="w-full py-2 px-4 bg-maroon-500 text-white rounded-lg hover:bg-maroon-600 transition-colors disabled:opacity-50"
                         >
                           {verifying ? "Verifying..." : "Verify"}
                         </button>
@@ -282,19 +282,19 @@ export default function MFAConfirmPage() {
               <div
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                   selectedMethod === "totp"
-                    ? "border-[#aa322b] bg-[#fffdf8]"
-                    : "border-[#e9ddd3] hover:border-[#f8c84d]"
+                    ? "border-maroon-500 bg-background"
+                    : "border-border hover:border-gold-300"
                 }`}
                 onClick={() => setSelectedMethod("totp")}
               >
                 <div className="flex items-center gap-3">
-                  <Smartphone className="w-5 h-5 text-[#aa322b]" />
+                  <Smartphone className="w-5 h-5 text-primary" />
                   <div className="flex-1">
-                    <p className="font-semibold text-[#2d1816]">Authenticator App</p>
-                    <p className="text-sm text-[#2d1816]/70">Code from your authenticator</p>
+                    <p className="font-semibold text-foreground">Authenticator App</p>
+                    <p className="text-sm text-muted-foreground">Code from your authenticator</p>
                   </div>
                   {selectedMethod === "totp" && (
-                    <CheckCircle className="w-5 h-5 text-[#aa322b]" />
+                    <CheckCircle className="w-5 h-5 text-primary" />
                   )}
                 </div>
 
@@ -305,7 +305,7 @@ export default function MFAConfirmPage() {
                       value={totpCode}
                       onChange={(e) => setTotpCode(e.target.value)}
                       placeholder="Enter 6-digit code"
-                      className="w-full px-4 py-2 border border-[#e9ddd3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f8c84d]"
+                      className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-300"
                       maxLength={6}
                     />
                     <button
@@ -314,7 +314,7 @@ export default function MFAConfirmPage() {
                         verifyTotpCode();
                       }}
                       disabled={verifying || totpCode.length !== 6}
-                      className="w-full py-2 px-4 bg-[#aa322b] text-white rounded-lg hover:bg-[#922821] transition-colors disabled:opacity-50"
+                      className="w-full py-2 px-4 bg-maroon-500 text-white rounded-lg hover:bg-maroon-600 transition-colors disabled:opacity-50"
                     >
                       {verifying ? "Verifying..." : "Verify"}
                     </button>
@@ -328,19 +328,19 @@ export default function MFAConfirmPage() {
               <div
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                   selectedMethod === "passkey"
-                    ? "border-[#aa322b] bg-[#fffdf8]"
-                    : "border-[#e9ddd3] hover:border-[#f8c84d]"
+                    ? "border-maroon-500 bg-background"
+                    : "border-border hover:border-gold-300"
                 }`}
                 onClick={() => setSelectedMethod("passkey")}
               >
                 <div className="flex items-center gap-3">
-                  <Key className="w-5 h-5 text-[#aa322b]" />
+                  <Key className="w-5 h-5 text-primary" />
                   <div className="flex-1">
-                    <p className="font-semibold text-[#2d1816]">Passkey</p>
-                    <p className="text-sm text-[#2d1816]/70">Use your device's biometrics</p>
+                    <p className="font-semibold text-foreground">Passkey</p>
+                    <p className="text-sm text-muted-foreground">Use your device's biometrics</p>
                   </div>
                   {selectedMethod === "passkey" && (
-                    <CheckCircle className="w-5 h-5 text-[#aa322b]" />
+                    <CheckCircle className="w-5 h-5 text-primary" />
                   )}
                 </div>
 
@@ -352,7 +352,7 @@ export default function MFAConfirmPage() {
                         verifyPasskey();
                       }}
                       disabled={passkeyVerifying}
-                      className="w-full py-2 px-4 bg-[#aa322b] text-white rounded-lg hover:bg-[#922821] transition-colors disabled:opacity-50"
+                      className="w-full py-2 px-4 bg-maroon-500 text-white rounded-lg hover:bg-maroon-600 transition-colors disabled:opacity-50"
                     >
                       {passkeyVerifying ? "Verifying..." : "Use Passkey"}
                     </button>
