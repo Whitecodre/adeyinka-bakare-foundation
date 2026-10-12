@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Shield, Mail, Key, Smartphone, CheckCircle, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function MFAConfirmPage() {
   const router = useRouter();
@@ -193,24 +195,21 @@ export default function MFAConfirmPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex h-full items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-border">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gold-300 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-8 h-8 text-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground font-[Libre_Baskerville]">
+    <div className="relative flex h-full flex-col">
+      <div className="mx-auto mt-8 flex w-full max-w-md flex-1 flex-col justify-center lg:mt-0">
+        <div className="abf-fade-up space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
               Two-Factor Authentication
             </h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="mt-2 text-sm text-muted-foreground">
               Complete verification to access your account
             </p>
           </div>
@@ -219,9 +218,9 @@ export default function MFAConfirmPage() {
             {/* Email OTP */}
             {mfaStatus?.emailOtpEnabled && (
               <div
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                   selectedMethod === "email"
-                    ? "border-maroon-500 bg-background"
+                    ? "border-primary bg-primary/5"
                     : "border-border hover:border-gold-300"
                 }`}
                 onClick={() => setSelectedMethod("email")}
@@ -240,36 +239,39 @@ export default function MFAConfirmPage() {
                 {selectedMethod === "email" && (
                   <div className="mt-4 space-y-3">
                     {!emailSent ? (
-                      <button
+                      <Button
                         onClick={(e) => {
                           e.stopPropagation();
                           sendEmailCode();
                         }}
                         disabled={verifying}
-                        className="w-full py-2 px-4 bg-maroon-500 text-white rounded-lg hover:bg-maroon-600 transition-colors disabled:opacity-50"
+                        className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
                       >
                         {verifying ? "Sending..." : "Send Code"}
-                      </button>
+                      </Button>
                     ) : (
                       <>
-                        <input
+                        <Input
                           type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
                           value={emailCode}
                           onChange={(e) => setEmailCode(e.target.value)}
                           placeholder="Enter 6-digit code"
-                          className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-300"
+                          className="h-11 tracking-widest"
                           maxLength={6}
+                          disabled={verifying}
                         />
-                        <button
+                        <Button
                           onClick={(e) => {
                             e.stopPropagation();
                             verifyEmailCode();
                           }}
                           disabled={verifying || emailCode.length !== 6}
-                          className="w-full py-2 px-4 bg-maroon-500 text-white rounded-lg hover:bg-maroon-600 transition-colors disabled:opacity-50"
+                          className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
                         >
                           {verifying ? "Verifying..." : "Verify"}
-                        </button>
+                        </Button>
                       </>
                     )}
                   </div>
@@ -280,9 +282,9 @@ export default function MFAConfirmPage() {
             {/* TOTP */}
             {mfaStatus?.totpEnabled && (
               <div
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                   selectedMethod === "totp"
-                    ? "border-maroon-500 bg-background"
+                    ? "border-primary bg-primary/5"
                     : "border-border hover:border-gold-300"
                 }`}
                 onClick={() => setSelectedMethod("totp")}
@@ -300,24 +302,26 @@ export default function MFAConfirmPage() {
 
                 {selectedMethod === "totp" && (
                   <div className="mt-4 space-y-3">
-                    <input
+                    <Input
                       type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
                       value={totpCode}
                       onChange={(e) => setTotpCode(e.target.value)}
                       placeholder="Enter 6-digit code"
-                      className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-300"
+                      className="h-11 tracking-widest"
                       maxLength={6}
                     />
-                    <button
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         verifyTotpCode();
                       }}
                       disabled={verifying || totpCode.length !== 6}
-                      className="w-full py-2 px-4 bg-maroon-500 text-white rounded-lg hover:bg-maroon-600 transition-colors disabled:opacity-50"
+                      className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
                     >
                       {verifying ? "Verifying..." : "Verify"}
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -326,9 +330,9 @@ export default function MFAConfirmPage() {
             {/* Passkey */}
             {mfaStatus?.passkeyEnabled && (
               <div
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                   selectedMethod === "passkey"
-                    ? "border-maroon-500 bg-background"
+                    ? "border-primary bg-primary/5"
                     : "border-border hover:border-gold-300"
                 }`}
                 onClick={() => setSelectedMethod("passkey")}
@@ -346,16 +350,16 @@ export default function MFAConfirmPage() {
 
                 {selectedMethod === "passkey" && (
                   <div className="mt-4">
-                    <button
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         verifyPasskey();
                       }}
                       disabled={passkeyVerifying}
-                      className="w-full py-2 px-4 bg-maroon-500 text-white rounded-lg hover:bg-maroon-600 transition-colors disabled:opacity-50"
+                      className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
                     >
                       {passkeyVerifying ? "Verifying..." : "Use Passkey"}
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>

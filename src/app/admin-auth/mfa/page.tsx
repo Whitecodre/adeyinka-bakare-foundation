@@ -311,12 +311,15 @@ export default function MFAPage() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <Link href="/admin" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-fit">
-        <ArrowLeft size={16} />
+      <Link
+        href="/admin"
+        className="inline-flex min-h-[44px] w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" />
         Back to dashboard
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md w-full mx-auto mt-8 pb-8">
+      <div className="mx-auto mt-8 flex w-full max-w-md flex-1 flex-col justify-center pb-8 lg:mt-0">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -332,7 +335,7 @@ export default function MFAPage() {
           </div>
 
           <Tabs defaultValue="totp" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid h-11 w-full grid-cols-3">
               <TabsTrigger value="totp" className="gap-2">
                 <Smartphone size={16} />
                 App
@@ -365,7 +368,7 @@ export default function MFAPage() {
                     <Button
                       onClick={handleSetupTotp}
                       disabled={saving}
-                      className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
+                      className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
                     >
                       {saving ? "Setting up..." : "Set Up Authenticator App"}
                     </Button>
@@ -393,14 +396,15 @@ export default function MFAPage() {
                               value={totpSecret}
                               readOnly
                               type={showSecret ? "text" : "password"}
-                              className="border-border bg-background font-mono"
+                              className="h-11 font-mono"
                             />
                             <Button
                               type="button"
                               variant="outline"
                               size="icon"
                               onClick={() => setShowSecret(!showSecret)}
-                              className="border-border"
+                              aria-label={showSecret ? "Hide code" : "Show code"}
+                              className="size-11 shrink-0"
                             >
                               {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </Button>
@@ -409,7 +413,8 @@ export default function MFAPage() {
                               variant="outline"
                               size="icon"
                               onClick={() => copyToClipboard(totpSecret)}
-                              className="border-border"
+                              aria-label="Copy code"
+                              className="size-11 shrink-0"
                             >
                               <Copy className="w-4 h-4" />
                             </Button>
@@ -425,7 +430,9 @@ export default function MFAPage() {
                           onChange={(e) => setTotpCode(e.target.value)}
                           placeholder="123456"
                           maxLength={6}
-                          className="border-border bg-background focus:border-gold-300 focus:ring-gold-300/20"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          className="h-11 tracking-widest"
                           disabled={saving}
                         />
                       </div>
@@ -433,7 +440,7 @@ export default function MFAPage() {
                       <Button
                         onClick={handleVerifyTotp}
                         disabled={saving || totpCode.length !== 6}
-                        className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
+                        className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
                       >
                         {saving ? "Verifying..." : "Verify and Enable"}
                       </Button>
@@ -541,7 +548,7 @@ export default function MFAPage() {
                     <Button
                       onClick={handleSendEmailCode}
                       disabled={saving}
-                      className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
+                      className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
                     >
                       {saving ? "Sending..." : "Send Verification Code"}
                     </Button>
@@ -554,7 +561,9 @@ export default function MFAPage() {
                           onChange={(e) => setEmailCode(e.target.value)}
                           placeholder="123456"
                           maxLength={6}
-                          className="border-border bg-background focus:border-gold-300 focus:ring-gold-300/20"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          className="h-11 tracking-widest"
                           disabled={saving}
                         />
                       </div>
@@ -562,7 +571,7 @@ export default function MFAPage() {
                       <Button
                         onClick={handleVerifyEmailCode}
                         disabled={saving || emailCode.length !== 6}
-                        className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
+                        className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
                       >
                         {saving ? "Verifying..." : "Verify and Enable"}
                       </Button>
@@ -613,7 +622,7 @@ export default function MFAPage() {
                   <Button
                     onClick={handleRegisterPasskey}
                     disabled={passkeyRegistering}
-                    className="w-full bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white font-semibold shadow-lg shadow-primary/30"
+                    className="h-11 w-full bg-gradient-to-r from-maroon-500 to-maroon-600 font-semibold text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700"
                   >
                     {passkeyRegistering ? "Registering..." : "Register Passkey"}
                   </Button>
@@ -650,7 +659,7 @@ export default function MFAPage() {
             <Button
               variant="ghost"
               onClick={handleSkip}
-              className="w-full text-muted-foreground hover:text-foreground"
+              className="h-11 w-full text-muted-foreground hover:text-foreground"
             >
               Skip for now
             </Button>
