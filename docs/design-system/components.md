@@ -154,6 +154,8 @@ HeroSection, StatsSection, FeatureCardsSection, MissionSection, ProgrammesSectio
 ---
 
 ## F. Admin components (`components/admin`): Built
+**The full admin spec now lives in [admin.md](admin.md)** (token map, new components, interaction rules). The note below is the original summary.
+
 `AdminHeader`, `Sidebar`, `PageHeader` (title, subtitle, actions), `DashboardCard` (title, value, trend), `DataTable` (headers, rows), `EmptyState` (title, description, action), `ConfirmDialog`, `LoadingState`. These are functional stubs. Restyle them with the same tokens when the admin is built. Admin is not a launch priority before the public pages.
 
 ---
