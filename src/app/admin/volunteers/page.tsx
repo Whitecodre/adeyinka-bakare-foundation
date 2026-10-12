@@ -2,29 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, MoreVertical, Edit, Trash2, UserPlus, Mail, Phone } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { UserPlus, Eye } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { LoadingState } from "@/components/admin/loading-state";
+
+import { ResourceList } from "@/components/admin/resource-list";
+import { StatusBadge } from "@/components/admin/status-badge";
+import { Toolbar } from "@/components/admin/toolbar";
+import { ListSkeleton } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface Volunteer {
   id: string;
@@ -100,35 +89,9 @@ export default function VolunteersPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "new":
-        return "bg-info-soft text-blue-800 border-blue-200";
-      case "contacted":
-        return "bg-warning-soft text-warning border-warning/25";
-      case "accepted":
-        return "bg-success-soft text-green-800 border-green-200";
-      case "rejected":
-        return "bg-destructive/10 text-red-800 border-destructive/30";
-      case "archived":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  if (loading) {
-    return <LoadingState message="Loading volunteers..." />;
-  }
-
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Volunteers</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage volunteer applications</p>
-        </div>
-      </div>
+      <PageHeader title="Volunteers" subtitle="Manage volunteer applications" />
 
       <Card className="border-border">
         <CardHeader>
@@ -136,150 +99,41 @@ export default function VolunteersPage() {
             <CardTitle className="text-lg font-semibold text-foreground">
               All Volunteers ({filteredVolunteers.length})
             </CardTitle>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
-              <Input
-                placeholder="Search volunteers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-border"
-              />
-            </div>
+            <Toolbar search={searchQuery} onSearchChange={setSearchQuery} placeholder="Search volunteers..." className="w-full sm:w-auto" />
           </div>
         </CardHeader>
         <CardContent>
-          {filteredVolunteers.length === 0 ? (
+          {loading ? (
+            <ListSkeleton rows={4} />
+          ) : filteredVolunteers.length === 0 ? (
             <EmptyState
               title="No volunteers found"
               description={searchQuery ? "Try a different search term" : "Volunteer applications will appear here"}
               icon={UserPlus}
             />
           ) : (
-            <>
-              {/* Desktop Table */}
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border">
-                      <TableHead className="text-foreground font-semibold">Name</TableHead>
-                      <TableHead className="text-foreground font-semibold">Email</TableHead>
-                      <TableHead className="text-foreground font-semibold">Phone</TableHead>
-                      <TableHead className="text-foreground font-semibold">Department</TableHead>
-                      <TableHead className="text-foreground font-semibold">Interest</TableHead>
-                      <TableHead className="text-foreground font-semibold">Status</TableHead>
-                      <TableHead className="text-foreground font-semibold text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredVolunteers.map((volunteer) => (
-                      <TableRow key={volunteer.id} className="border-border hover:bg-muted">
-                        <TableCell className="font-medium text-foreground">
-                          {volunteer.full_name}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">{volunteer.email}</TableCell>
-                        <TableCell className="text-muted-foreground">{volunteer.phone || "-"}</TableCell>
-                        <TableCell className="text-muted-foreground">{volunteer.department || "-"}</TableCell>
-                        <TableCell className="text-muted-foreground">{volunteer.interest || "-"}</TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(volunteer.status)} variant="outline">
-                            {volunteer.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => router.push(`/admin/volunteers/${volunteer.id}`)}>
-                                <Edit className="w-4 h-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setDeleteConfirm(volunteer.id)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Mobile Cards */}
-              <div className="md:hidden space-y-4">
-                {filteredVolunteers.map((volunteer) => (
-                  <Card key={volunteer.id} className="border-border">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-gold-300/20 flex items-center justify-center">
-                              <UserPlus className="w-5 h-5 text-gold-300" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-foreground">{volunteer.full_name}</h3>
-                              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Mail className="w-3 h-3" />
-                                {volunteer.email}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="space-y-1 text-sm">
-                            {volunteer.phone && (
-                              <div className="flex items-center gap-2 text-muted-foreground">
-                                <Phone className="w-3 h-3" />
-                                {volunteer.phone}
-                              </div>
-                            )}
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Department:</span>
-                              <span className="text-foreground">{volunteer.department || "-"}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Interest:</span>
-                              <span className="text-foreground">{volunteer.interest || "-"}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => router.push(`/admin/volunteers/${volunteer.id}`)}>
-                              <Edit className="w-4 h-4" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setDeleteConfirm(volunteer.id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                      <div className="mt-3">
-                        <Badge className={getStatusColor(volunteer.status)} variant="outline">
-                          {volunteer.status}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </>
+            <ResourceList
+              rows={filteredVolunteers}
+              getKey={(r) => r.id}
+              getName={(r) => r.full_name}
+              icon={UserPlus}
+              columns={[
+                { header: "Name", cell: (r) => <span className="font-medium text-foreground">{r.full_name}</span> },
+                { header: "Email", cell: (r) => r.email, className: "text-muted-foreground" },
+                { header: "Phone", cell: (r) => r.phone || "-", className: "text-muted-foreground" },
+                { header: "Department", cell: (r) => r.department || "-", className: "text-muted-foreground" },
+                { header: "Interest", cell: (r) => r.interest || "-", className: "text-muted-foreground" },
+                { header: "Status", cell: (r) => <StatusBadge status={r.status} /> },
+              ]}
+              title={(r) => r.full_name}
+              badges={(r) => (<><StatusBadge status={r.status} /></>)}
+              meta={(r) => (<>
+                  <p className="truncate">{r.email}</p>
+                  <p>{r.phone || "-"}</p>
+                </>)}
+              onDelete={(r) => setDeleteConfirm(r.id)}
+              extra={(r) => [{ label: "View details", icon: Eye, onSelect: () => router.push(`/admin/volunteers/${r.id}`) }]}
+            />
           )}
         </CardContent>
       </Card>
@@ -291,6 +145,7 @@ export default function VolunteersPage() {
         title="Delete Volunteer?"
         description="This action cannot be undone. This will permanently delete the volunteer application from the database."
         confirmLabel="Delete"
+        destructive
         cancelLabel="Cancel"
       />
     </div>

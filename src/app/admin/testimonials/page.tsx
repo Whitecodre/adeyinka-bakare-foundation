@@ -2,26 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, MoreVertical, Edit, Trash2, MessageSquare, Play, Image as ImageIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { MessageSquare, Play, Image as ImageIcon } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { LoadingState } from "@/components/admin/loading-state";
+
+import { ResourceList } from "@/components/admin/resource-list";
+import { StatusBadge, FeaturedBadge } from "@/components/admin/status-badge";
+import { Toolbar } from "@/components/admin/toolbar";
+import { ListSkeleton } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -96,19 +84,6 @@ export default function TestimonialsPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "published":
-        return "bg-success-soft text-green-800 border-green-200";
-      case "draft":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      case "archived":
-        return "bg-destructive/10 text-red-800 border-destructive/30";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   const getMediaTypeIcon = (type?: string) => {
     switch (type) {
       case "video":
@@ -119,10 +94,6 @@ export default function TestimonialsPage() {
         return <MessageSquare className="w-3 h-3" />;
     }
   };
-
-  if (loading) {
-    return <LoadingState message="Loading testimonials..." />;
-  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -138,19 +109,13 @@ export default function TestimonialsPage() {
             <CardTitle className="text-lg font-semibold text-foreground">
               All Testimonials ({filteredTestimonials.length})
             </CardTitle>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
-              <Input
-                placeholder="Search testimonials..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-border"
-              />
-            </div>
+            <Toolbar search={searchQuery} onSearchChange={setSearchQuery} placeholder="Search testimonials..." className="w-full sm:w-auto" />
           </div>
         </CardHeader>
         <CardContent>
-          {filteredTestimonials.length === 0 ? (
+          {loading ? (
+            <ListSkeleton rows={4} />
+          ) : filteredTestimonials.length === 0 ? (
             <EmptyState
               title="No testimonials found"
               description={searchQuery ? "Try a different search term" : "Get started by adding your first testimonial"}
@@ -163,136 +128,26 @@ export default function TestimonialsPage() {
               icon={MessageSquare}
             />
           ) : (
-            <>
-              {/* Desktop Table */}
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border">
-                      <TableHead className="text-foreground font-semibold">Content</TableHead>
-                      <TableHead className="text-foreground font-semibold">Media Type</TableHead>
-                      <TableHead className="text-foreground font-semibold">Beneficiary ID</TableHead>
-                      <TableHead className="text-foreground font-semibold">Status</TableHead>
-                      <TableHead className="text-foreground font-semibold text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredTestimonials.map((testimonial) => (
-                      <TableRow key={testimonial.id} className="border-border hover:bg-muted">
-                        <TableCell className="font-medium text-foreground">
-                          <div className="flex items-center gap-2">
-                            {testimonial.featured && (
-                              <Badge className="bg-gold-300 text-foreground border-gold-300">Featured</Badge>
-                            )}
-                            <span className="max-w-xs truncate">
-                              {testimonial.content || "No content"}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            {getMediaTypeIcon(testimonial.media_type)}
-                            <span className="capitalize">{testimonial.media_type || "none"}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">{testimonial.beneficiary_id || "-"}</TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(testimonial.status)} variant="outline">
-                            {testimonial.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => router.push(`/admin/testimonials/${testimonial.id}`)}>
-                                <Edit className="w-4 h-4" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setDeleteConfirm(testimonial.id)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Mobile Cards */}
-              <div className="md:hidden space-y-4">
-                {filteredTestimonials.map((testimonial) => (
-                  <Card key={testimonial.id} className="border-border">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-gold-300/20 flex items-center justify-center">
-                              <MessageSquare className="w-5 h-5 text-gold-300" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-foreground">Testimonial</h3>
-                              {testimonial.featured && (
-                                <Badge className="bg-gold-300 text-foreground border-gold-300 text-xs">Featured</Badge>
-                              )}
-                            </div>
-                          </div>
-                          <div className="space-y-1 text-sm">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              {getMediaTypeIcon(testimonial.media_type)}
-                              <span className="capitalize">{testimonial.media_type || "text only"}</span>
-                            </div>
-                            <div className="text-muted-foreground truncate">
-                              {testimonial.content || "No content"}
-                            </div>
-                            {testimonial.beneficiary_id && (
-                              <div className="text-muted-foreground text-xs">
-                                Beneficiary ID: {testimonial.beneficiary_id}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => router.push(`/admin/testimonials/${testimonial.id}`)}>
-                              <Edit className="w-4 h-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setDeleteConfirm(testimonial.id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                      <div className="mt-3">
-                        <Badge className={getStatusColor(testimonial.status)} variant="outline">
-                          {testimonial.status}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </>
+            <ResourceList
+              rows={filteredTestimonials}
+              getKey={(r) => r.id}
+              getName={(r) => r.content?.slice(0, 40) || "testimonial"}
+              icon={MessageSquare}
+              columns={[
+                { header: "Content", cell: (r) => (<div className="flex items-center gap-2 font-medium text-foreground">{r.featured && <FeaturedBadge />}<span className="max-w-xs truncate">{r.content || "No content"}</span></div>) },
+                { header: "Media Type", cell: (r) => (<div className="flex items-center gap-1.5 text-muted-foreground">{getMediaTypeIcon(r.media_type)}<span className="capitalize">{r.media_type || "none"}</span></div>) },
+                { header: "Beneficiary ID", cell: (r) => r.beneficiary_id || "-", className: "text-muted-foreground" },
+                { header: "Status", cell: (r) => <StatusBadge status={r.status} /> },
+              ]}
+              title={() => "Testimonial"}
+              badges={(r) => (<>{r.featured && <FeaturedBadge />}<StatusBadge status={r.status} /></>)}
+              meta={(r) => (<>
+                  <p className="line-clamp-2">{r.content || "No content"}</p>
+                  <p className="flex items-center gap-1.5">{getMediaTypeIcon(r.media_type)}<span className="capitalize">{r.media_type || "none"}</span></p>
+                </>)}
+              onEdit={(r) => router.push(`/admin/testimonials/${r.id}/edit`)}
+              onDelete={(r) => setDeleteConfirm(r.id)}
+            />
           )}
         </CardContent>
       </Card>
@@ -304,6 +159,7 @@ export default function TestimonialsPage() {
         title="Delete Testimonial?"
         description="This action cannot be undone. This will permanently delete the testimonial from the database."
         confirmLabel="Delete"
+        destructive
         cancelLabel="Cancel"
       />
     </div>

@@ -2,26 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, MoreVertical, Edit, Trash2, File, Image as ImageIcon, Video, FileText, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { File, Video, FileText, Download, Image as ImageIcon } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { Badge } from "@/components/ui/badge";
-import { LoadingState } from "@/components/admin/loading-state";
+import { ResourceList } from "@/components/admin/resource-list";
+
+import { Toolbar } from "@/components/admin/toolbar";
+import { ListSkeleton } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -97,19 +86,6 @@ export default function MediaPage() {
     }
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "image":
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      case "video":
-        return "bg-info-soft text-blue-800 border-blue-200";
-      case "document":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   const getTypeIcon = (type?: string) => {
     switch (type) {
       case "image":
@@ -131,10 +107,6 @@ export default function MediaPage() {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
   };
 
-  if (loading) {
-    return <LoadingState message="Loading media..." />;
-  }
-
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
@@ -149,19 +121,13 @@ export default function MediaPage() {
             <CardTitle className="text-lg font-semibold text-foreground">
               All Media ({filteredMedia.length})
             </CardTitle>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
-              <Input
-                placeholder="Search media..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-border"
-              />
-            </div>
+            <Toolbar search={searchQuery} onSearchChange={setSearchQuery} placeholder="Search media..." className="w-full sm:w-auto" />
           </div>
         </CardHeader>
         <CardContent>
-          {filteredMedia.length === 0 ? (
+          {loading ? (
+            <ListSkeleton rows={4} />
+          ) : filteredMedia.length === 0 ? (
             <EmptyState
               title="No media found"
               description={searchQuery ? "Try a different search term" : "Get started by uploading your first media file"}
@@ -174,136 +140,28 @@ export default function MediaPage() {
               icon={File}
             />
           ) : (
-            <>
-              {/* Desktop Table */}
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border">
-                      <TableHead className="text-foreground font-semibold">Filename</TableHead>
-                      <TableHead className="text-foreground font-semibold">Type</TableHead>
-                      <TableHead className="text-foreground font-semibold">MIME Type</TableHead>
-                      <TableHead className="text-foreground font-semibold">Size</TableHead>
-                      <TableHead className="text-foreground font-semibold">Uploaded By</TableHead>
-                      <TableHead className="text-foreground font-semibold text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredMedia.map((item) => (
-                      <TableRow key={item.id} className="border-border hover:bg-muted">
-                        <TableCell className="font-medium text-foreground">
-                          {item.filename}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getTypeColor(item.type)} variant="outline">
-                            <div className="flex items-center gap-1">
-                              {getTypeIcon(item.type)}
-                              <span className="capitalize">{item.type}</span>
-                            </div>
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">{item.mime_type || "-"}</TableCell>
-                        <TableCell className="text-muted-foreground">{formatFileSize(item.size_bytes)}</TableCell>
-                        <TableCell className="text-muted-foreground">{item.uploaded_by || "-"}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => window.open(item.storage_path, '_blank')}>
-                                <Download className="w-4 h-4" />
-                                Download
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => router.push(`/admin/media/${item.id}`)}>
-                                <Edit className="w-4 h-4" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setDeleteConfirm(item.id)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Mobile Cards */}
-              <div className="md:hidden space-y-4">
-                {filteredMedia.map((item) => (
-                  <Card key={item.id} className="border-border">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-gold-300/20 flex items-center justify-center">
-                              {getTypeIcon(item.type)}
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-foreground truncate max-w-[150px]">{item.filename}</h3>
-                              <Badge className={getTypeColor(item.type)} variant="outline">
-                                <div className="flex items-center gap-1 text-xs">
-                                  {getTypeIcon(item.type)}
-                                  <span className="capitalize">{item.type}</span>
-                                </div>
-                              </Badge>
-                            </div>
-                          </div>
-                          <div className="space-y-1 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Size:</span>
-                              <span className="text-foreground">{formatFileSize(item.size_bytes)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">MIME:</span>
-                              <span className="text-foreground truncate max-w-[100px]">{item.mime_type || "-"}</span>
-                            </div>
-                            {item.uploaded_by && (
-                              <div className="text-muted-foreground text-xs">
-                                By: {item.uploaded_by}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => window.open(item.storage_path, '_blank')}>
-                              <Download className="w-4 h-4" />
-                              Download
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push(`/admin/media/${item.id}`)}>
-                              <Edit className="w-4 h-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setDeleteConfirm(item.id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </>
+            <ResourceList
+              rows={filteredMedia}
+              getKey={(r) => r.id}
+              getName={(r) => r.filename}
+              icon={File}
+              leading={(r) => (<div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary [&_svg]:size-5">{getTypeIcon(r.type)}</div>)}
+              columns={[
+                { header: "Filename", cell: (r) => <span className="font-medium text-foreground">{r.filename}</span> },
+                { header: "Type", cell: (r) => (<Badge variant="outline" className="gap-1 capitalize">{getTypeIcon(r.type)}{r.type}</Badge>) },
+                { header: "MIME Type", cell: (r) => r.mime_type || "-", className: "text-muted-foreground" },
+                { header: "Size", cell: (r) => formatFileSize(r.size_bytes), className: "text-muted-foreground" },
+                { header: "Uploaded By", cell: (r) => r.uploaded_by || "-", className: "text-muted-foreground" },
+              ]}
+              title={(r) => r.filename}
+              badges={(r) => (<><Badge variant="outline" className="gap-1 capitalize">{getTypeIcon(r.type)}{r.type}</Badge></>)}
+              meta={(r) => (<>
+                  <p>{formatFileSize(r.size_bytes)} · {r.mime_type || "-"}</p>
+                </>)}
+              onEdit={(r) => router.push(`/admin/media/${r.id}`)}
+              onDelete={(r) => setDeleteConfirm(r.id)}
+              extra={(r) => [{ label: "Download", icon: Download, onSelect: () => window.open(r.storage_path, "_blank") }]}
+            />
           )}
         </CardContent>
       </Card>
@@ -315,6 +173,7 @@ export default function MediaPage() {
         title="Delete Media File?"
         description="This action cannot be undone. This will permanently delete the media file from the database and storage."
         confirmLabel="Delete"
+        destructive
         cancelLabel="Cancel"
       />
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Loader2, Globe, Mail, Phone, MapPin, MessageSquare, Image as ImageIcon } from "lucide-react";
+import { Save, Globe, Mail, Phone, MapPin, MessageSquare, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { LoadingState } from "@/components/admin/loading-state";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface Settings {
   id?: string;
@@ -105,25 +106,11 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Settings</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage site configuration</p>
-        </div>
-        <Button onClick={handleSave} size="lg" disabled={saving}>
-          {saving ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              Save Changes
-            </>
-          )}
-        </Button>
-      </div>
+      <PageHeader
+        title="Settings"
+        subtitle="Manage site configuration"
+        actions={[{ label: saving ? "Saving..." : "Save Changes", icon: Save, onClick: handleSave, loading: saving, variant: "primary" }]}
+      />
 
       <div className="grid gap-5 md:grid-cols-2">
         {/* General Settings */}

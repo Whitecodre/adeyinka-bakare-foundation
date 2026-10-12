@@ -87,17 +87,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground m-0">Dashboard Overview</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Platform performance metrics and insights</p>
-        </div>
-        <div className="flex gap-3 items-center">
-          <span className="inline-flex items-center gap-1.5 text-success text-xs font-semibold">
-            <CheckCircle2 size={14} /> Live data
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        title="Dashboard Overview"
+        subtitle="Platform performance metrics and insights"
+        aside={
+          <span className="inline-flex items-center gap-1.5 text-success text-xs font-semibold"> <CheckCircle2 size={14} /> Live data </span>
+        }
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
