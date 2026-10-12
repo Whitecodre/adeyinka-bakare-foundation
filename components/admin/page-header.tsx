@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -8,6 +8,9 @@ interface PageHeaderAction {
   href?: string;
   onClick?: () => void;
   variant?: "primary" | "secondary";
+  /** Replaces the default "+" on primary actions. */
+  icon?: LucideIcon;
+  loading?: boolean;
 }
 
 interface PageHeaderProps {
@@ -15,10 +18,12 @@ interface PageHeaderProps {
   subtitle?: string;
   backHref?: string;
   actions?: PageHeaderAction[];
+  /** Small status text shown beside the actions, e.g. "Live data". */
+  aside?: React.ReactNode;
 }
 
 /** Top of every admin page: title, one-line subtitle, and the page's actions. */
-export function PageHeader({ title, subtitle, backHref, actions }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, backHref, actions, aside }: PageHeaderProps) {
   return (
     <div className="mb-6 md:mb-8">
       {backHref && (
@@ -37,13 +42,16 @@ export function PageHeader({ title, subtitle, backHref, actions }: PageHeaderPro
           {subtitle && <p className="mt-1 text-sm text-muted-foreground md:text-base">{subtitle}</p>}
         </div>
 
+        {aside && <div className="shrink-0">{aside}</div>}
+
         {actions && actions.length > 0 && (
           <div className="flex flex-col gap-2 sm:flex-row sm:shrink-0">
             {actions.map((action) => {
               const primary = action.variant !== "secondary";
+              const Icon = action.icon ?? (primary ? Plus : null);
               const content = (
                 <>
-                  {primary && <Plus />}
+                  {Icon && <Icon />}
                   {action.label}
                 </>
               );
@@ -55,7 +63,7 @@ export function PageHeader({ title, subtitle, backHref, actions }: PageHeaderPro
                   <Link href={action.href}>{content}</Link>
                 </Button>
               ) : (
-                <Button key={action.label} variant={variant} className={className} onClick={action.onClick}>
+                <Button key={action.label} variant={variant} className={className} onClick={action.onClick} loading={action.loading}>
                   {content}
                 </Button>
               );

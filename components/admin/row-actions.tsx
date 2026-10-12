@@ -12,10 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface ExtraAction {
+export interface ExtraAction {
   label: string;
   icon: LucideIcon;
   onSelect: () => void;
+  disabled?: boolean;
 }
 
 interface RowActionsProps {
@@ -31,12 +32,13 @@ export function RowActions({ name, onEdit, onDelete, extra = [] }: RowActionsPro
   return (
     <>
       <div className="hidden items-center gap-1 md:flex">
-        {extra.map(({ label, icon: Icon, onSelect }) => (
+        {extra.map(({ label, icon: Icon, onSelect, disabled }) => (
           <Button
             key={label}
             variant="ghost"
             size="icon"
             onClick={onSelect}
+            disabled={disabled}
             aria-label={`${label} ${name}`}
             title={label}
           >
@@ -70,8 +72,8 @@ export function RowActions({ name, onEdit, onDelete, extra = [] }: RowActionsPro
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-40">
-            {extra.map(({ label, icon: Icon, onSelect }) => (
-              <DropdownMenuItem key={label} onSelect={onSelect} className="min-h-11 gap-2">
+            {extra.map(({ label, icon: Icon, onSelect, disabled }) => (
+              <DropdownMenuItem key={label} onSelect={onSelect} disabled={disabled} className="min-h-11 gap-2">
                 <Icon className="size-4" />
                 {label}
               </DropdownMenuItem>

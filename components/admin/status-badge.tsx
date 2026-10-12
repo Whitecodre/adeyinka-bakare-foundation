@@ -1,4 +1,4 @@
-import { Crown, Shield, UserPen } from "lucide-react";
+import { Crown, Shield, Star, UserPen } from "lucide-react";
 
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,11 @@ const statusMap: Record<string, { label: string; variant: Variant; dot: string }
   draft: { label: "Draft", variant: "warning", dot: "bg-warning" },
   inactive: { label: "Inactive", variant: "muted", dot: "bg-muted-foreground" },
   archived: { label: "Archived", variant: "muted", dot: "bg-muted-foreground" },
+  accepted: { label: "Accepted", variant: "success", dot: "bg-success" },
+  graduated: { label: "Graduated", variant: "info", dot: "bg-info" },
+  new: { label: "New", variant: "info", dot: "bg-info" },
+  contacted: { label: "Contacted", variant: "warning", dot: "bg-warning" },
+  cancelled: { label: "Cancelled", variant: "destructive", dot: "bg-destructive-foreground" },
   suspended: { label: "Suspended", variant: "destructive", dot: "bg-destructive-foreground" },
   rejected: { label: "Rejected", variant: "destructive", dot: "bg-destructive-foreground" },
 };
@@ -59,6 +64,15 @@ export function RoleBadge({ role, className }: RoleBadgeProps) {
     <Badge variant="outline" className={cn("gap-1", className)}>
       <UserPen className="size-3" />
       Editor
+    </Badge>
+  );
+}
+
+export function FeaturedBadge({ className }: { className?: string }) {
+  return (
+    <Badge className={cn("gap-1 border-gold-400 bg-gold-300 text-ink shadow-none hover:bg-gold-300", className)}>
+      <Star className="size-3" />
+      Featured
     </Badge>
   );
 }
