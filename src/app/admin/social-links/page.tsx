@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Search, Edit, Trash2, ExternalLink, X, ArrowUp, ArrowDown, Loader2, Globe, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ExternalLink, X, ArrowUp, ArrowDown, Globe, Share2 } from "lucide-react";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,20 +13,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { LoadingState } from "@/components/admin/loading-state";
+
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/admin/page-header";
+import { AnimatePresence } from "framer-motion";
+import { ListRow } from "@/components/admin/list-row";
+import { RowActions } from "@/components/admin/row-actions";
+import { StatusBadge } from "@/components/admin/status-badge";
+import { FormField } from "@/components/admin/form-field";
+import { FormDialog } from "@/components/admin/form-dialog";
+import { Toolbar } from "@/components/admin/toolbar";
+import { ListSkeleton } from "@/components/admin/loading-state";
 
 interface SocialLink {
   id: string;
@@ -49,7 +49,6 @@ const PLATFORMS = [
 ];
 
 export default function SocialLinksPage() {
-  const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -159,7 +158,7 @@ export default function SocialLinksPage() {
         // if (error) throw error;
 
         const newLink: SocialLink = {
-          id: Date.now().toString(),
+          id: crypto.randomUUID(),
           ...formData,
           created_at: new Date().toISOString(),
         };
@@ -259,10 +258,6 @@ export default function SocialLinksPage() {
     return <Icon className="w-4 h-4" />;
   };
 
-  if (loading) {
-    return <LoadingState message="Loading social links..." />;
-  }
-
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
@@ -277,218 +272,122 @@ export default function SocialLinksPage() {
             <CardTitle className="text-lg font-semibold text-foreground">
               All Social Links ({filteredLinks.length})
             </CardTitle>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
-              <Input
-                placeholder="Search links..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-border"
-              />
-            </div>
+            <Toolbar search={searchQuery} onSearchChange={setSearchQuery} placeholder="Search links..." className="w-full sm:w-auto" />
           </div>
         </CardHeader>
         <CardContent>
-          {filteredLinks.length === 0 ? (
+          {loading ? (
+            <ListSkeleton rows={4} />
+          ) : filteredLinks.length === 0 ? (
             <EmptyState
               title="No social links found"
               description={searchQuery ? "Try a different search term" : "Get started by adding your first social link"}
-              action={
-                !searchQuery ? {
-                  label: "Add Social Link",
-                  onClick: () => handleOpenDialog()
-                } : undefined
-              }
+              action={!searchQuery ? { label: "Add Social Link", onClick: () => handleOpenDialog() } : undefined}
               icon={ExternalLink}
             />
           ) : (
             <div className="space-y-3">
-              {filteredLinks.map((link, index) => (
-                <Card key={link.id} className="border-border">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleMoveUp(index)}
-                          disabled={index === 0}
->
-                          <ArrowUp className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleMoveDown(index)}
-                          disabled={index === filteredLinks.length - 1}
->
-                          <ArrowDown className="w-4 h-4" />
-                        </Button>
-                      </div>
-
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+              <AnimatePresence initial={false}>
+                {filteredLinks.map((link, index) => (
+                  <ListRow
+                    key={link.id}
+                    index={index}
+                    leading={
+                      <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                         {getPlatformIcon(link.platform)}
                       </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-foreground capitalize">
-                            {link.platform}
-                          </h3>
-                          {!link.active && (
-                            <Badge variant="outline" className="text-xs">
-                              Inactive
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground truncate">
-                          {link.url}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => window.open(link.url, '_blank')}
->
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenDialog(link)}
->
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteConfirm(link.id)}
-                          className="hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    }
+                    title={<span className="capitalize">{link.platform}</span>}
+                    badges={!link.active && <StatusBadge status="inactive" />}
+                    meta={<p className="truncate">{link.url}</p>}
+                    actions={
+                      <RowActions
+                        name={link.platform}
+                        onEdit={() => handleOpenDialog(link)}
+                        onDelete={() => setDeleteConfirm(link.id)}
+                        extra={[
+                          { label: "Move up", icon: ArrowUp, onSelect: () => handleMoveUp(index), disabled: index === 0 },
+                          { label: "Move down", icon: ArrowDown, onSelect: () => handleMoveDown(index), disabled: index === filteredLinks.length - 1 },
+                          { label: "Open link", icon: ExternalLink, onSelect: () => window.open(link.url, "_blank") },
+                        ]}
+                      />
+                    }
+                  />
+                ))}
+              </AnimatePresence>
             </div>
           )}
         </CardContent>
       </Card>
 
-      <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
-        <DialogContent className="bg-card border-border">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
-              {editingLink ? "Edit Social Link" : "Add Social Link"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="platform" className="text-foreground">
-                Platform <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formData.platform}
-                onValueChange={(value) => {
-                  setFormData(prev => ({ ...prev, platform: value }));
-                  if (errors.platform) setErrors(prev => ({ ...prev, platform: "" }));
-                }}
-              >
-                <SelectTrigger className={`border-border ${errors.platform ? "border-destructive" : ""}`}>
-                  <SelectValue placeholder="Select platform" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PLATFORMS.map((platform) => (
-                    <SelectItem key={platform.value} value={platform.value}>
-                      <div className="flex items-center gap-2">
-                        <platform.icon className="w-4 h-4" />
-                        {platform.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.platform && (
-                <p className="text-sm text-destructive">{errors.platform}</p>
-              )}
-            </div>
+      <FormDialog
+        open={isDialogOpen}
+        onOpenChange={(open) => (open ? undefined : handleCloseDialog())}
+        title={editingLink ? "Edit Social Link" : "Add Social Link"}
+        description="Shown in the site footer and on the contact page."
+        submitLabel={editingLink ? "Update" : "Add"}
+        submitting={saving}
+        onSubmit={handleSave}
+      >
+        <FormField label="Platform" htmlFor="platform" required error={errors.platform}>
+          <Select
+            value={formData.platform}
+            onValueChange={(value) => {
+              setFormData((prev) => ({ ...prev, platform: value }));
+              if (errors.platform) setErrors((prev) => ({ ...prev, platform: "" }));
+            }}
+          >
+            <SelectTrigger id="platform" aria-invalid={!!errors.platform} className={errors.platform ? "border-destructive" : ""}>
+              <SelectValue placeholder="Select platform" />
+            </SelectTrigger>
+            <SelectContent>
+              {PLATFORMS.map((platform) => (
+                <SelectItem key={platform.value} value={platform.value}>
+                  <div className="flex items-center gap-2">
+                    <platform.icon className="w-4 h-4" />
+                    {platform.label}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="url" className="text-foreground">
-                URL <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="url"
-                value={formData.url}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, url: e.target.value }));
-                  if (errors.url) setErrors(prev => ({ ...prev, url: "" }));
-                }}
-                placeholder="https://facebook.com/yourpage"
-                className={`border-border ${errors.url ? "border-destructive" : ""}`}
-              />
-              {errors.url && (
-                <p className="text-sm text-destructive">{errors.url}</p>
-              )}
-            </div>
+        <FormField label="URL" htmlFor="url" required error={errors.url}>
+          <Input
+            id="url"
+            type="url"
+            inputMode="url"
+            value={formData.url}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, url: e.target.value }));
+              if (errors.url) setErrors((prev) => ({ ...prev, url: "" }));
+            }}
+            placeholder="https://facebook.com/yourpage"
+            aria-invalid={!!errors.url}
+          />
+        </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="sort_order" className="text-foreground">
-                Sort Order
-              </Label>
-              <Input
-                id="sort_order"
-                type="number"
-                value={formData.sort_order}
-                onChange={(e) => setFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                className="border-border"
-              />
-              <p className="text-xs text-muted-foreground">
-                Lower numbers appear first
-              </p>
-            </div>
+        <FormField label="Sort Order" htmlFor="sort_order" hint="Lower numbers appear first.">
+          <Input
+            id="sort_order"
+            type="number"
+            value={formData.sort_order}
+            onChange={(e) => setFormData((prev) => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+          />
+        </FormField>
 
-            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
-              <Switch
-                id="active"
-                checked={formData.active}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, active: checked }))}
-              />
-              <Label htmlFor="active" className="text-foreground cursor-pointer">
-                Active
-              </Label>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCloseDialog}
-              disabled={saving}
->
-              Cancel
-            </Button>
-            <Button variant="brand"
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
->
-              {saving ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                editingLink ? "Update" : "Add"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
+          <Switch
+            id="active"
+            checked={formData.active}
+            onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, active: checked }))}
+          />
+          <Label htmlFor="active" className="cursor-pointer">
+            Active
+          </Label>
+        </div>
+      </FormDialog>
 
       <ConfirmDialog
         open={!!deleteConfirm}
@@ -498,6 +397,7 @@ export default function SocialLinksPage() {
         description="This action cannot be undone. This will permanently delete the social link."
         confirmLabel="Delete"
         cancelLabel="Cancel"
+        destructive
       />
     </div>
   );
