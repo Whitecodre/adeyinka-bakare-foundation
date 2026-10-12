@@ -122,9 +122,11 @@ Content width: `max-w-7xl`, padded `p-4 md:p-6 lg:p-8`. Page enter animation: `a
 ---
 
 ## 7. Rollout status (October 2026)
-**Built:** status tokens; `Button` (`brand`, `loading`, touch-size icon), `Badge` (success, warning, info, muted), `Skeleton`, `Dialog` restyle; Sidebar, AdminHeader, layout; PageHeader, DashboardCard (kept its name), EmptyState, LoadingState + `ListSkeleton`, ConfirmDialog, `ErrorState`, `Toolbar`, `ListRow`, `RowActions`, `StatusBadge`, `RoleBadge`, `FormField`, `FormDialog`; ImageUpload, SearchModal, LogoutDialog tokenised. **Admins** is the finished pilot page. Every other admin page has had its hex colours converted to tokens; their layouts still use the old structure and move to the shared components one by one.
+**Built:** status tokens; `Button` (`brand`, `loading`, touch-size icon), `Badge` (success, warning, info, muted), `Skeleton`, `Dialog`, `Input`, `Textarea`, `Select` restyle; Sidebar, AdminHeader (breadcrumb, Ctrl+K command palette), layout; `PageHeader` (actions with icon/loading, `aside` slot), DashboardCard (kept its name), EmptyState, LoadingState + `ListSkeleton`, ConfirmDialog, `ErrorState`, `Toolbar`, `ListRow` (with expandable `children`), `RowActions` (with `extra` and `disabled`), `StatusBadge`, `FeaturedBadge`, `RoleBadge`, `FormField`, `FormDialog`, **`ResourceList`** (desktop table + phone cards from one column definition; replaces the old `DataTable`).
 
-**Still to do:** `DataTable` card layout on phones, count-up on stats, and migrating each page's list, form and dialog to `ListRow` / `FormDialog` / `FormField`.
+**Applied everywhere:** every admin page uses `PageHeader`. The nine record lists (beneficiaries, members, volunteers, events, news, programmes, testimonials, contents, media) use `ResourceList`; Admins, Social Links and Footer use `ListRow` + `FormDialog`; every new/edit form uses the shared control look and action bar.
+
+**Known gaps:** contents and media have no edit route (their Edit action points at a missing page); `[id]` detail pages are placeholders; the news "new" page keeps its rich-text editor and dialogs; stat cards do not count up yet.
 
 ## 8. Rollout order
 1. Tokens: add the status tokens to `globals.css` (shared file: tell your partner first).
