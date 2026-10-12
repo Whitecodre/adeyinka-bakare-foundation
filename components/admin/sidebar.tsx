@@ -25,14 +25,14 @@ import {
   LogOut,
 } from "lucide-react";
 
-interface NavItem {
+export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
   group?: string;
 }
 
-const adminNavigation: NavItem[] = [
+export const adminNavigation: NavItem[] = [
   {
     label: "Dashboard",
     href: "/admin",

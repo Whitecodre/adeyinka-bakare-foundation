@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { LoadingState } from "@/components/admin/loading-state";
-import { Search, X } from "lucide-react";
+import { CornerDownLeft, Loader2, Search, SearchX, X, type LucideIcon } from "lucide-react";
+
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { adminNavigation } from "@/components/admin/sidebar";
+import { cn } from "@/lib/utils";
 
 interface SearchResult {
   id: string;
@@ -16,60 +16,76 @@ interface SearchResult {
   url: string;
 }
 
+interface PaletteItem {
+  id: string;
+  group: string;
+  title: string;
+  subtitle?: string;
+  url: string;
+  icon: LucideIcon;
+}
+
 interface SearchModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const pageItems: PaletteItem[] = adminNavigation.map((item) => ({
+  id: item.href,
+  group: "Go to",
+  title: item.label,
+  subtitle: item.group,
+  url: item.href,
+  icon: item.icon,
+}));
+
+/** Command palette: jump to any dashboard page. Resource search plugs into `results` later. */
 export function SearchModal({ open, onOpenChange }: SearchModalProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
-  // Focus input when modal opens
-  useEffect(() => {
-    if (open && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [open]);
+  const items = useMemo<PaletteItem[]>(() => {
+    const q = query.trim().toLowerCase();
+    const pages = q
+      ? pageItems.filter((p) => p.title.toLowerCase().includes(q) || p.subtitle?.toLowerCase().includes(q))
+      : pageItems;
+    const found: PaletteItem[] = results.map((r) => ({
+      id: r.id,
+      group: "Results",
+      title: r.title,
+      subtitle: r.subtitle ?? r.type,
+      url: r.url,
+      icon: Search,
+    }));
+    return [...found, ...pages];
+  }, [query, results]);
 
-  // Clear results when modal closes
-  useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (next: boolean) => {
+    if (!next) {
       setQuery("");
       setResults([]);
+      setActive(0);
     }
-  }, [open]);
+    onOpenChange(next);
+  };
 
-  // Handle keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        onOpenChange(!open);
-      }
-      if (e.key === "Escape" && open) {
-        onOpenChange(false);
-      }
-    };
+  const handleSearch = async (value: string) => {
+    setQuery(value);
+    setActive(0);
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onOpenChange]);
-
-  const handleSearch = async (searchQuery: string) => {
-    setQuery(searchQuery);
-
-    if (!searchQuery.trim()) {
+    if (!value.trim()) {
       setResults([]);
       return;
     }
 
     setLoading(true);
-
     try {
+      // TODO: Replace with a real resource search (members, programmes, events...)
       await new Promise((resolve) => setTimeout(resolve, 300));
       setResults([]);
     } catch (error) {
@@ -80,107 +96,135 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
     }
   };
 
-  const handleResultClick = (result: SearchResult) => {
-    router.push(result.url);
-    onOpenChange(false);
+  const go = (item: PaletteItem) => {
+    router.push(item.url);
+    handleOpenChange(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!items.length) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const next = (active + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+      setActive(next);
+      listRef.current?.querySelector(`[data-index="${next}"]`)?.scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      go(items[active]);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-border max-w-2xl p-0 rounded-xl shadow-lg">
-        <div className="p-6 border-b border-border mr-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/70" />
-            <Input
-              ref={inputRef}
-              value={query}
-              onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Search across all resources..."
-              className="pl-12 pr-12 border-border bg-card text-foreground focus:border-ring focus:ring-ring/20"
-            />
-            {query && (
-              <button
-                onClick={() => {
-                  setQuery("");
-                  setResults([]);
-                  inputRef.current?.focus();
-                }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground mt-3 font-medium">
-            Press <kbd className="px-2 py-1 bg-muted rounded-md text-[11px] font-medium">Esc</kbd> to close
-          </p>
-        </div>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="top-[12%] max-w-xl translate-y-0 gap-0 overflow-hidden p-0 sm:p-0">
+        <DialogTitle className="sr-only">Search the dashboard</DialogTitle>
+        <DialogDescription className="sr-only">Type to find a page, then press Enter to open it.</DialogDescription>
 
-        <div className="max-h-[400px] overflow-y-auto">
+        <div className="flex items-center gap-3 border-b border-border px-4 pr-14">
           {loading ? (
-            <div className="p-12">
-              <LoadingState message="Searching..." />
-            </div>
-          ) : query && results.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-                <Search className="w-8 h-8 text-muted-foreground/70" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">No results found</h3>
-              <p className="text-sm text-muted-foreground">
-                No results found for &ldquo;<span className="font-medium text-foreground">{query}</span>&rdquo;
-              </p>
-              <p className="text-xs text-muted-foreground/70 mt-2">
-                Try different keywords or check your spelling
-              </p>
-            </div>
-          ) : !query ? (
-            <div className="p-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-linear-to-br from-maroon-500 to-maroon-600 rounded-full flex items-center justify-center shadow-lg">
-                <Search className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                Search resources
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Search across members, beneficiaries, programmes, events, news, testimonials, media, and more
-              </p>
-            </div>
+            <Loader2 className="size-5 shrink-0 animate-spin text-primary" />
           ) : (
-            <div className="p-2">
-              {results.map((result, index) => (
-                <button
-                  key={result.id}
-                  onClick={() => handleResultClick(result)}
-                  className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-muted transition-colors text-left group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-linear-to-br from-maroon-500 to-maroon-600 flex items-center justify-center shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
-                    <Search className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {result.title}
-                    </p>
-                    {result.subtitle && (
-                      <p className="text-xs text-muted-foreground truncate">
-                        {result.subtitle}
-                      </p>
-                    )}
-                  </div>
-                  <Badge variant="outline" className="bg-muted text-foreground border-border capitalize">
-                    {result.type}
-                  </Badge>
-                </button>
-              ))}
-            </div>
+            <Search className="size-5 shrink-0 text-muted-foreground" />
+          )}
+          <input
+            ref={inputRef}
+            autoFocus
+            value={query}
+            onChange={(e) => handleSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Search pages and resources..."
+            aria-label="Search"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="admin-search-list"
+            className="h-14 min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setResults([]);
+                setActive(0);
+                inputRef.current?.focus();
+              }}
+              aria-label="Clear search"
+              className="grid size-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <X className="size-4" />
+            </button>
           )}
         </div>
 
-        {results.length > 0 && (
-          <div className="p-4 border-t border-border text-xs text-muted-foreground/70 text-center">
-            Use arrow keys to navigate, Enter to select
-          </div>
-        )}
+        <div ref={listRef} id="admin-search-list" role="listbox" className="max-h-[min(24rem,60dvh)] overflow-y-auto p-2">
+          {items.length === 0 ? (
+            <div className="flex flex-col items-center px-4 py-10 text-center">
+              <div className="mb-3 grid size-12 place-items-center rounded-xl bg-muted text-muted-foreground">
+                <SearchX className="size-6" />
+              </div>
+              <p className="font-semibold text-foreground">No matches for &ldquo;{query}&rdquo;</p>
+              <p className="mt-1 text-sm text-muted-foreground">Try a page name like Programmes or Events.</p>
+            </div>
+          ) : (
+            items.map((item, index) => {
+              const Icon = item.icon;
+              const showGroup = index === 0 || items[index - 1].group !== item.group;
+              return (
+                <div key={`${item.group}-${item.id}`}>
+                  {showGroup && (
+                    <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                      {item.group}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={index === active}
+                    data-index={index}
+                    onMouseMove={() => setActive(index)}
+                    onClick={() => go(item)}
+                    className={cn(
+                      "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left transition-colors",
+                      index === active ? "bg-primary/10" : "hover:bg-muted",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "grid size-9 shrink-0 place-items-center rounded-lg transition-colors",
+                        index === active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      <Icon className="size-[18px]" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-foreground">{item.title}</span>
+                      {item.subtitle && (
+                        <span className="block truncate text-xs text-muted-foreground">{item.subtitle}</span>
+                      )}
+                    </span>
+                    {index === active && <CornerDownLeft className="hidden size-4 shrink-0 text-primary sm:block" />}
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div className="hidden items-center gap-4 border-t border-border bg-muted/50 px-4 py-2.5 text-xs text-muted-foreground sm:flex">
+          <span className="flex items-center gap-1.5">
+            <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-medium">↑</kbd>
+            <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-medium">↓</kbd>
+            to move
+          </span>
+          <span className="flex items-center gap-1.5">
+            <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-medium">Enter</kbd>
+            to open
+          </span>
+          <span className="flex items-center gap-1.5">
+            <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-medium">Esc</kbd>
+            to close
+          </span>
+        </div>
       </DialogContent>
     </Dialog>
   );
