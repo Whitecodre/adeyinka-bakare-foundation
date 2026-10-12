@@ -26,6 +26,15 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-success-soft: hsl(var(--success-soft));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-warning-soft: hsl(var(--warning-soft));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+  --color-info-soft: hsl(var(--info-soft));
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -104,6 +113,15 @@
     --border: 20 25% 88%;
     --input: 20 25% 88%;
     --ring: 41 96% 54%;
+    --success: 142 55% 28%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 142 55% 93%;
+    --warning: 35 90% 30%;
+    --warning-foreground: 0 0% 100%;
+    --warning-soft: 41 100% 91%;
+    --info: 210 60% 34%;
+    --info-foreground: 0 0% 100%;
+    --info-soft: 210 60% 94%;
     --radius: 0.5rem;
   }
 
@@ -127,6 +145,15 @@
     --border: 10 18% 22%;
     --input: 10 18% 22%;
     --ring: 41 96% 54%;
+    --success: 142 50% 62%;
+    --success-foreground: 142 60% 10%;
+    --success-soft: 142 30% 16%;
+    --warning: 41 90% 62%;
+    --warning-foreground: 35 80% 10%;
+    --warning-soft: 38 35% 18%;
+    --info: 210 70% 70%;
+    --info-foreground: 210 60% 12%;
+    --info-soft: 210 30% 18%;
   }
 }
 
