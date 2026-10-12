@@ -23,12 +23,12 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         brand:
-          "bg-linear-to-r from-maroon-500 to-maroon-600 text-white shadow-lg shadow-primary/30 hover:from-maroon-600 hover:to-maroon-700",
+          "bg-linear-to-r from-maroon-500 to-maroon-600 text-white shadow-md shadow-primary/25 hover:from-maroon-600 hover:to-maroon-700",
       },
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
+        lg: "h-11 rounded-md px-6",
         icon: "h-11 w-11 md:h-9 md:w-9",
       },
     },
