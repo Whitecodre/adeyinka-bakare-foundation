@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
+import QRCode from "qrcode";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +15,13 @@ export async function POST(request: NextRequest) {
 
     // Build otpauth URL manually
     const otpauthUrl = `otpauth://totp/ABF Admin:${user.email || "admin"}?secret=${secret}&issuer=ABF Admin&algorithm=SHA1&digits=6&period=30`;
+    // Generate QR as data URL for immediate display (no external api.qrserver.com leak)
+    let qrCodeUrl: string | null = null;
+    try {
+      qrCodeUrl = await QRCode.toDataURL(otpauthUrl, { width: 280, margin: 1 });
+    } catch {
+      qrCodeUrl = null;
+    }
 
     // Check if MFA record exists
     const { data: existingMFA } = await supabase
@@ -50,6 +58,7 @@ export async function POST(request: NextRequest) {
       data: {
         secret,
         otpauthUrl,
+        qrCodeUrl,
       },
     });
   } catch (error: any) {

@@ -914,3 +914,42 @@ The admin dashboard is now fully functional with:
 - Responsive layouts
 - No mock data
 - Supabase integration ready
+
+## 2026-10-14
+
+### Admin Console Activation, Security Hardening & Email Studio
+
+**Status**: Completed
+
+**Objective**: Make the entire `/admin` console live (no stubs), secure the proxy/data layer, use correct storage buckets, and wire Zoho invite + studio emails with reusable branded templates.
+
+#### Completed:
+
+**Header / Sidebar Alignment**
+- Fixed `/src/app/admin/layout.tsx` to full-width flex so the hamburger sits directly against the sidebar edge in both `w-64` and `w-20` states. Made both the sidebar brand strip and header `h-16` with aligned `border-b`.
+
+**Data Layer & Storage**
+- Audited admin API routes, normalized protection to `requireRole(PERMISSIONS.*)`.
+- Fixed `lib/storage/paths.ts` bucket mapper and `generateStoragePathWithOwner(uid/…)` so RLS checks pass. Updated `upload.ts`/`delete.ts` and `hooks/use-media-upload.ts` to be bucket-aware, and made `src/app/api/admin/media/upload-url/route.ts` a real handler.
+
+**Admin Pages Wired**
+- Dashboard now `fetch /api/admin/stats` + `/activity`. Lists now fetch real APIs, and new/edit forms changed from `setTimeout` mocks to real `POST/PATCH` via service layer.
+
+**Security — Secure Proxy + MFA (TOTP + Passkeys)**
+- Hardened proxy: replaced `getSession()` (cookie-trusted) with `getUser()` (verifies via Auth server), renamed to `src/proxy.ts` per Next 16. Fixed `getSession` warning.
+- **TOTP 2FA**: fixed `setup` to generate `otpauthUrl` + `QR data URL` via `qrcode`, store secret. Frontend now shows a real dialog with QR image, copyable secret, and 6-digit input. `handleVerifyMfa()` calls `POST /api/admin/mfa/totp/verify` which now does real `verifyTOTP(token, secret)` via `lib/security/totp.ts` instead of placeholder, hashes recovery codes, and enables `totp_enabled`.
+- **Passkeys**: rewrote `register/options` to use `generateRegistrationOptions` from `@simplewebauthn/server` with `rpID` from origin, `excludeCredentials`, and stores challenge in `webauthn_challenges`. Rewrote `register/verify` to use `verifyRegistrationResponse`, stores real `credential_id`/`public_key`/`counter`. Frontend `handleAddPasskey()` now dynamically imports `startRegistration` from `@simplewebauthn/browser` which triggers Windows Hello / Touch ID.
+
+**Zoho Email + Invite Studio (Invite-Only)**
+- Added `nodemailer`, `lib/email/{client,send,log,layout,templates}`. Env `SMTP_HOST=smtp.zoho.com:587` etc. from `D:\Codes\whispr\.env.local` copied to `ABF/.env.local` for testing, documented in `.env.local.example`. Added `EMAIL_LOGO_URL=https://ibb.co/LhSBgzZK` and `EMAIL_HERO_IMAGE` env, logo now rendered in email header from env with fallback to `/brand/logo.png`, hero verified to `1522202176988-66273c2fd55f` (students) and `1498050108023` (IT).
+- Created `admin_invites` table (per-invite `token_hash` sha256 of `randomBytes(32)`, 7-day expiry) and `email_logs` + `newsletter_subscribers`. Routes `POST /api/admin/admins/invite`, `GET /invites`, `DELETE`, `POST+GET /api/auth/accept-invite`, page `src/app/admin-auth/accept-invite/page.tsx` with `force-dynamic` + `Suspense`.
+- Updated `admins` page to invite-only (Invite Admin -> Zoho email, pending invites list).
+- Created Email Studio `src/app/admin/email/page.tsx` with live preview (header/logo/hero/footer), recipient groups, send via `POST /api/admin/email/send`, logs via `GET /api/admin/email/logs`.
+
+**Public Newsletter**
+- Created `src/app/api/public/newsletter/route.ts` (upsert `newsletter_subscribers`, welcome email, log + notify). Added newsletter form to `components/public/footer.tsx` Stay connected section.
+- Wired `volunteers`/`members`/`contact` public routes to send templated Zoho emails + `logEmail` + `notifyAdmins` using correct table columns.
+
+**Verification**
+- `npm run build` passes, `useSearchParams` wrapped in `Suspense` with `force-dynamic`, no `getSession` warning.
+

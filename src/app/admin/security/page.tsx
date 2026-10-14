@@ -70,6 +70,10 @@ export default function SecurityPage() {
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
   const [newPasskeyName, setNewPasskeyName] = useState("");
   const [totpCode, setTotpCode] = useState("");
+  const [totpSecret, setTotpSecret] = useState("");
+  const [otpauthUrl, setOtpauthUrl] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
 
   useEffect(() => {
     const loadSecurityData = async () => {
@@ -179,19 +183,47 @@ export default function SecurityPage() {
         throw new Error(result.error);
       }
 
-      // Store QR code URL and show dialog
-      setQrCodeUrl(result.data.qrCodeUrl);
+      setQrCodeUrl(result.data.qrCodeUrl || result.data.qrCode || "");
+      setTotpSecret(result.data.secret || "");
+      setOtpauthUrl(result.data.otpauthUrl || result.data.otpauth || "");
+      setTotpCode("");
       setMfaDialogOpen(true);
-      toast({
-        title: "Setup initiated",
-        description: "Scan the QR code to enable 2FA",
-      });
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message || "Failed to enable MFA",
       });
+    }
+  };
+
+  const handleVerifyMfa = async () => {
+    const code = totpCode.trim();
+    if (!/^\d{6}$/.test(code)) {
+      toast({ variant: "destructive", title: "Enter the 6-digit code" });
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      const res = await fetch("/api/admin/mfa/totp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, token: code }),
+      });
+      const j = await res.json();
+      if (!j.success) throw new Error(j.error || "Invalid code");
+      setMfaEnabled(true);
+      setMfaDialogOpen(false);
+      setTotpCode("");
+      if (j.data?.recoveryCodes?.length) {
+        setRecoveryCodes(j.data.recoveryCodes.map((c: string) => ({ code: c, used: false })));
+        setShowRecoveryCodes(true);
+      }
+      toast({ title: "Two-factor enabled", description: "Your authenticator app is now linked." });
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Verification failed", description: e.message });
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -225,39 +257,61 @@ export default function SecurityPage() {
 
   const handleAddPasskey = async () => {
     if (!newPasskeyName.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter a name for this passkey",
-      });
+      toast({ variant: "destructive", title: "Please enter a name for this passkey" });
       return;
     }
-
+    setIsRegisteringPasskey(true);
     try {
-      // Get registration options
-      const optionsRes = await fetch("/api/admin/security/passkeys/register/options", {
+      const optsRes = await fetch("/api/admin/mfa/passkey/register/options", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deviceName: newPasskeyName }),
+        body: JSON.stringify({}),
       });
-      const options = await optionsRes.json();
+      const optsJson = await optsRes.json();
+      if (!optsJson.success) throw new Error(optsJson.error || "Failed to start passkey registration");
 
-      if (!options.success) {
-        throw new Error(options.error);
+      const { startRegistration } = await import("@simplewebauthn/browser");
+      let attResp: unknown;
+      try {
+        attResp = await startRegistration({ optionsJSON: optsJson.data } as any);
+      } catch (e: any) {
+        if (e?.name === "NotAllowedError") throw new Error("Passkey creation was cancelled or timed out. Please try again and approve Windows Hello / Touch ID.");
+        throw e;
       }
 
-      // The actual WebAuthn registration should happen in the TOTP page
-      // This is a placeholder - the full implementation needs to use the TOTP page
-      toast({
-        title: "Passkey Setup",
-        description: "Use the TOTP page to add a passkey",
+      const verifyRes = await fetch("/api/admin/mfa/passkey/register/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ response: attResp, deviceName: newPasskeyName.trim() }),
       });
+      const verifyJson = await verifyRes.json();
+      if (!verifyJson.success) throw new Error(verifyJson.error || "Verification failed");
+
+      toast({ title: "Passkey added", description: "Your device can now be used for passwordless login." });
+      setShowPasskeyDialog(false);
+      setNewPasskeyName("");
+      const sRes = await fetch("/api/admin/mfa/status");
+      const sJson = await sRes.json();
+      if (sJson.success) {
+        setPasskeysEnabled(!!sJson.data.passkeyEnabled);
+        setMfaEnabled(!!sJson.data.totpEnabled || !!sJson.data.passkeyEnabled);
+        // refresh passkey list via security passkeys endpoint if available
+        try {
+          const listRes = await fetch("/api/admin/security/passkeys/register");
+          const listJson = await listRes.json().catch(() => null);
+          if (listJson?.success && Array.isArray(listJson.data) && listJson.data.length) {
+            setPasskeys(listJson.data.map((p: any) => ({ id: p.id, name: p.device_name || p.deviceName || "Passkey", added_at: p.created_at, last_used: p.last_used_at || p.created_at })));
+          } else {
+            setPasskeys((prev) => [...prev, { id: Date.now().toString(), name: newPasskeyName.trim(), added_at: new Date().toISOString(), last_used: new Date().toISOString() }]);
+          }
+        } catch {
+          setPasskeys((prev) => [...prev, { id: Date.now().toString(), name: newPasskeyName.trim(), added_at: new Date().toISOString(), last_used: new Date().toISOString() }]);
+        }
+      }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to add passkey",
-      });
+      toast({ variant: "destructive", title: "Failed to add passkey", description: error.message || "Try again and approve the browser prompt." });
+    } finally {
+      setIsRegisteringPasskey(false);
     }
   };
 
@@ -629,6 +683,62 @@ export default function SecurityPage() {
         </DialogContent>
       </Dialog>
 
+      {/* TOTP Setup Dialog */}
+      <Dialog open={mfaDialogOpen} onOpenChange={setMfaDialogOpen}>
+        <DialogContent className="bg-card border-border sm:max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle className="text-foreground flex items-center gap-2"><Smartphone className="w-5 h-5" /> Set up authenticator</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Scan the QR code with Google Authenticator, Authy, or 1Password, then enter the 6-digit code.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {qrCodeUrl ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="rounded-xl border border-border bg-white p-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={qrCodeUrl} alt="TOTP QR code" width={200} height={200} className="h-[200px] w-[200px] object-contain" />
+                </div>
+                <p className="text-xs text-muted-foreground text-center">If you cannot scan, manually enter this secret</p>
+                <div className="flex w-full items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2">
+                  <code className="flex-1 break-all font-mono text-xs text-foreground">{totpSecret || "—"}</code>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { if (totpSecret) { navigator.clipboard.writeText(totpSecret); toast({ title: "Secret copied" }); } }}>
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+                {otpauthUrl && (
+                  <p className="w-full break-all text-[11px] text-muted-foreground/70">{otpauthUrl}</p>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-6 text-sm text-muted-foreground">
+                <div className="h-2 w-2 animate-pulse rounded-full bg-maroon-600" />
+                Generating QR code...
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="totpCode" className="text-foreground">6-digit code</Label>
+              <Input
+                id="totpCode"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="123456"
+                maxLength={6}
+                value={totpCode}
+                onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
+                className="border-border text-center font-mono text-lg tracking-widest"
+                onKeyDown={(e) => { if (e.key === "Enter") handleVerifyMfa(); }}
+              />
+              <p className="text-xs text-muted-foreground">Enter the code from your authenticator app. It refreshes every 30 seconds.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMfaDialogOpen(false)}>Cancel</Button>
+            <Button variant="brand" onClick={handleVerifyMfa} disabled={isVerifying || !/^\d{6}$/.test(totpCode)}>{isVerifying ? "Verifying..." : "Verify & enable"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Passkey Dialog */}
       <Dialog open={showPasskeyDialog} onOpenChange={setShowPasskeyDialog}>
         <DialogContent className="bg-card border-border">
@@ -656,13 +766,15 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setShowPasskeyDialog(false)}
+              disabled={isRegisteringPasskey}
 >
               Cancel
             </Button>
             <Button variant="brand"
               onClick={handleAddPasskey}
+              disabled={isRegisteringPasskey || !newPasskeyName.trim()}
 >
-              Add Passkey
+              {isRegisteringPasskey ? "Waiting for device..." : "Add Passkey"}
             </Button>
           </DialogFooter>
         </DialogContent>
