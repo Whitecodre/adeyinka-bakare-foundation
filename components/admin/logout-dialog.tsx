@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -10,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
 
 interface LogoutDialogProps {
   open: boolean;
@@ -19,11 +21,21 @@ interface LogoutDialogProps {
 export function LogoutDialog({ open, onOpenChange }: LogoutDialogProps) {
   const router = useRouter();
 
-  const handleLogout = () => {
-    // TODO: Clear Supabase session
-    // await supabase.auth.signOut();
-    onOpenChange(false);
-    router.push("/admin-auth/login");
+  const [signingOut, setSigningOut] = useState(false);
+
+  const handleLogout = async () => {
+    setSigningOut(true);
+    try {
+      // Ends the Supabase session and clears its cookies.
+      await createClient().auth.signOut();
+      // Also drop the client-set MFA flag so the next login starts clean.
+      document.cookie = "mfa-verified=; path=/; max-age=0";
+    } finally {
+      setSigningOut(false);
+      onOpenChange(false);
+      router.push("/admin-auth/login");
+      router.refresh();
+    }
   };
 
   return (
@@ -39,7 +51,7 @@ export function LogoutDialog({ open, onOpenChange }: LogoutDialogProps) {
           <Button variant="outline" className="h-11 sm:h-10" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button variant="brand" className="h-11 sm:h-10" onClick={handleLogout}>
+          <Button variant="brand" className="h-11 sm:h-10" loading={signingOut} onClick={handleLogout}>
             Sign out
           </Button>
         </DialogFooter>
