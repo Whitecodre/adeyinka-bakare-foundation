@@ -28,7 +28,20 @@ async function getTestimonials() {
     }
 
     const data = await response.json();
-    return data.success ? data.data : [];
+    if (!data.success) return [];
+
+    // The API returns the raw row with the linked beneficiary nested inside.
+    // The card wants a flat shape, so map it here.
+    return data.data.map((row: any) => {
+      const person = row.beneficiaries;
+      return {
+        id: row.id as string,
+        content: row.content as string,
+        full_name: (person?.full_name ?? "ABF Beneficiary") as string,
+        role: [person?.programme, person?.level].filter(Boolean).join(" · ") || null,
+        photo: (person?.photo ?? null) as string | null,
+      };
+    });
   } catch (error) {
     console.error("Error fetching testimonials:", error);
     return [];
@@ -56,7 +69,7 @@ export default async function TestimonialsPage() {
           </Reveal>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial: any, index: number) => (
+            {testimonials.map((testimonial: Awaited<ReturnType<typeof getTestimonials>>[number], index: number) => (
               <Reveal key={testimonial.id} delay={index * 0.08}>
                 <TestimonialCard testimonial={testimonial} />
               </Reveal>
