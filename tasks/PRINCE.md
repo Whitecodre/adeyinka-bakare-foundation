@@ -963,3 +963,15 @@ The admin dashboard is now fully functional with:
 - Updated `src/app/admin/security/page.tsx` `loadSecurityData()` to fetch the real list instead of `Array(passkeyCount).fill` fakes, and `handleAddPasskey()` fallback to `GET /api/admin/security/passkeys` (was `/register`). Build verified, Windows Hello now persists and list survives reload.
 
 **Note on RLS**: `admin_passkeys` RLS is `admin_id = auth.uid() OR has_admin_role(super_admin)` -- with `createClient()` (auth user) the insert/select where `admin_id = user.id` passes. Verify succeeded with `200`, so RLS is fine.
+
+### MFA Confirm Passkey Prompt Fix (2026-10-14)
+
+**Issue**: Clicking “Use Passkey” on `/admin-auth/mfa/confirm?redirect=%2Fadmin%2Femail` did `POST /api/admin/mfa/passkey/authenticate/options 200` twice but never showed Windows Hello — the page was fetching options then immediately setting `mfa-verified=true` without calling the browser WebAuthn API.
+
+**Fix**:
+- `src/app/admin-auth/mfa/confirm/page.tsx` `verifyPasskey()` now `fetch /api/admin/mfa/passkey/authenticate/options`, then `const { startAuthentication } = await import("@simplewebauthn/browser")` and `authResp = await startAuthentication({ optionsJSON: data })` — this is what actually triggers Windows Hello / Touch ID / phone. Handles `NotAllowedError` (cancelled/timeout) with friendly message, then `POST /api/admin/mfa/passkey/authenticate/verify` with `{ response: authResp }`. On success sets `mfa-verified` cookie (30m) and `router.push(redirect || "/admin")`. Also fixed `verifyTotpCode` to send `{ code }` (not `secret: "placeholder"`) and redirect via `redirect` param.
+- `src/app/api/admin/mfa/passkey/authenticate/verify/route.ts` replaced placeholder `simulate success` with real `verifyAuthenticationResponse` (checks `expectedChallenge/Origin/RPID` from `webauthn_challenges` table, loads `admin_passkeys` by `credential_id`, verifies with `credential.publicKey`/`counter`, deletes challenge, updates `counter`/`last_used_at` and `admin_mfa.updated_at`).
+- `src/app/api/admin/mfa/passkey/authenticate/options/route.ts` now derives `rpID` from `request.headers.get("origin") || nextUrl.origin` (handles `localhost` vs `127.0.0.1` and custom `NEXT_PUBLIC_SITE_URL`), instead of hardcoded `localhost` env.
+- `src/app/api/admin/mfa/passkey/register/options|verify` were already fixed for enrollment; this completes the login-time flow.
+
+Re-test: `/admin/email` with passkey-enabled admin → redirect 307 to `/admin-auth/mfa/confirm?redirect=%2Fadmin%2Femail` → select Passkey → click “Use Passkey” → Windows Hello appears → approve → redirected back to `/admin/email`.

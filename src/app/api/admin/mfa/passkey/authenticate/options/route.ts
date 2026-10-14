@@ -3,10 +3,6 @@ import { requireAuth } from "@/lib/auth/require-auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 
-const RP_ID = process.env.WEBAUTHN_RP_ID || "localhost";
-const RP_NAME = process.env.WEBAUTHN_RP_NAME || "ABF Admin";
-const ORIGIN = process.env.WEBAUTHN_ORIGIN || "http://localhost:3000";
-
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
@@ -30,9 +26,14 @@ export async function POST(request: NextRequest) {
       type: "public-key",
     }));
 
+    const origin = request.headers.get("origin") || request.nextUrl.origin;
+    let rpID = "localhost";
+    try { rpID = new URL(origin).hostname; } catch {}
+    if (rpID === "127.0.0.1") rpID = "localhost";
+
     // Generate authentication options
     const options = await generateAuthenticationOptions({
-      rpID: RP_ID,
+      rpID,
       userVerification: "preferred",
       allowCredentials,
     });

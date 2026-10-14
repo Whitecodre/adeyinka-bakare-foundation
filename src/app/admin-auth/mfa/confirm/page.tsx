@@ -124,70 +124,67 @@ export default function MFAConfirmPage() {
   };
 
   const verifyTotpCode = async () => {
+    const code = totpCode.trim();
+    if (!/^\d{6}$/.test(code)) {
+      toast({ title: "Error", description: "Enter the 6-digit code from your authenticator app", variant: "destructive" });
+      return;
+    }
     try {
       setVerifying(true);
       const response = await fetch("/api/admin/mfa/totp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: totpCode, secret: "placeholder" }),
+        body: JSON.stringify({ code, token: code }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Set MFA verified cookie
-        document.cookie = "mfa-verified=true; path=/; max-age=1800"; // 30 minutes
-
-        toast({
-          title: "Success",
-          description: "MFA verified successfully",
-        });
-        router.push("/admin");
+        document.cookie = "mfa-verified=true; path=/; max-age=1800";
+        toast({ title: "Success", description: "MFA verified successfully" });
+        const redirect = new URLSearchParams(window.location.search).get("redirect") || "/admin";
+        router.push(redirect);
       } else {
-        toast({
-          title: "Error",
-          description: data.error || "Invalid code",
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: data.error || "Invalid code", variant: "destructive" });
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to verify code",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to verify code", variant: "destructive" });
     } finally {
       setVerifying(false);
     }
   };
 
   const verifyPasskey = async () => {
+    setPasskeyVerifying(true);
     try {
-      setPasskeyVerifying(true);
+      const optsRes = await fetch("/api/admin/mfa/passkey/authenticate/options", { method: "POST" });
+      const optsJson = await optsRes.json();
+      if (!optsJson.success) throw new Error(optsJson.error || "No passkeys registered or failed to start authentication");
 
-      const { data: options } = await fetch("/api/admin/mfa/passkey/authenticate/options", {
-        method: "POST",
-      }).then((r) => r.json());
-
-      if (!options.success) {
-        throw new Error(options.error);
+      // This is what triggers Windows Hello / Touch ID / phone prompt
+      const { startAuthentication } = await import("@simplewebauthn/browser");
+      let authResp: unknown;
+      try {
+        authResp = await startAuthentication({ optionsJSON: optsJson.data } as any);
+      } catch (e: any) {
+        if (e?.name === "NotAllowedError") throw new Error("Passkey prompt was cancelled or timed out. Please try again and approve Windows Hello / your device.");
+        throw new Error(e?.message || "Passkey was not completed");
       }
 
-      // WebAuthn authentication would go here
-      // For now, mark as verified (TODO: implement real WebAuthn)
-      document.cookie = "mfa-verified=true; path=/; max-age=1800"; // 30 minutes
+      const verifyRes = await fetch("/api/admin/mfa/passkey/authenticate/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ response: authResp }),
+      });
+      const verifyJson = await verifyRes.json();
+      if (!verifyJson.success) throw new Error(verifyJson.error || "Passkey verification failed");
 
-      toast({
-        title: "Success",
-        description: "Passkey verified successfully",
-      });
-      router.push("/admin");
+      document.cookie = "mfa-verified=true; path=/; max-age=1800";
+      toast({ title: "Success", description: "Passkey verified successfully" });
+      const redirect = new URLSearchParams(window.location.search).get("redirect") || "/admin";
+      router.push(redirect);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to verify passkey",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "Failed to verify passkey", variant: "destructive" });
     } finally {
       setPasskeyVerifying(false);
     }
