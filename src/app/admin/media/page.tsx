@@ -158,7 +158,7 @@ export default function MediaPage() {
               meta={(r) => (<>
                   <p>{formatFileSize(r.size_bytes)} · {r.mime_type || "-"}</p>
                 </>)}
-              onEdit={(r) => router.push(`/admin/media/${r.id}`)}
+              onEdit={(r) => router.push(`/admin/media/${r.id}/edit`)}
               onDelete={(r) => setDeleteConfirm(r.id)}
               extra={(r) => [{ label: "Download", icon: Download, onSelect: () => window.open(r.storage_path, "_blank") }]}
             />

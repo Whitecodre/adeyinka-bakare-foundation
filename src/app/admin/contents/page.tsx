@@ -135,7 +135,7 @@ export default function ContentsPage() {
                   <p><code className="rounded bg-muted px-1.5 py-0.5 text-xs">{r.key}</code></p>
                   <p className="line-clamp-2">{r.content || "-"}</p>
                 </>)}
-              onEdit={(r) => router.push(`/admin/contents/${r.id}`)}
+              onEdit={(r) => router.push(`/admin/contents/${r.id}/edit`)}
               onDelete={(r) => setDeleteConfirm(r.id)}
             />
           )}
