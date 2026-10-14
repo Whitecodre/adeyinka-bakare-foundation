@@ -33,11 +33,13 @@ export default function EmailStudioPage() {
   };
   useEffect(()=>{ fetchLogs(); }, []);
 
-  const logoPreview = (typeof process !== "undefined" && ((process.env as any).NEXT_PUBLIC_EMAIL_LOGO_URL || "https://i.ibb.co/LhSBgzZK/ABF-logo.png")) || "https://i.ibb.co/LhSBgzZK/ABF-logo.png";
+  const rawLogoPreview = (typeof process !== "undefined" && ((process.env as any).NEXT_PUBLIC_EMAIL_LOGO_URL || "https://ibb.co/LhSBgzZK")) || "https://ibb.co/LhSBgzZK";
+  const isPageUrl = rawLogoPreview.includes("ibb.co/LhSBgzZK") && !/\.(png|jpe?g|webp|svg)/i.test(rawLogoPreview);
+  const logoPreview = isPageUrl ? "/brand/logo.png" : rawLogoPreview.replace("ibb.co/", "i.ibb.co/");
   const previewHtml = `<!doctype html><html><body style="margin:0;padding:12px;background:#FFFBF8;font-family:Inter,Arial,sans-serif">
   <div style="max-width:640px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e8ddd0">
-    <div style="background:#2d1816;padding:14px 20px;color:#fff"><table cellpadding="0" cellspacing="0" width="100%"><tr><td style="vertical-align:middle"><table cellpadding="0" cellspacing="0"><tr><td style="padding-right:8px"><img src="${logoPreview}" alt="ABF logo" width="32" height="32" style="display:block;width:32px;height:32px;border-radius:8px;background:#fff;object-fit:cover" /></td><td><div style="font-weight:900;letter-spacing:.12em;font-size:13px;line-height:1">ABF</div><div style="color:#f8c84d;font-size:9px;letter-spacing:.08em">ADEYINKA BAKARE FOUNDATION</div></td></tr></table></td><td align="right" style="font-size:10px;opacity:.8">Visit website →</td></tr></table></div>
-    <img src="https://images.unsplash.com/photo-1523240795612-9da7e0c2ba7d?auto=format&fit=crop&w=1200&q=80" alt="ABF fellows graduating -- empowering IT students" style="width:100%;height:160px;object-fit:cover;display:block" />
+    <div style="background:#2d1816;padding:14px 20px;color:#fff"><table cellpadding="0" cellspacing="0" width="100%"><tr><td style="vertical-align:middle"><table cellpadding="0" cellspacing="0"><tr><td style="padding-right:8px"><img src="${logoPreview}" alt="ABF logo" width="32" height="32" style="display:block;width:32px;height:32px;border-radius:8px;background:#fff;object-fit:cover" onerror="this.onerror=null;this.src='/brand/logo.png'" /></td><td><div style="font-weight:900;letter-spacing:.12em;font-size:13px;line-height:1">ABF</div><div style="color:#f8c84d;font-size:9px;letter-spacing:.08em">ADEYINKA BAKARE FOUNDATION</div></td></tr></table></td><td align="right" style="font-size:10px;opacity:.8">Visit website →</td></tr></table></div>
+    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80" alt="ABF scholars graduating -- empowering IT students" style="width:100%;height:160px;object-fit:cover;display:block" />
     <div style="padding:20px"><h2 style="margin:0 0 8px;font-family:Georgia,serif;color:#2d1816">${subject || "Preview subject"}</h2><div style="color:#2d1816;font-size:13px;line-height:1.6">${body}</div></div>
     <div style="background:#fff9eb;padding:12px 20px;border-top:1px solid #f0e6d8;font-size:11px;color:#6b5b55;text-align:center">© ${new Date().getFullYear()} ABF · Empowering Futures, Transforming Lives</div>
   </div></body></html>`;

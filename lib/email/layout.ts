@@ -16,16 +16,28 @@ const BRAND = {
 };
 
 // Fellowship-aligned professional imagery (override via EMAIL_HERO_IMAGE / EMAIL_BG_IMAGE env)
-const DEFAULT_HERO = process.env.EMAIL_HERO_IMAGE || "https://images.unsplash.com/photo-1523240795612-9da7e0c2ba7d?auto=format&fit=crop&w=1200&q=80";
-const DEFAULT_BG = process.env.EMAIL_BG_IMAGE || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=60";
-// Logo from env -- change EMAIL_LOGO_URL when ABF domain/logo is ready (provided: https://ibb.co/LhSBgzZK)
+// Use verified Unsplash IDs that reliably load: graduation (mission) + students collaborating (vision)
+const DEFAULT_HERO = process.env.EMAIL_HERO_IMAGE || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80";
+const DEFAULT_BG = process.env.EMAIL_BG_IMAGE || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=60";
+// Logo from env -- change EMAIL_LOGO_URL when ABF domain/logo is ready (provided: https://ibb.co/LhSBgzZK is a page, not a direct image)
 const RAW_LOGO: string = (typeof process !== "undefined" && ((process.env as any).EMAIL_LOGO_URL || (process.env as any).NEXT_PUBLIC_EMAIL_LOGO_URL)) || "https://ibb.co/LhSBgzZK";
-const LOGO_URL: string = RAW_LOGO.includes("ibb.co/") && !RAW_LOGO.includes("i.ibb.co/") ? RAW_LOGO.replace("ibb.co/", "i.ibb.co/") : RAW_LOGO;
+function resolveLogoUrl(raw: string): string {
+  const site = (typeof process !== "undefined" && ((process.env as any).NEXT_PUBLIC_SITE_URL || "https://adeyinkabakare.org")) || "https://adeyinkabakare.org";
+  const fallback = `${site.replace(/\/$/, "")}/brand/logo.png`;
+  // ibb.co/LhSBgzZK is a page URL, not a direct image -- fall back to site logo unless a direct image extension is present
+  if (raw.includes("ibb.co/LhSBgzZK") && !/\.(png|jpe?g|webp|svg)(\?.*)?$/i.test(raw)) return fallback;
+  if (raw.includes("ibb.co/") && !raw.includes("i.ibb.co/") && /\.(png|jpe?g|webp|svg)/i.test(raw)) return raw.replace("ibb.co/", "i.ibb.co/");
+  if (!/^https?:\/\//i.test(raw)) return fallback;
+  return raw;
+}
+const LOGO_URL: string = resolveLogoUrl(RAW_LOGO);
 
 export function baseEmailLayout(innerHtml: string, opts: EmailLayoutOpts = {}) {
   const preheader = opts.preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${escapeHtml(opts.preheader)}</div>` : "";
   const hero = opts.heroImage || DEFAULT_HERO;
-  const heroAlt = escapeHtml(opts.heroAlt || "ABF scholars and fellows -- empowering IT students through mentorship and scholarships");
+  const heroAlt = escapeHtml(opts.heroAlt || "ABF scholars graduating -- empowering IT students through scholarships, mentorship and career development");
+  const siteLogoFallback = (typeof process !== "undefined" && ((process.env as any).NEXT_PUBLIC_SITE_URL || "https://adeyinkabakare.org")) || "https://adeyinkabakare.org";
+  const logoFallback = `${siteLogoFallback.replace(/\/$/, "")}/brand/logo.png`;
   return `<!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(opts.title || "Adeyinka Bakare Foundation")}</title></head>
@@ -40,7 +52,7 @@ export function baseEmailLayout(innerHtml: string, opts: EmailLayoutOpts = {}) {
             <td style="vertical-align:middle">
               <table cellpadding="0" cellspacing="0"><tr>
                 <td style="vertical-align:middle;padding-right:10px">
-                  <img src="${LOGO_URL}" alt="ABF logo" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:10px;background:#fff;object-fit:cover;" />
+                  <img src="${LOGO_URL}" alt="ABF logo" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:10px;background:#fff;object-fit:cover;" onerror="this.onerror=null;this.src='${logoFallback}'" />
                 </td>
                 <td style="vertical-align:middle">
                   <div style="color:#fff;font-weight:900;letter-spacing:.14em;font-size:15px;line-height:1">ABF</div>
