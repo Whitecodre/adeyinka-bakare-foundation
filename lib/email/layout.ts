@@ -15,35 +15,47 @@ const BRAND = {
   muted: "#6b5b55",
 };
 
-const UNSPLASH_HERO = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80";
-const UNSPLASH_BG = "https://images.unsplash.com/photo-1494172961521-33799ddd43a5?auto=format&fit=crop&w=1600&q=60";
+// Fellowship-aligned professional imagery (override via EMAIL_HERO_IMAGE / EMAIL_BG_IMAGE env)
+const DEFAULT_HERO = process.env.EMAIL_HERO_IMAGE || "https://images.unsplash.com/photo-1523240795612-9da7e0c2ba7d?auto=format&fit=crop&w=1200&q=80";
+const DEFAULT_BG = process.env.EMAIL_BG_IMAGE || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=60";
+// Logo from env -- change EMAIL_LOGO_URL when ABF domain/logo is ready (provided: https://ibb.co/LhSBgzZK)
+const RAW_LOGO: string = (typeof process !== "undefined" && ((process.env as any).EMAIL_LOGO_URL || (process.env as any).NEXT_PUBLIC_EMAIL_LOGO_URL)) || "https://ibb.co/LhSBgzZK";
+const LOGO_URL: string = RAW_LOGO.includes("ibb.co/") && !RAW_LOGO.includes("i.ibb.co/") ? RAW_LOGO.replace("ibb.co/", "i.ibb.co/") : RAW_LOGO;
 
 export function baseEmailLayout(innerHtml: string, opts: EmailLayoutOpts = {}) {
   const preheader = opts.preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${escapeHtml(opts.preheader)}</div>` : "";
-  const hero = opts.heroImage || UNSPLASH_HERO;
+  const hero = opts.heroImage || DEFAULT_HERO;
+  const heroAlt = escapeHtml(opts.heroAlt || "ABF scholars and fellows -- empowering IT students through mentorship and scholarships");
   return `<!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(opts.title || "Adeyinka Bakare Foundation")}</title></head>
 <body style="margin:0;padding:0;background:${BRAND.cream};font-family:Inter,Arial,sans-serif;">
   ${preheader}
-  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:${BRAND.cream};padding:24px 12px;background-image:url('${UNSPLASH_BG}');background-size:cover;background-position:center;">
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:${BRAND.cream};padding:24px 12px;background-image:url('${DEFAULT_BG}');background-size:cover;background-position:center;">
     <tr><td align="center">
       <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:640px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 40px rgba(45,24,22,0.12);border:1px solid #e8ddd0;">
-        <!-- Header -->
-        <tr><td style="background:${BRAND.ink};padding:20px 28px;">
-          <table width="100%"><tr>
-            <td>
-              <div style="color:#fff;font-weight:900;letter-spacing:.14em;font-size:15px;line-height:1">ABF</div>
-              <div style="color:${BRAND.gold};font-size:11px;letter-spacing:.08em;margin-top:4px">ADEYINKA BAKARE FOUNDATION</div>
+        <!-- Header with logo from env -->
+        <tr><td style="background:${BRAND.ink};padding:16px 24px;">
+          <table width="100%" cellpadding="0" cellspacing="0"><tr>
+            <td style="vertical-align:middle">
+              <table cellpadding="0" cellspacing="0"><tr>
+                <td style="vertical-align:middle;padding-right:10px">
+                  <img src="${LOGO_URL}" alt="ABF logo" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:10px;background:#fff;object-fit:cover;" />
+                </td>
+                <td style="vertical-align:middle">
+                  <div style="color:#fff;font-weight:900;letter-spacing:.14em;font-size:15px;line-height:1">ABF</div>
+                  <div style="color:${BRAND.gold};font-size:11px;letter-spacing:.08em;margin-top:2px">ADEYINKA BAKARE FOUNDATION</div>
+                </td>
+              </tr></table>
             </td>
-            <td align="right" style="color:#fff;font-size:11px;opacity:.8">
+            <td align="right" style="vertical-align:middle">
               <a href="https://adeyinkabakare.org" style="color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.2);padding:6px 10px;border-radius:999px;font-size:11px">Visit website →</a>
             </td>
           </tr></table>
         </td></tr>
-        <!-- Hero -->
+        <!-- Hero -- professional fellowship vision -->
         <tr><td style="padding:0">
-          <img src="${hero}" alt="${escapeHtml(opts.heroAlt || "ABF community")}" width="640" style="display:block;width:100%;height:auto;max-height:220px;object-fit:cover;" />
+          <img src="${hero}" alt="${heroAlt}" width="640" style="display:block;width:100%;height:auto;max-height:240px;object-fit:cover;" />
         </td></tr>
         <!-- Title block -->
         ${opts.title ? `<tr><td style="padding:28px 28px 0 28px">
