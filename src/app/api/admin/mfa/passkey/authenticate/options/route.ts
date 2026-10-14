@@ -8,22 +8,24 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth();
     const supabase = await createClient();
 
-    // Get user's passkeys
+    // Get user's passkeys - filter out old placeholder that breaks verification
     const { data: passkeys } = await supabase
       .from("admin_passkeys")
       .select("credential_id")
       .eq("admin_id", user.id);
 
-    if (!passkeys || passkeys.length === 0) {
+    const validPasskeys = (passkeys || []).filter((pk: any) => pk.credential_id && pk.credential_id !== "placeholder-credential-id" && pk.credential_id.length > 10);
+
+    if (!validPasskeys || validPasskeys.length === 0) {
       return NextResponse.json(
         { success: false, error: "No passkeys registered" },
         { status: 400 }
       );
     }
 
-    const allowCredentials = passkeys.map((pk) => ({
+    const allowCredentials = validPasskeys.map((pk) => ({
       id: pk.credential_id,
-      type: "public-key",
+      type: "public-key" as const,
     }));
 
     const origin = request.headers.get("origin") || request.nextUrl.origin;
