@@ -17,8 +17,8 @@ const BRAND = {
 
 // Fellowship-aligned professional imagery (override via EMAIL_HERO_IMAGE / EMAIL_BG_IMAGE env)
 // Use verified Unsplash IDs that reliably load: graduation (mission) + students collaborating (vision)
-const DEFAULT_HERO = process.env.EMAIL_HERO_IMAGE || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80";
-const DEFAULT_BG = process.env.EMAIL_BG_IMAGE || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=60";
+const DEFAULT_HERO = process.env.EMAIL_HERO_IMAGE || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80";
+const DEFAULT_BG = process.env.EMAIL_BG_IMAGE || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=60";
 // Logo from env -- change EMAIL_LOGO_URL when ABF domain/logo is ready (provided: https://ibb.co/LhSBgzZK is a page, not a direct image)
 const RAW_LOGO: string = (typeof process !== "undefined" && ((process.env as any).EMAIL_LOGO_URL || (process.env as any).NEXT_PUBLIC_EMAIL_LOGO_URL)) || "https://ibb.co/LhSBgzZK";
 function resolveLogoUrl(raw: string): string {
