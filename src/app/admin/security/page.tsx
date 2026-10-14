@@ -84,14 +84,37 @@ export default function SecurityPage() {
         const mfaResult = await mfaRes.json();
 
         if (mfaRes.ok && mfaResult.success) {
-          setMfaEnabled(mfaResult.data.mfaEnabled);
-          setPasskeysEnabled(mfaResult.data.passkeyEnabled);
-          setPasskeys(mfaResult.data.passkeyCount > 0 ? Array(mfaResult.data.passkeyCount).fill(null).map((_, i) => ({
-            id: `passkey-${i}`,
-            name: `Passkey ${i + 1}`,
-            added_at: new Date().toISOString(),
-            last_used: new Date().toISOString(),
-          })) : []);
+          setMfaEnabled(!!mfaResult.data.totpEnabled || !!mfaResult.data.mfaEnabled);
+          setPasskeysEnabled(!!mfaResult.data.passkeyEnabled);
+          // Try to load real passkeys, fall back to count placeholder if endpoint missing
+          try {
+            const pkRes = await fetch("/api/admin/security/passkeys");
+            const pkJson = await pkRes.json().catch(() => null);
+            if (pkRes.ok && pkJson?.success && Array.isArray(pkJson.data)) {
+              setPasskeys(pkJson.data.map((p: any) => ({
+                id: p.id,
+                name: p.device_name || p.deviceName || "Passkey",
+                added_at: p.created_at,
+                last_used: p.last_used_at || p.created_at,
+              })));
+            } else if (mfaResult.data.passkeyCount > 0) {
+              setPasskeys(Array(mfaResult.data.passkeyCount).fill(null).map((_, i) => ({
+                id: `passkey-${i}`,
+                name: `Passkey ${i + 1}`,
+                added_at: new Date().toISOString(),
+                last_used: new Date().toISOString(),
+              })));
+            } else {
+              setPasskeys([]);
+            }
+          } catch {
+            setPasskeys(mfaResult.data.passkeyCount > 0 ? Array(mfaResult.data.passkeyCount).fill(null).map((_, i) => ({
+              id: `passkey-${i}`,
+              name: `Passkey ${i + 1}`,
+              added_at: new Date().toISOString(),
+              last_used: new Date().toISOString(),
+            })) : []);
+          }
           setRecoveryCodes(mfaResult.data.recoveryCodesCount > 0 ? Array(mfaResult.data.recoveryCodesCount).fill("****") : []);
         } else {
           throw new Error(mfaResult.error || "Failed to load MFA status");
@@ -295,11 +318,11 @@ export default function SecurityPage() {
       if (sJson.success) {
         setPasskeysEnabled(!!sJson.data.passkeyEnabled);
         setMfaEnabled(!!sJson.data.totpEnabled || !!sJson.data.passkeyEnabled);
-        // refresh passkey list via security passkeys endpoint if available
+        // refresh passkey list via security passkeys endpoint
         try {
-          const listRes = await fetch("/api/admin/security/passkeys/register");
+          const listRes = await fetch("/api/admin/security/passkeys");
           const listJson = await listRes.json().catch(() => null);
-          if (listJson?.success && Array.isArray(listJson.data) && listJson.data.length) {
+          if (listRes.ok && listJson?.success && Array.isArray(listJson.data) && listJson.data.length) {
             setPasskeys(listJson.data.map((p: any) => ({ id: p.id, name: p.device_name || p.deviceName || "Passkey", added_at: p.created_at, last_used: p.last_used_at || p.created_at })));
           } else {
             setPasskeys((prev) => [...prev, { id: Date.now().toString(), name: newPasskeyName.trim(), added_at: new Date().toISOString(), last_used: new Date().toISOString() }]);

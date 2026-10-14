@@ -953,3 +953,13 @@ The admin dashboard is now fully functional with:
 **Verification**
 - `npm run build` passes, `useSearchParams` wrapped in `Suspense` with `force-dynamic`, no `getSession` warning.
 
+
+### Passkey 405 Fix (2026-10-14 -- Follow-up)
+
+**Issue**: `POST /api/admin/mfa/passkey/register/verify 200` succeeded but frontend then did `GET /api/admin/security/passkeys/register 405` -- not RLS, just `405 Method Not Allowed` because that route is `POST`-only. User saw it as possible RLS.
+
+**Fix**:
+- Created `GET /api/admin/security/passkeys` (`src/app/api/admin/security/passkeys/route.ts`) to list the current admin's passkeys (RLS: `admin_id = auth.uid()`). Returns `id, device_name, created_at, last_used_at`.
+- Updated `src/app/admin/security/page.tsx` `loadSecurityData()` to fetch the real list instead of `Array(passkeyCount).fill` fakes, and `handleAddPasskey()` fallback to `GET /api/admin/security/passkeys` (was `/register`). Build verified, Windows Hello now persists and list survives reload.
+
+**Note on RLS**: `admin_passkeys` RLS is `admin_id = auth.uid() OR has_admin_role(super_admin)` -- with `createClient()` (auth user) the insert/select where `admin_id = user.id` passes. Verify succeeded with `200`, so RLS is fine.
