@@ -81,10 +81,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (publicKeyBytes.length < 32) {
-      // Likely old placeholder "placeholder-public-key" stored as text
       await supabase.from("admin_passkeys").delete().eq("id", passkey.id);
       return NextResponse.json({ success: false, error: "Old placeholder passkey removed. Please register a new passkey in /admin/security." }, { status: 400 });
     }
+    // Detect broken base64url-string-stored-as-bytea (from one bad deploy where we stored b64url text as bytea)
+    try {
+      const asUtf8 = Buffer.from(publicKeyBytes).toString("utf8");
+      if (/^[A-Za-z0-9_-]{50,}$/.test(asUtf8) && asUtf8.length < 300) {
+        await supabase.from("admin_passkeys").delete().eq("id", passkey.id);
+        return NextResponse.json({ success: false, error: "Passkey was stored incorrectly and has been removed. Please register a new passkey in /admin/security (Windows Hello will be offered)." }, { status: 400 });
+      }
+    } catch {}
 
     const credentialForVerify: any = {
       id: passkey.credential_id,
@@ -119,8 +126,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("Passkey authentication verify error:", error);
+    const msg = error?.message || "Failed to verify passkey authentication";
+    if (msg.includes("Length") || msg.includes("well formed")) {
+      return NextResponse.json(
+        { success: false, error: "This passkey data is corrupted (stored incorrectly). Please go to /admin/security — the broken entry will be auto-removed — and register a new Windows Hello passkey." },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to verify passkey authentication" },
+      { success: false, error: msg },
       { status: 500 }
     );
   }
