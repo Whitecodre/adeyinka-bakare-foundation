@@ -3,6 +3,7 @@
 import type { LucideIcon } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
+import { CountUp } from "@/components/ui/count-up";
 import { cn } from "@/lib/utils";
 
 interface DashboardCardProps {
@@ -45,7 +46,7 @@ export function DashboardCard({
         <div className="min-w-0 flex-1">
           <p className="mb-2 text-sm font-medium text-muted-foreground">{title}</p>
           <p className="truncate text-3xl font-bold text-foreground transition-colors group-hover:text-primary">
-            {value}
+            <CountUp value={value} />
           </p>
           {change && trend && (
             <p className={cn("mt-2 text-sm font-medium", trend === "up" ? "text-success" : "text-destructive")}>
