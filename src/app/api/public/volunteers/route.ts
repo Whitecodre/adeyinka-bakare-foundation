@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { volunteerSchema } from "@/lib/validations/volunteers.schema";
 import { createNewVolunteer } from "@/lib/services/volunteers.service";
+import { sendEmail } from "@/lib/email/send";
+import { volunteerReceivedEmail } from "@/lib/email/templates";
+import { logEmail, notifyAdmins } from "@/lib/email/log";
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +14,13 @@ export async function POST(request: NextRequest) {
     
     // Create volunteer via service layer
     const volunteer = await createNewVolunteer(validatedData);
-    
+    try {
+      const { subject, html, text } = volunteerReceivedEmail({ fullName: validatedData.full_name, interest: (validatedData as any).interest });
+      const info: any = await sendEmail({ to: validatedData.email, subject, html, text });
+      await logEmail({ to_email: validatedData.email, to_name: validatedData.full_name, subject, template: "volunteer_received", html_preview: html, status: "sent", provider_id: info?.messageId, metadata: { volunteer_id: (volunteer as any)?.id } });
+    } catch (e: any) { try { await logEmail({ to_email: validatedData.email, subject: "Volunteer received", template: "volunteer_received", status: "failed", error: e.message }); } catch {} }
+    try { await notifyAdmins({ title: "New volunteer application", message: `${validatedData.full_name} (${validatedData.email}) applied${(validatedData as any).interest ? ` for ${(validatedData as any).interest}` : ""}.`, type: "new_volunteer", data: { volunteer_id: (volunteer as any)?.id, email: validatedData.email } }); } catch {}
+
     return NextResponse.json(
       { 
         success: true, 

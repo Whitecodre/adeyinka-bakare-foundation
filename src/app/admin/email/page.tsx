@@ -75,7 +75,6 @@ export default function EmailStudioPage() {
                 ))}
               </div>
               <Input placeholder="Custom emails, comma separated" value={customTo} onChange={e=>setCustomTo(e.target.value)} />
-              <p className="text-xs text-muted-foreground">Zoho sends via hello@whisprwords.com (temp). Change env later.</p>
             </div>
             <div className="space-y-2"><Label>Subject</Label><Input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="e.g. ABF Newsletter — May update" /></div>
             <div className="space-y-2"><Label>Content (HTML allowed)</Label><Textarea value={body} onChange={e=>setBody(e.target.value)} rows={8} className="font-mono text-xs" /></div>

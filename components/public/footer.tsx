@@ -6,6 +6,10 @@ import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import type { FooterSection, FooterLink, SocialLink } from "@/lib/types/domain.types";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Mail, Loader2 } from "lucide-react";
 
 const headingClass = "font-sans text-xs font-bold uppercase tracking-[0.2em] text-maroon-600";
 const linkClass =
@@ -16,6 +20,9 @@ export function Footer() {
   const [footerLinks, setFooterLinks] = useState<FooterLink[]>([]);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
 
   useEffect(() => {
     async function fetchFooterData() {
@@ -49,6 +56,25 @@ export function Footer() {
 
     fetchFooterData();
   }, []);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = newsletterEmail.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast({ variant: "destructive", title: "Enter a valid email" });
+      return;
+    }
+    setNewsletterLoading(true);
+    try {
+      const res = await fetch("/api/public/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, source: "footer" }) });
+      const j = await res.json();
+      if (!j.success) throw new Error(j.error);
+      toast({ title: j.message === "Already subscribed" ? "Already subscribed" : "Subscribed!", description: "Check your email for a welcome note." });
+      setNewsletterEmail("");
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Failed", description: err.message || "Try again" });
+    } finally { setNewsletterLoading(false); }
+  };
 
   // Group links by section
   const linksBySection = footerLinks.reduce((acc, link) => {
@@ -136,6 +162,24 @@ export function Footer() {
               Join our community and access scholarship opportunities, mentorship programmes, and
               career development resources.
             </p>
+            <form onSubmit={handleNewsletterSubmit} className="mt-4 flex gap-2">
+              <div className="relative flex-1">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/60" />
+                <Input
+                  type="email"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="h-10 rounded-full border-border bg-card pl-9 pr-3 text-sm"
+                  aria-label="Email for newsletter"
+                  required
+                  disabled={newsletterLoading}
+                />
+              </div>
+              <Button type="submit" variant="brand" disabled={newsletterLoading} className="h-10 shrink-0 rounded-full px-5 text-sm">
+                {newsletterLoading ? <Loader2 className="size-4 animate-spin" /> : "Subscribe"}
+              </Button>
+            </form>
             <div className="mt-3 flex flex-col items-start">
               <Link href="/get-involved" className="group inline-flex items-center gap-1 py-1 text-sm font-semibold text-maroon-600">
                 Get involved
