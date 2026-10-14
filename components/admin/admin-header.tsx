@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Search, Bell, ChevronRight, Settings, LogOut } from "lucide-react";
 import { SearchModal } from "@/components/admin/search-modal";
+import { createClient } from "@/lib/supabase/client";
 
 interface HeaderProps {
   isMobile?: boolean;
@@ -31,6 +32,18 @@ function timeAgo(iso: string): string {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   return `${d}d ago`;
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  super_admin: "Super Admin",
+  admin: "Admin",
+  editor: "Editor",
+};
+
+interface Account {
+  name: string;
+  email: string;
+  role: string;
 }
 
 function initialsOf(name: string): string {
@@ -62,13 +75,38 @@ export function AdminHeader({ onToggleSidebar, onLogout }: HeaderProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
-  const displayName = "Admin";
-  const displayEmail = "admin@abf.org";
-  const roleLabel = "Super Admin";
+  const [account, setAccount] = useState<Account | null>(null);
+  const displayName = account?.name ?? "Admin";
+  const displayEmail = account?.email ?? "";
+  const roleLabel = account ? (ROLE_LABELS[account.role] ?? account.role) : "";
   const initials = initialsOf(displayName);
 
   const crumbs = pathname.split("/").filter(Boolean).slice(1);
   const isOverview = crumbs.length === 0;
+
+  // Show the signed-in admin's real name, email and role.
+  useEffect(() => {
+    const supabase = createClient();
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, role")
+        .eq("id", user.id)
+        .single();
+      if (cancelled) return;
+      setAccount({
+        name: profile?.full_name ?? user.email ?? "Admin",
+        email: user.email ?? "",
+        role: profile?.role ?? "",
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
