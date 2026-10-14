@@ -54,53 +54,27 @@ export default function EditMemberPage() {
     const loadMember = async () => {
       try {
         setLoading(true);
-
-        // TODO: Replace with actual Supabase query
-        // const { data, error } = await supabase
-        //   .from('members')
-        //   .select('*')
-        //   .eq('id', params.id)
-        //   .single();
-        // if (error) throw error;
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Mock data - replace with actual data from Supabase
-        const mockMember: Member = {
-          id: params.id as string,
-          full_name: "John Doe",
-          email: "john@example.com",
-          phone: "+234 800 000 0000",
-          department: "Computer Science",
-          level: "400 Level",
-          session: "2024/2025",
-          status: "active",
-          joined_at: "2024-01-15",
-        };
-
-        setMember(mockMember);
+        const res = await fetch(`/api/admin/members/${params.id}`);
+        const j = await res.json();
+        if (!j.success) throw new Error(j.error || "Failed to load member");
+        const data: Member = j.data;
+        setMember(data);
         setFormData({
-          full_name: mockMember.full_name,
-          email: mockMember.email || "",
-          phone: mockMember.phone || "",
-          department: mockMember.department || "",
-          level: mockMember.level || "",
-          session: mockMember.session || "",
-          status: mockMember.status,
-          joined_at: mockMember.joined_at || "",
+          full_name: data.full_name,
+          email: data.email || "",
+          phone: data.phone || "",
+          department: data.department || "",
+          level: data.level || "",
+          session: data.session || "",
+          status: data.status,
+          joined_at: data.joined_at ? data.joined_at.slice(0,10) : "",
         });
-      } catch (error) {
-        console.error("Error loading member:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load member",
-        });
+      } catch (error: any) {
+        toast({ variant: "destructive", title: "Error", description: error.message || "Failed to load member" });
       } finally {
         setLoading(false);
       }
     };
-
     loadMember();
   }, [params.id, toast]);
 
@@ -139,47 +113,30 @@ export default function EditMemberPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     try {
       setSubmitting(true);
-
-      // TODO: Replace with actual Supabase update
-      // const { data, error } = await supabase
-      //   .from('members')
-      //   .update({
-      //     full_name: formData.full_name,
-      //     email: formData.email,
-      //     phone: formData.phone,
-      //     department: formData.department,
-      //     level: formData.level,
-      //     session: formData.session,
-      //     status: formData.status,
-      //     joined_at: formData.joined_at,
-      //   })
-      //   .eq('id', params.id)
-      //   .select()
-      //   .single();
-      // if (error) throw error;
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      toast({
-        title: "Success",
-        description: "Member updated successfully",
+      const res = await fetch(`/api/admin/members/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: formData.full_name,
+          email: formData.email,
+          phone: formData.phone,
+          department: formData.department,
+          level: formData.level,
+          session: formData.session,
+          status: formData.status,
+          joined_at: formData.joined_at || null,
+        }),
       });
-
+      const j = await res.json();
+      if (!j.success) throw new Error(j.error || "Failed to update member");
+      toast({ title: "Success", description: "Member updated successfully" });
       router.push("/admin/members");
-    } catch (error) {
-      console.error("Error updating member:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update member",
-      });
+      router.refresh();
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Error", description: error.message || "Failed to update member" });
     } finally {
       setSubmitting(false);
     }

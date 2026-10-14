@@ -41,22 +41,17 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase query
     const loadSettings = async () => {
       try {
         setLoading(true);
-        // const { data, error } = await supabase.from('settings').select('*').single()
-        // if (error) throw error
-        // if (data) setSettings(data)
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setSettings({
-          site_name: "Adeyinka Bakare Foundation",
-          tagline: "Empowering Futures, Transforming Lives",
-          email: "info@abf.org",
-          phone: "+234 800 000 0000",
-          address: "123 Foundation Road, Lagos, Nigeria",
-          whatsapp: "+234 800 000 0000",
-        });
+        const response = await fetch("/api/admin/settings");
+        const result = await response.json();
+
+        if (result.success) {
+          setSettings(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load settings");
+        }
       } catch (error) {
         console.error("Error loading settings:", error);
         toast({
@@ -75,11 +70,17 @@ export default function SettingsPage() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      // TODO: Replace with actual Supabase upsert
-      // const { error } = await supabase.from('settings').upsert(settings)
-      // if (error) throw error
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       toast({
         title: "Success",
         description: "Settings saved successfully",

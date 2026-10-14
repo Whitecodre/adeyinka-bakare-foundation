@@ -34,14 +34,17 @@ export default function ContentsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase query
     const loadContents = async () => {
       try {
         setLoading(true);
-        // const { data, error } = await supabase.from('contents').select('*')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setContents([]);
+        const response = await fetch("/api/admin/contents");
+        const result = await response.json();
+
+        if (result.success) {
+          setContents(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load contents");
+        }
       } catch (error) {
         console.error("Error loading contents:", error);
         toast({
@@ -65,10 +68,15 @@ export default function ContentsPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Replace with actual Supabase delete
-      // const { error } = await supabase.from('contents').delete().eq('id', id)
-      // if (error) throw error
-      
+      const response = await fetch(`/api/admin/contents/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       setContents(contents.filter((c) => c.id !== id));
       setDeleteConfirm(null);
       toast({

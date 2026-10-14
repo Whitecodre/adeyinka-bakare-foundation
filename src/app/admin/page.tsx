@@ -39,19 +39,37 @@ export default function AdminDashboard() {
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase queries
-    // This will be integrated when database is connected
     const loadDashboardData = async () => {
       try {
         setLoading(true);
-        // Simulate loading - replace with actual Supabase calls
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Example of what the data structure will be:
-        // const { data: members } = await supabase.from('members').select('count')
-        // const { data: volunteers } = await supabase.from('volunteers').select('count')
-        // etc.
-        
+        // Fetch stats from API
+        const [statsRes, activityRes] = await Promise.all([
+          fetch("/api/admin/stats").then(r => r.json()),
+          fetch("/api/admin/activity").then(r => r.json()),
+        ]);
+
+        if (statsRes.success) {
+          setStats(statsRes.data);
+        } else {
+          console.error("Error loading stats:", statsRes.error);
+          setStats({
+            totalMembers: 0,
+            totalVolunteers: 0,
+            totalBeneficiaries: 0,
+            activeEvents: 0,
+            totalProgrammes: 0,
+            totalTestimonials: 0,
+            totalNews: 0,
+          });
+        }
+
+        if (activityRes.success) {
+          setRecentActivity(activityRes.data);
+        } else {
+          setRecentActivity([]);
+        }
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
         setStats({
           totalMembers: 0,
           totalVolunteers: 0,
@@ -61,10 +79,7 @@ export default function AdminDashboard() {
           totalTestimonials: 0,
           totalNews: 0,
         });
-        
         setRecentActivity([]);
-      } catch (error) {
-        console.error("Error loading dashboard data:", error);
       } finally {
         setLoading(false);
       }

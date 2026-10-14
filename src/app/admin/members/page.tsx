@@ -37,14 +37,17 @@ export default function MembersPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase query
     const loadMembers = async () => {
       try {
         setLoading(true);
-        // const { data, error } = await supabase.from('members').select('*')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setMembers([]);
+        const response = await fetch("/api/admin/members");
+        const result = await response.json();
+
+        if (result.success) {
+          setMembers(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load members");
+        }
       } catch (error) {
         console.error("Error loading members:", error);
         toast({
@@ -68,10 +71,15 @@ export default function MembersPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Replace with actual Supabase delete
-      // const { error } = await supabase.from('members').delete().eq('id', id)
-      // if (error) throw error
-      
+      const response = await fetch(`/api/admin/members/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       setMembers(members.filter((m) => m.id !== id));
       setDeleteConfirm(null);
       toast({

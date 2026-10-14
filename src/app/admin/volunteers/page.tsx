@@ -37,14 +37,17 @@ export default function VolunteersPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase query
     const loadVolunteers = async () => {
       try {
         setLoading(true);
-        // const { data, error } = await supabase.from('volunteers').select('*')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setVolunteers([]);
+        const response = await fetch("/api/admin/volunteers");
+        const result = await response.json();
+
+        if (result.success) {
+          setVolunteers(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load volunteers");
+        }
       } catch (error) {
         console.error("Error loading volunteers:", error);
         toast({
@@ -69,10 +72,15 @@ export default function VolunteersPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Replace with actual Supabase delete
-      // const { error } = await supabase.from('volunteers').delete().eq('id', id)
-      // if (error) throw error
-      
+      const response = await fetch(`/api/admin/volunteers/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       setVolunteers(volunteers.filter((v) => v.id !== id));
       setDeleteConfirm(null);
       toast({

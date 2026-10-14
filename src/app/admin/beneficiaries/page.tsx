@@ -38,14 +38,17 @@ export default function AdminBeneficiariesPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase query
     const loadBeneficiaries = async () => {
       try {
         setLoading(true);
-        // const { data, error } = await supabase.from('beneficiaries').select('*')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setBeneficiaries([]);
+        const response = await fetch("/api/admin/beneficiaries");
+        const result = await response.json();
+
+        if (result.success) {
+          setBeneficiaries(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load beneficiaries");
+        }
       } catch (error) {
         console.error("Error loading beneficiaries:", error);
         toast({
@@ -69,10 +72,15 @@ export default function AdminBeneficiariesPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Replace with actual Supabase delete
-      // const { error } = await supabase.from('beneficiaries').delete().eq('id', id)
-      // if (error) throw error
-      
+      const response = await fetch(`/api/admin/beneficiaries/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       setBeneficiaries(beneficiaries.filter((b) => b.id !== id));
       setDeleteConfirm(null);
       toast({

@@ -71,49 +71,25 @@ export default function EditProgrammePage() {
     const loadProgramme = async () => {
       try {
         setLoading(true);
-
-        // TODO: Replace with actual Supabase query
-        // const { data, error } = await supabase
-        //   .from('programmes')
-        //   .select('*')
-        //   .eq('id', params.id)
-        //   .single();
-        // if (error) throw error;
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Mock data - replace with actual data from Supabase
-        const mockProgramme: Programme = {
-          id: params.id as string,
-          title: "Scholarship Programme",
-          slug: "scholarship-programme",
-          description: "A comprehensive scholarship programme for deserving students.",
-          image: "https://example.com/image.jpg",
-          status: "published",
-          featured: true,
-        };
-
-        setProgramme(mockProgramme);
+        const res = await fetch(`/api/admin/programmes/${params.id}`);
+        const j = await res.json();
+        if (!j.success) throw new Error(j.error || "Failed to load programme");
+        const data: Programme = j.data;
+        setProgramme(data);
         setFormData({
-          title: mockProgramme.title,
-          slug: mockProgramme.slug,
-          description: mockProgramme.description,
-          image: mockProgramme.image || "",
-          status: mockProgramme.status,
-          featured: mockProgramme.featured,
+          title: data.title,
+          slug: data.slug,
+          description: data.description,
+          image: data.image || "",
+          status: data.status,
+          featured: data.featured,
         });
-      } catch (error) {
-        console.error("Error loading programme:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load programme",
-        });
+      } catch (error: any) {
+        toast({ variant: "destructive", title: "Error", description: error.message || "Failed to load programme" });
       } finally {
         setLoading(false);
       }
     };
-
     loadProgramme();
   }, [params.id, toast]);
 
@@ -138,45 +114,21 @@ export default function EditProgrammePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     try {
       setSubmitting(true);
-
-      // TODO: Replace with actual Supabase update
-      // const { data, error } = await supabase
-      //   .from('programmes')
-      //   .update({
-      //     title: formData.title,
-      //     slug: formData.slug,
-      //     description: formData.description,
-      //     image: formData.image,
-      //     status: formData.status,
-      //     featured: formData.featured,
-      //   })
-      //   .eq('id', params.id)
-      //   .select()
-      //   .single();
-      // if (error) throw error;
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      toast({
-        title: "Success",
-        description: "Programme updated successfully",
+      const res = await fetch(`/api/admin/programmes/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
-
+      const j = await res.json();
+      if (!j.success) throw new Error(j.error || "Failed to update programme");
+      toast({ title: "Success", description: "Programme updated successfully" });
       router.push("/admin/programmes");
-    } catch (error) {
-      console.error("Error updating programme:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update programme",
-      });
+      router.refresh();
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Error", description: error.message || "Failed to update programme" });
     } finally {
       setSubmitting(false);
     }

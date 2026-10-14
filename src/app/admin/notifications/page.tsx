@@ -36,14 +36,14 @@ export default function NotificationsPage() {
     const loadNotifications = async () => {
       try {
         setLoading(true);
-        // TODO: Replace with actual Supabase query
-        // const { data, error } = await supabase
-        //   .from('notifications')
-        //   .select('*')
-        //   .order('created_at', { ascending: false });
-        // if (error) throw error;
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setNotifications([]);
+        const response = await fetch("/api/admin/notifications");
+        const result = await response.json();
+
+        if (result.success) {
+          setNotifications(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load notifications");
+        }
       } catch (error) {
         console.error("Error loading notifications:", error);
         toast({

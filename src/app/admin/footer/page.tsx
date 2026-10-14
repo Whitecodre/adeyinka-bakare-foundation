@@ -70,11 +70,25 @@ export default function FooterPage() {
     const loadFooterSections = async () => {
       try {
         setLoading(true);
-        // TODO: Replace with actual Supabase query
-        // const { data, error } = await supabase.from('footer_sections').select('*, footer_links(*)').order('sort_order')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setFooterSections([]);
+        const response = await fetch("/api/admin/footer/sections");
+        const result = await response.json();
+
+        if (result.success) {
+          // Fetch links for each section
+          const sectionsWithLinks = await Promise.all(
+            result.data.map(async (section: any) => {
+              const linksResponse = await fetch(`/api/admin/footer/links?section_id=${section.id}`);
+              const linksResult = await linksResponse.json();
+              return {
+                ...section,
+                links: linksResult.success ? linksResult.data : [],
+              };
+            })
+          );
+          setFooterSections(sectionsWithLinks);
+        } else {
+          throw new Error(result.error || "Failed to load footer sections");
+        }
       } catch (error) {
         console.error("Error loading footer sections:", error);
         toast({

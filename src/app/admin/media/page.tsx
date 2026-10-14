@@ -36,14 +36,17 @@ export default function MediaPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase query
     const loadMedia = async () => {
       try {
         setLoading(true);
-        // const { data, error } = await supabase.from('media').select('*')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setMedia([]);
+        const response = await fetch("/api/admin/media");
+        const result = await response.json();
+
+        if (result.success) {
+          setMedia(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load media");
+        }
       } catch (error) {
         console.error("Error loading media:", error);
         toast({
@@ -66,10 +69,15 @@ export default function MediaPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Replace with actual Supabase delete
-      // const { error } = await supabase.from('media').delete().eq('id', id)
-      // if (error) throw error
-      
+      const response = await fetch(`/api/admin/media/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       setMedia(media.filter((m) => m.id !== id));
       setDeleteConfirm(null);
       toast({

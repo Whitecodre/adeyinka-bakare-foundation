@@ -300,29 +300,35 @@ export function NewsForm({ mode = "create", initial }: { mode?: "create" | "edit
     return Math.ceil(words / 200);
   };
 
-  // Form submission
+  // Form submission — wired to /api/admin/news via service layer
   const handleSubmit = async (status: "draft" | "published") => {
+    if (!formData.title.trim() || !formData.slug.trim() || contentIsEmpty) {
+      toast({ variant: "destructive", title: "Missing fields", description: "Title, slug and content are required." });
+      return;
+    }
     setIsLoading(true);
     try {
-      // TODO: Replace with actual Supabase save
-      // const { data, error } = await supabase.from('news').insert({
-      //   ...formData,
-      //   status,
-      //   reading_time: calculateReadingTime(),
-      // }).select().single();
-      // if (error) throw error;
-
-      toast({
-        title: status === "published" ? "News published" : "Draft saved",
-        description: `Successfully ${status === "published" ? "published" : "saved as draft"}.`,
-      });
+      const payload: any = {
+        title: formData.title.trim(),
+        slug: formData.slug.trim(),
+        content: formData.content,
+        excerpt: formData.excerpt || null,
+        image: formData.coverImage || null,
+        status,
+        featured: formData.featured,
+        published_at: status === "published" ? new Date().toISOString() : null,
+      };
+      const isEdit = mode === "edit" && (initial as any)?.id;
+      const url = isEdit ? `/api/admin/news/${(initial as any).id}` : "/api/admin/news";
+      const method = isEdit ? "PATCH" : "POST";
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const j = await res.json();
+      if (!j.success) throw new Error(j.error || "Failed to save");
+      toast({ title: status === "published" ? "News published" : "Draft saved", description: `Successfully ${status === "published" ? "published" : "saved as draft"}.` });
       router.push("/admin/news");
+      router.refresh();
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to save news article",
-      });
+      toast({ variant: "destructive", title: "Error", description: error.message || "Failed to save news article" });
     } finally {
       setIsLoading(false);
     }

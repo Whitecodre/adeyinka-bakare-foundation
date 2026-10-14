@@ -70,47 +70,30 @@ export default function NewMemberPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     try {
       setLoading(true);
-
-      // TODO: Replace with actual Supabase insert
-      // const { data, error } = await supabase
-      //   .from('members')
-      //   .insert({
-      //     full_name: formData.full_name,
-      //     email: formData.email,
-      //     phone: formData.phone,
-      //     department: formData.department,
-      //     level: formData.level,
-      //     session: formData.session,
-      //     status: formData.status,
-      //     joined_at: formData.joined_at || new Date().toISOString(),
-      //   })
-      //   .select()
-      //   .single();
-
-      // if (error) throw error;
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      toast({
-        title: "Success",
-        description: "Member created successfully",
+      const res = await fetch("/api/admin/members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: formData.full_name,
+          email: formData.email,
+          phone: formData.phone,
+          department: formData.department,
+          level: formData.level,
+          session: formData.session,
+          status: formData.status,
+          joined_at: formData.joined_at || null,
+        }),
       });
-
+      const j = await res.json();
+      if (!j.success) throw new Error(j.error || "Failed to create member");
+      toast({ title: "Success", description: "Member created successfully" });
       router.push("/admin/members");
-    } catch (error) {
-      console.error("Error creating member:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to create member",
-      });
+      router.refresh();
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Error", description: error.message || "Failed to create member" });
     } finally {
       setLoading(false);
     }

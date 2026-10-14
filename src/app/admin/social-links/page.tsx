@@ -71,11 +71,14 @@ export default function SocialLinksPage() {
     const loadSocialLinks = async () => {
       try {
         setLoading(true);
-        // TODO: Replace with actual Supabase query
-        // const { data, error } = await supabase.from('social_links').select('*').order('sort_order')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setSocialLinks([]);
+        const response = await fetch("/api/admin/social-links");
+        const result = await response.json();
+
+        if (result.success) {
+          setSocialLinks(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load social links");
+        }
       } catch (error) {
         console.error("Error loading social links:", error);
         toast({
@@ -122,21 +125,20 @@ export default function SocialLinksPage() {
       setSaving(true);
 
       if (editingLink) {
-        // TODO: Replace with actual Supabase update
-        // const { error } = await supabase
-        //   .from('social_links')
-        //   .update({
-        //     platform: formData.platform,
-        //     url: formData.url,
-        //     active: formData.active,
-        //     sort_order: formData.sort_order,
-        //   })
-        //   .eq('id', editingLink.id);
-        // if (error) throw error;
+        const response = await fetch(`/api/admin/social-links/${editingLink.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error);
+        }
 
         setSocialLinks(socialLinks.map(link =>
           link.id === editingLink.id
-            ? { ...link, ...formData }
+            ? result.data
             : link
         ));
         toast({
@@ -144,25 +146,18 @@ export default function SocialLinksPage() {
           description: "Social link updated successfully",
         });
       } else {
-        // TODO: Replace with actual Supabase insert
-        // const { data, error } = await supabase
-        //   .from('social_links')
-        //   .insert({
-        //     platform: formData.platform,
-        //     url: formData.url,
-        //     active: formData.active,
-        //     sort_order: formData.sort_order,
-        //   })
-        //   .select()
-        //   .single();
-        // if (error) throw error;
+        const response = await fetch("/api/admin/social-links", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const result = await response.json();
 
-        const newLink: SocialLink = {
-          id: crypto.randomUUID(),
-          ...formData,
-          created_at: new Date().toISOString(),
-        };
-        setSocialLinks([...socialLinks, newLink]);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        setSocialLinks([...socialLinks, result.data]);
         toast({
           title: "Success",
           description: "Social link added successfully",
@@ -184,9 +179,14 @@ export default function SocialLinksPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Replace with actual Supabase delete
-      // const { error } = await supabase.from('social_links').delete().eq('id', id)
-      // if (error) throw error
+      const response = await fetch(`/api/admin/social-links/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       setSocialLinks(socialLinks.filter((link) => link.id !== id));
       setDeleteConfirm(null);

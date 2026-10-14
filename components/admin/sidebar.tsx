@@ -22,6 +22,7 @@ import {
   Bell,
   Shield,
   Lock,
+  Mail,
   LogOut,
 } from "lucide-react";
 
@@ -118,6 +119,12 @@ export const adminNavigation: NavItem[] = [
     group: "Account",
   },
   {
+    label: "Email Studio",
+    href: "/admin/email",
+    icon: Mail,
+    group: "Account",
+  },
+  {
     label: "Admins",
     href: "/admin/admins",
     icon: Shield,
@@ -166,30 +173,30 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onLogout, c
         className={`
           ${width}
           ${isMobile ? "fixed left-0 top-0 z-[101] h-dvh" : "sticky top-0 h-screen"}
-          flex flex-col gap-2.5 border-r border-white/10 bg-ink transition-all duration-200
+          flex flex-col border-r border-white/10 bg-ink transition-all duration-200 ease-out
           ${isMobile ? (isOpen ? "translate-x-0" : "-translate-x-full") : ""}
           md:translate-x-0
         `}
       >
-        <div className="flex min-h-[72px] items-center gap-3 p-4">
-          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gold-300">
+        <div className="flex h-16 shrink-0 items-center gap-3 border-b border-white/10 px-4">
+          <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gold-300 shadow-sm ring-1 ring-white/10">
             <Image
               src="/brand/logo.png"
               alt="ABF Logo"
-              width={40}
-              height={40}
+              width={36}
+              height={36}
               className="size-full object-cover"
             />
           </div>
           {showLabels && (
-            <div>
-              <div className="text-sm font-bold tracking-wider text-white">ABF</div>
-              <div className="text-xs text-gold-300">Admin console</div>
+            <div className="min-w-0">
+              <div className="text-[13px] font-bold tracking-widest text-white">ABF</div>
+              <div className="text-[11px] font-medium leading-none text-gold-300/90">Admin console</div>
             </div>
           )}
         </div>
 
-        <nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-3 pb-2 scrollbar-hide">
+        <nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-3 pb-3 pt-3 scrollbar-hide">
           {navGroups.map((group) => {
             const items = adminNavigation.filter((i) => i.group === group);
             if (!items.length) return null;
