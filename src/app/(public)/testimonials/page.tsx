@@ -76,9 +76,9 @@ export default async function TestimonialsPage() {
             />
           </Reveal>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="gap-8 md:columns-2 lg:columns-3">
             {testimonials.map((testimonial: Awaited<ReturnType<typeof getTestimonials>>[number], index: number) => (
-              <Reveal key={testimonial.id} delay={index * 0.08}>
+              <Reveal key={testimonial.id} delay={index * 0.08} className="mb-8 break-inside-avoid">
                 <TestimonialCard testimonial={testimonial} />
               </Reveal>
             ))}

@@ -52,7 +52,7 @@ export default async function ProgrammesPage() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
             {programmes.map((programme, index) => (
-              <Reveal key={programme.id} delay={index * 0.08}>
+              <Reveal key={programme.id} delay={index * 0.08} className="h-full">
                 <ProgrammeCard programme={programme} className="h-full" />
               </Reveal>
             ))}

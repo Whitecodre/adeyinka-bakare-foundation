@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ExternalLink, X, ArrowUp, ArrowDown, Globe, Share2, Mail } from "lucide-react";
+import { ExternalLink, ArrowUp, ArrowDown } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ import { RowActions } from "@/components/admin/row-actions";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { FormField } from "@/components/admin/form-field";
 import { FormDialog } from "@/components/admin/form-dialog";
+import { SOCIAL_PLATFORMS, SocialIcon, getSocialPlatform, normaliseSocialUrl } from "@/components/ui/social-icon";
 import { Toolbar } from "@/components/admin/toolbar";
 import { ListSkeleton } from "@/components/admin/loading-state";
 
@@ -37,17 +38,6 @@ interface SocialLink {
   sort_order: number;
   created_at: string;
 }
-
-const PLATFORMS = [
-  { value: "facebook", label: "Facebook", icon: Globe },
-  { value: "twitter", label: "Twitter / X", icon: X },
-  { value: "instagram", label: "Instagram", icon: Globe },
-  { value: "linkedin", label: "LinkedIn", icon: Globe },
-  { value: "youtube", label: "YouTube", icon: Globe },
-  { value: "tiktok", label: "TikTok", icon: Share2 },
-  { value: "email", label: "Email", icon: Mail },
-  { value: "other", label: "Other", icon: ExternalLink },
-];
 
 export default function SocialLinksPage() {
   const { toast } = useToast();
@@ -76,7 +66,7 @@ export default function SocialLinksPage() {
         const result = await response.json();
 
         if (result.success) {
-          setSocialLinks(result.data);
+          setSocialLinks([...(result.data as SocialLink[])].sort((x, y) => x.sort_order - y.sort_order));
         } else {
           throw new Error(result.error || "Failed to load social links");
         }
@@ -109,7 +99,11 @@ export default function SocialLinksPage() {
 
     if (!formData.url.trim()) {
       newErrors.url = "URL is required";
-    } else if (!formData.url.startsWith("http://") && !formData.url.startsWith("https://")) {
+    } else if (formData.platform === "email") {
+      if (!/^(mailto:)?[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(formData.url.trim())) {
+        newErrors.url = "Enter a valid email address";
+      }
+    } else if (!/^https?:\/\/\S+$/i.test(formData.url.trim())) {
       newErrors.url = "URL must start with http:// or https://";
     }
 
@@ -124,17 +118,18 @@ export default function SocialLinksPage() {
 
     try {
       setSaving(true);
+      const payload = { ...formData, url: normaliseSocialUrl(formData.platform, formData.url) };
 
       if (editingLink) {
         const response = await fetch(`/api/admin/social-links/${editingLink.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.error);
+          throw new Error(result.error || "Could not update the link");
         }
 
         setSocialLinks(socialLinks.map(link =>
@@ -150,12 +145,12 @@ export default function SocialLinksPage() {
         const response = await fetch("/api/admin/social-links", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.error);
+          throw new Error(result.error || "Could not add the link");
         }
 
         setSocialLinks([...socialLinks, result.data]);
@@ -171,7 +166,7 @@ export default function SocialLinksPage() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save social link",
+        description: error instanceof Error ? error.message : "Failed to save social link",
       });
     } finally {
       setSaving(false);
@@ -205,18 +200,38 @@ export default function SocialLinksPage() {
     }
   };
 
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    const newLinks = [...socialLinks];
-    [newLinks[index - 1], newLinks[index]] = [newLinks[index], newLinks[index - 1]];
-    setSocialLinks(newLinks);
-  };
+  /** Swap a link with its neighbour and save the new order, so the footer follows it. */
+  const handleMove = async (id: string, direction: -1 | 1) => {
+    const from = socialLinks.findIndex((link) => link.id === id);
+    const to = from + direction;
+    if (from < 0 || to < 0 || to >= socialLinks.length) return;
 
-  const handleMoveDown = (index: number) => {
-    if (index === socialLinks.length - 1) return;
-    const newLinks = [...socialLinks];
-    [newLinks[index], newLinks[index + 1]] = [newLinks[index + 1], newLinks[index]];
-    setSocialLinks(newLinks);
+    const previous = socialLinks;
+    const next = [...socialLinks];
+    [next[from], next[to]] = [next[to], next[from]];
+    const reordered = next.map((link, i) => ({ ...link, sort_order: i }));
+    setSocialLinks(reordered);
+
+    try {
+      const changed = reordered.filter((link, i) => previous[i]?.id !== link.id || previous[i]?.sort_order !== link.sort_order);
+      const results = await Promise.all(
+        changed.map((link) =>
+          fetch(`/api/admin/social-links/${link.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sort_order: link.sort_order }),
+          }).then((res) => res.json()),
+        ),
+      );
+      if (results.some((r) => !r.success)) throw new Error(results.find((r) => !r.success)?.error);
+    } catch (error) {
+      setSocialLinks(previous);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error && error.message ? error.message : "Could not save the new order",
+      });
+    }
   };
 
   const handleOpenDialog = (link?: SocialLink) => {
@@ -224,7 +239,7 @@ export default function SocialLinksPage() {
       setEditingLink(link);
       setFormData({
         platform: link.platform,
-        url: link.url,
+        url: link.url.replace(/^mailto:/i, ""),
         is_active: link.is_active,
         sort_order: link.sort_order,
       });
@@ -251,12 +266,6 @@ export default function SocialLinksPage() {
       sort_order: 0,
     });
     setErrors({});
-  };
-
-  const getPlatformIcon = (platform: string) => {
-    const platformData = PLATFORMS.find(p => p.value === platform);
-    const Icon = platformData?.icon || ExternalLink;
-    return <Icon className="w-4 h-4" />;
   };
 
   return (
@@ -295,10 +304,10 @@ export default function SocialLinksPage() {
                     index={index}
                     leading={
                       <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                        {getPlatformIcon(link.platform)}
+                        <SocialIcon platform={link.platform} className="size-5" />
                       </div>
                     }
-                    title={<span className="capitalize">{link.platform}</span>}
+                    title={getSocialPlatform(link.platform).label}
                     badges={!link.is_active && <StatusBadge status="inactive" />}
                     meta={<p className="truncate">{link.url}</p>}
                     actions={
@@ -307,9 +316,13 @@ export default function SocialLinksPage() {
                         onEdit={() => handleOpenDialog(link)}
                         onDelete={() => setDeleteConfirm(link.id)}
                         extra={[
-                          { label: "Move up", icon: ArrowUp, onSelect: () => handleMoveUp(index), disabled: index === 0 },
-                          { label: "Move down", icon: ArrowDown, onSelect: () => handleMoveDown(index), disabled: index === filteredLinks.length - 1 },
-                          { label: "Open link", icon: ExternalLink, onSelect: () => window.open(link.url, "_blank") },
+                          ...(searchQuery
+                            ? []
+                            : [
+                                { label: "Move up", icon: ArrowUp, onSelect: () => handleMove(link.id, -1), disabled: index === 0 },
+                                { label: "Move down", icon: ArrowDown, onSelect: () => handleMove(link.id, 1), disabled: index === filteredLinks.length - 1 },
+                              ]),
+                          { label: "Open link", icon: ExternalLink, onSelect: () => window.open(link.url, link.url.startsWith("mailto:") ? "_self" : "_blank") },
                         ]}
                       />
                     }
@@ -342,7 +355,7 @@ export default function SocialLinksPage() {
               <SelectValue placeholder="Select platform" />
             </SelectTrigger>
             <SelectContent>
-              {PLATFORMS.map((platform) => (
+              {SOCIAL_PLATFORMS.map((platform) => (
                 <SelectItem key={platform.value} value={platform.value}>
                   <div className="flex items-center gap-2">
                     <platform.icon className="w-4 h-4" />
@@ -354,22 +367,27 @@ export default function SocialLinksPage() {
           </Select>
         </FormField>
 
-        <FormField label="URL" htmlFor="url" required error={errors.url}>
+        <FormField
+          label={formData.platform === "email" ? "Email address" : "URL"}
+          htmlFor="url"
+          required
+          error={errors.url}
+          hint={formData.platform === "email" ? "Visitors will open their mail app." : undefined}
+        >
           <Input
             id="url"
-            type="url"
-            inputMode="url"
+            inputMode={formData.platform === "email" ? "email" : "url"}
             value={formData.url}
             onChange={(e) => {
               setFormData((prev) => ({ ...prev, url: e.target.value }));
               if (errors.url) setErrors((prev) => ({ ...prev, url: "" }));
             }}
-            placeholder="https://facebook.com/yourpage"
+            placeholder={getSocialPlatform(formData.platform || "other").placeholder}
             aria-invalid={!!errors.url}
           />
         </FormField>
 
-        <FormField label="Sort Order" htmlFor="sort_order" hint="Lower numbers appear first.">
+        <FormField label="Sort order" htmlFor="sort_order" hint="Lower numbers appear first. You can also use Move up / Move down on the list.">
           <Input
             id="sort_order"
             type="number"

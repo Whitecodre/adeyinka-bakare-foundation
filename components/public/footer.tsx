@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MapPin, MessageSquare, Globe, User, X } from "lucide-react";
+import { Mail, Phone, MapPin, MessageSquare, User } from "lucide-react";
+import { SocialIcon } from "@/components/ui/social-icon";
 import { useEffect, useState } from "react";
 
 import type { FooterSection, FooterLink, SocialLink } from "@/lib/types/domain.types";
@@ -175,31 +176,13 @@ export function Footer() {
   const siteName = settings.site_name || "Adeyinka Bakare Fellowship";
   const tagline = settings.tagline || "Empowering IT students through scholarships, mentorship, and career development.";
 
-  const getSocialIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case "facebook":
-        return Globe;
-      case "twitter":
-        return X;
-      case "instagram":
-        return Globe;
-      case "linkedin":
-        return Globe;
-      case "youtube":
-        return Globe;
-      case "email":
-        return Mail;
-      default:
-        return Globe;
-    }
-  };
 
   if (loading) {
     return null; // Or show a loading skeleton
   }
 
   return (
-    <footer className="relative mt-8">
+    <footer className="relative">
       {/* Brand accent line */}
       <div aria-hidden className="h-1 w-full bg-gradient-to-r from-gold-300 via-maroon-500 to-maroon-700" />
 
@@ -321,17 +304,16 @@ export function Footer() {
             {socialLinks.length > 0 && (
               <div className="mt-6 flex gap-4">
                 {socialLinks.map((social) => {
-                  const Icon = getSocialIcon(social.platform);
+                  const isMail = social.url.startsWith("mailto:");
                   return (
                     <a
                       key={social.id}
                       href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-maroon-600 transition-colors"
+                      {...(isMail ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+                      className="grid size-11 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:border-maroon-600/40 hover:bg-maroon-600/5 hover:text-maroon-600"
                       aria-label={social.platform}
                     >
-                      <Icon className="w-6 h-6" />
+                      <SocialIcon platform={social.platform} className="size-5" />
                     </a>
                   );
                 })}
@@ -339,12 +321,16 @@ export function Footer() {
             )}
           </div>
 
-          {/* Quick access sections — always rendered, mirror the seeded
-              default footer so the footer is never empty even before
-              the admin has added anything. */}
-          <QuickSection title="Explore" links={QUICK_LINKS} />
-          <QuickSection title="News & Events" links={QUICK_NEWS_EVENTS} />
-          <QuickSection title="Get Involved" links={QUICK_GET_INVOLVED} />
+          {/* Built-in quick links: only a fallback for when the admin has no footer
+              sections yet. Once sections exist in the database they are the single
+              source, so nothing renders twice. */}
+          {activeSections.length === 0 && (
+            <>
+              <QuickSection title="Explore" links={QUICK_LINKS} />
+              <QuickSection title="News & Events" links={QUICK_NEWS_EVENTS} />
+              <QuickSection title="Get Involved" links={QUICK_GET_INVOLVED} />
+            </>
+          )}
 
           {/* Additional footer sections managed by the admin (footer_sections / footer_links). */}
           {activeSections.map((section) => (

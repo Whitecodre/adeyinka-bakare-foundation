@@ -1,4 +1,4 @@
-import { Quote, Star, Play, Image as ImageIcon, Music, FileText } from "lucide-react";
+import { Quote, Play, Image as ImageIcon, Music, FileText } from "lucide-react";
 
 interface Testimonial {
   id: string;
@@ -104,13 +104,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
           <Quote className="size-7 shrink-0 text-gold-300/40" />
         </div>
 
-        <div className="flex gap-0.5">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="size-3.5 fill-gold-300 text-gold-300" />
-          ))}
-        </div>
-
-        <p className="line-clamp-5 text-sm leading-relaxed text-foreground/85">
+        <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/85">
           &ldquo;{testimonial.content}&rdquo;
         </p>
       </div>
