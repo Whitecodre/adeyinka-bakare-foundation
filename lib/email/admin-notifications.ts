@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { createAdminClient } from "../supabase/admin";
 import { sendEmail } from "./send";
 import { adminNotifyEmail } from "./templates";
@@ -36,39 +37,42 @@ export async function getAdminEmails() {
 }
 
 /**
- * Send email notification to all active admins
+ * Email every active admin. Returns immediately: the lookups and SMTP sends run
+ * after the response has gone out, so saving a record never waits on email.
  */
-export async function notifyAdmins(params: {
+export function notifyAdmins(params: {
   title: string;
   message: string;
   ctaUrl?: string;
   ctaLabel?: string;
 }) {
-  try {
-    const admins = await getAdminEmails();
+  after(async () => {
+    try {
+      const admins = await getAdminEmails();
 
-    if (admins.length === 0) {
-      console.log("No active admins to notify");
-      return;
+      if (admins.length === 0) {
+        console.log("No active admins to notify");
+        return;
+      }
+
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "http://localhost:3000";
+      const { subject, html, text } = adminNotifyEmail({ ...params, baseUrl });
+
+      // Send to all admins in parallel
+      const emailPromises = admins.map((admin) =>
+        sendEmail({
+          to: admin.email,
+          subject,
+          html,
+          text,
+        })
+      );
+
+      await Promise.allSettled(emailPromises);
+
+      console.log(`Sent notification to ${admins.length} admins`);
+    } catch (error) {
+      console.error("Failed to notify admins:", error);
     }
-
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "http://localhost:3000";
-    const { subject, html, text } = adminNotifyEmail({ ...params, baseUrl });
-
-    // Send to all admins in parallel
-    const emailPromises = admins.map((admin) =>
-      sendEmail({
-        to: admin.email,
-        subject,
-        html,
-        text,
-      })
-    );
-
-    await Promise.allSettled(emailPromises);
-
-    console.log(`Sent notification to ${admins.length} admins`);
-  } catch (error) {
-    console.error("Failed to notify admins:", error);
-  }
+  });
 }

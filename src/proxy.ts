@@ -20,11 +20,11 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, status")
-      .eq("id", user.id)
-      .single();
+    // The profile and MFA lookups don't depend on each other, so run them together.
+    const [{ data: profile }, { data: mfa }] = await Promise.all([
+      supabase.from("profiles").select("role, status").eq("id", user.id).single(),
+      supabase.from("admin_mfa").select("*").eq("admin_id", user.id).single(),
+    ]);
 
     if (!profile || !["super_admin", "admin", "editor"].includes(profile.role) || profile.status !== "active") {
       const loginUrl = new URL("/admin-auth/login", request.url);
@@ -37,12 +37,6 @@ export async function proxy(request: NextRequest) {
     if (needs && !can(profile.role, needs.resource, needs.action)) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
-
-    const { data: mfa } = await supabase
-      .from("admin_mfa")
-      .select("*")
-      .eq("admin_id", user.id)
-      .single();
 
     if (!pathname.startsWith("/admin/security") && mfa && mfa.mfa_required !== false) {
       const hasEnabledMFA = mfa.totp_enabled || mfa.email_otp_enabled || mfa.passkey_enabled;
