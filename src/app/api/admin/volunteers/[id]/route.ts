@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/auth/require-permission";
 import { authErrorResponse } from "@/lib/auth/auth-error";
-import { volunteerSchema } from "@/lib/validations/volunteers.schema";
+import { volunteerAdminUpdateSchema } from "@/lib/validations/volunteers.schema";
 import { 
   getVolunteerById, 
   updateVolunteerById, 
@@ -48,7 +48,7 @@ export async function PATCH(
     const { id } = await params;
     
     const body = await request.json();
-    const validatedData = volunteerSchema.partial().parse(body);
+    const validatedData = volunteerAdminUpdateSchema.parse(body);
     
     const volunteer = await updateVolunteerById(id, validatedData, user.id);
     

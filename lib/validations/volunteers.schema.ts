@@ -11,3 +11,8 @@ export const volunteerSchema = z.object({
 });
 
 export type VolunteerInput = z.infer<typeof volunteerSchema>;
+
+/** Admin-only: the public sign-up uses `volunteerSchema` and must never set a status. */
+export const volunteerAdminUpdateSchema = volunteerSchema.partial().extend({
+  status: z.enum(["new", "contacted", "accepted", "rejected", "archived"]).optional(),
+});
