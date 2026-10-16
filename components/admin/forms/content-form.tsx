@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ export type ContentFormValues = {
 
 export function ContentForm({ mode = "create", initial }: { mode?: "create" | "edit"; initial?: Partial<ContentFormValues> }) {
   const router = useRouter();
+  const params = useParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<ContentFormValues>({
@@ -39,13 +40,36 @@ export function ContentForm({ mode = "create", initial }: { mode?: "create" | "e
     setLoading(true);
 
     try {
-      // TODO: Save to Supabase
+      const payload = {
+        key: formData.key,
+        title: formData.title,
+        content: formData.content,
+        image: formData.imageUrl || null,
+        status: formData.isActive ? "published" : "draft",
+      };
+
+      const url = mode === "edit" ? `/api/admin/contents/${params.id}` : "/api/admin/contents";
+      const method = mode === "edit" ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to save content");
+      }
+
       toast({
         title: "Success",
         description: mode === "edit" ? "Content updated successfully" : "Content created successfully",
       });
       router.push("/admin/contents");
     } catch (error) {
+      console.error("Error saving content:", error);
       toast({
         title: "Error",
         description: mode === "edit" ? "Failed to update content" : "Failed to create content",
@@ -75,9 +99,10 @@ export function ContentForm({ mode = "create", initial }: { mode?: "create" | "e
               onChange={(e) => setFormData({ ...formData, key: e.target.value })}
               placeholder="e.g., hero_section, about_us"
               required
+              disabled={mode === "edit"}
             />
             <p className="text-xs text-muted-foreground">
-              Unique identifier for this content block
+              Unique identifier for this content block {mode === "edit" && "(cannot be changed after creation)"}
             </p>
           </div>
 

@@ -3,14 +3,22 @@ import { requireAuth } from "@/lib/auth/require-auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
 
+const RP_ID = process.env.WEBAUTHN_RP_ID ?? 'localhost';
+const RP_NAME = process.env.WEBAUTHN_RP_NAME ?? 'ABF Admin';
+const ORIGIN = process.env.WEBAUTHN_ORIGIN ?? 'http://localhost:3000';
+
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
     const supabase = await createClient();
 
-    const origin = request.headers.get("origin") || request.nextUrl.origin;
-    let rpID = "localhost";
-    try { rpID = new URL(origin).hostname; } catch {}
+    // Use environment variables or fallback to origin
+    const origin = request.headers.get("origin") || request.nextUrl.origin || ORIGIN;
+    let rpID = RP_ID;
+    try {
+      const url = new URL(origin);
+      rpID = url.hostname;
+    } catch {}
     if (rpID === "127.0.0.1") rpID = "localhost";
 
     const { data: existing } = await supabase
@@ -24,7 +32,7 @@ export async function POST(request: NextRequest) {
     }));
 
     const options = await generateRegistrationOptions({
-      rpName: "Adeyinka Bakare Fellowship",
+      rpName: RP_NAME,
       rpID,
       userID: new TextEncoder().encode(user.id),
       userName: user.email || user.id,

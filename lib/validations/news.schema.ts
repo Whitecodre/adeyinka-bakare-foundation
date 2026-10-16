@@ -9,6 +9,7 @@ export const newsSchema = z.object({
   status: z.enum(["draft", "published", "archived"]).optional(),
   published_at: z.string().optional().nullable(),
   featured: z.boolean().optional(),
+  tags: z.array(z.string().min(1)).optional().nullable(),
 });
 
 export type NewsInput = z.infer<typeof newsSchema>;

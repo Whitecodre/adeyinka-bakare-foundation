@@ -36,7 +36,13 @@ export async function POST(request: NextRequest) {
 
     // Welcome email via Zoho with reusable layout
     try {
-      const { subject, html, text } = newsletterEmail({ title: "You're subscribed — welcome to ABF!", excerpt: "Thanks for joining Adeyinka Bakare Foundation. You'll get scholarship, programme and event updates.", url: process.env.NEXT_PUBLIC_SITE_URL || "https://adeyinkabakare.org" });
+      const { subject, html, text } = newsletterEmail({
+        title: "You're subscribed — welcome to ABF!",
+        excerpt: "Thanks for joining Adeyinka Bakare Foundation. You'll get scholarship, programme and event updates.",
+        url: process.env.NEXT_PUBLIC_SITE_URL || "https://adeyinkabakare.org",
+        recipientEmail: normalized,
+        fullName: full_name,
+      });
       const info = await sendEmail({ to: normalized, subject, html, text });
       await logEmail({ to_email: normalized, to_name: full_name, subject, template:"newsletter_welcome", html_preview: html, status:"sent", provider_id: (info as any)?.messageId, metadata:{ source } });
     } catch (e:any) {

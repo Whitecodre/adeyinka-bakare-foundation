@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service-client";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
+import { sendPasskeyAddedNotification } from "@/lib/services/security-notifications.service";
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,28 +57,50 @@ export async function POST(request: NextRequest) {
 
     await supabase.from("webauthn_challenges").delete().eq("id", challengeRow.id);
 
-    const { error: insertError } = await supabase.from("admin_passkeys").insert({
+    // Use service client to bypass RLS for passkey insertion
+    const serviceSupabase = await createServiceClient();
+
+    // Store as base64url string (like WORKNOW does) - when retrieved, Supabase bytea will return hex format
+    const { error: insertError } = await serviceSupabase.from("admin_passkeys").insert({
       admin_id: user.id,
       credential_id: credentialID,
-      public_key: credentialPublicKey,
+      public_key: credentialPublicKey.toString('base64url'),
       counter,
       device_name: deviceName || `${credentialDeviceType || "Passkey"}${credentialBackedUp ? " (synced)" : ""}`.trim() || "My passkey",
       last_used_at: new Date().toISOString(),
     });
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error("Passkey insert error:", insertError);
+      console.error("Error details:", JSON.stringify(insertError, null, 2));
+      throw insertError;
+    }
 
-    // Enable passkey MFA
-    const { error: mfaError } = await supabase
-      .from("admin_mfa")
-      .update({
-        passkey_enabled: true,
-        mfa_required: true,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("admin_id", user.id);
+    console.log("Passkey inserted successfully");
 
-    if (mfaError) throw mfaError;
+    // Enable passkey MFA - use upsert to handle case where row doesn't exist
+    const { error: mfaError } = await supabase.rpc("upsert_admin_mfa", {
+      p_admin_id: user.id,
+      p_passkey_enabled: true,
+      p_mfa_required: true,
+    });
+
+    if (mfaError) {
+      console.error("Failed to upsert admin_mfa:", mfaError);
+      // Fallback to regular update if upsert doesn't exist
+      await supabase
+        .from("admin_mfa")
+        .update({
+          passkey_enabled: true,
+          mfa_required: true,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("admin_id", user.id);
+    }
+
+    // Send email notification
+    const finalDeviceName = deviceName || `${credentialDeviceType || "Passkey"}${credentialBackedUp ? " (synced)" : ""}`.trim() || "My passkey";
+    await sendPasskeyAddedNotification(user.id, finalDeviceName);
 
     return NextResponse.json({
       success: true,

@@ -55,3 +55,21 @@ export function generateStoragePathWithOwner(ownerId: string, type: string, file
   const folder = STORAGE_PATHS[type.toUpperCase() as keyof typeof STORAGE_PATHS] || STORAGE_PATHS.OTHER;
   return `${ownerId}/${folder}/${timestamp}-${cleanFilename}`;
 }
+
+/**
+ * Resolve a public URL for a Supabase storage path. If `path` already
+ * looks like a fully-qualified URL (http(s)://…) it is returned unchanged
+ * so callers can pass either a stored path or a user-pasted URL.
+ */
+export function resolveStorageUrl(
+  supabaseUrl: string,
+  bucket: string,
+  path?: string | null
+): string | null {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  const cleanBucket = bucket.replace(/^\/+|\/+$/g, "");
+  const cleanPath = path.replace(/^\/+/, "");
+  return `${supabaseUrl.replace(/\/+$/, "")}/storage/v1/object/public/${cleanBucket}/${cleanPath}`;
+}
+

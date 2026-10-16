@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Award, Compass, MessageCircle, ShieldCheck, Users, Vote } from "lucide-react";
+import { ArrowRight, Award, Compass, ShieldCheck, Users, Vote } from "lucide-react";
 
-import { externalLinks } from "@/config/external-links";
 import { PageHero } from "@/components/public/page-hero";
 import { Reveal } from "@/components/public/reveal";
 import { Section, SectionHeading } from "@/components/public/section";
 import { IconTile, NumberedItem } from "@/components/public/feature-card";
-import { LinkButton } from "@/components/public/link-button";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Get Involved | Adeyinka Bakare Fellowship",
@@ -40,14 +39,24 @@ export default function GetInvolvedPage() {
         description="Membership is open to students of the Department of Information Technology, University of Ilorin."
       >
         <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-          <LinkButton href={externalLinks.registrationForm}>
-            Register as a member
-            <ArrowRight aria-hidden />
-          </LinkButton>
-          <LinkButton href={externalLinks.whatsappCommunity} variant="outline">
-            <MessageCircle aria-hidden />
-            Join the WhatsApp community
-          </LinkButton>
+          <Button asChild size="lg" className="h-12 px-8">
+            <Link href="/get-involved/member">
+              Register as a member
+              <ArrowRight aria-hidden />
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="h-12 px-8">
+            <Link href="/get-involved/volunteer">
+              Volunteer with us
+              <ArrowRight aria-hidden />
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="h-12 px-8">
+            <Link href="/get-involved">
+              Apply for support
+              <ArrowRight aria-hidden />
+            </Link>
+          </Button>
         </div>
       </PageHero>
 

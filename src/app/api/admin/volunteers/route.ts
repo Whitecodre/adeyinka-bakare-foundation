@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { volunteerSchema } from "@/lib/validations/volunteers.schema";
-import { 
-  getAllVolunteers, 
-  getVolunteerById, 
-  createNewVolunteer, 
-  updateVolunteerById, 
-  removeVolunteer 
+import {
+  getAllVolunteers,
+  getVolunteerById,
+  createNewVolunteer,
+  updateVolunteerById,
+  removeVolunteer
 } from "@/lib/services/volunteers.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all volunteers
 export async function GET(request: NextRequest) {
@@ -38,12 +39,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = volunteerSchema.parse(body);
-    
+
     const volunteer = await createNewVolunteer(validatedData, user.id);
-    
+
+    // Notify admins about new volunteer
+    await notifyAdmins({
+      title: "New Volunteer Application",
+      message: `A new volunteer application from "${validatedData.full_name}" has been received.`,
+      ctaUrl: "/admin/volunteers",
+      ctaLabel: "View Applications",
+    });
+
     return NextResponse.json(
       { success: true, data: volunteer },
       { status: 201 }

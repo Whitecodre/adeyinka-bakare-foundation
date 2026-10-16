@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
+import { recordAdminSession } from "@/lib/auth/record-session";
 import { createClient } from "@/lib/supabase/server";
-import { nanoid } from "nanoid";
 import { verifyTOTP } from "@/lib/security/totp";
+import { decryptTOTPSecret } from "@/lib/security/encryption";
 import { hashRecoveryCode } from "@/lib/security/recovery-codes";
+import { nanoid } from "nanoid";
+import { sendTotpEnabledNotification, sendRecoveryCodesGeneratedNotification } from "@/lib/services/security-notifications.service";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,14 +29,31 @@ export async function POST(request: NextRequest) {
       .eq("admin_id", user.id)
       .single();
 
-    if (mfaErr || !mfaRow?.encrypted_totp_secret) {
+    const encryptedSecret = mfaRow?.encrypted_totp_secret as string;
+
+    if (!encryptedSecret) {
       return NextResponse.json(
         { success: false, error: "No TOTP setup found. Please start setup again." },
         { status: 400 }
       );
     }
 
-    const secret = mfaRow.encrypted_totp_secret as string;
+    // Decrypt the secret
+    let secret: string;
+    try {
+      secret = await decryptTOTPSecret(encryptedSecret);
+    } catch (decryptError) {
+      console.error("Failed to decrypt TOTP secret:", decryptError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "TOTP secret cannot be decrypted. This may be due to a key change. Please disable TOTP and set it up again.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Verify the token
     const isValid = await verifyTOTP(token, secret);
 
     if (!isValid) {
@@ -43,16 +63,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { error } = await supabase
+    // Read existing MFA state to preserve other methods
+    const { data: existingMfa } = await supabase
       .from("admin_mfa")
-      .update({
-        totp_enabled: true,
-        mfa_required: true,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("admin_id", user.id);
+      .select("email_otp_enabled, passkey_enabled")
+      .eq("admin_id", user.id)
+      .single();
 
-    if (error) throw error;
+    // Use upsert to ensure row exists - preserve email OTP and passkey states
+    const { error } = await supabase.rpc("upsert_admin_mfa", {
+      p_admin_id: user.id,
+      p_totp_enabled: true,
+      p_encrypted_totp_secret: secret,
+      p_email_otp_enabled: existingMfa?.email_otp_enabled ? true : null,
+      p_passkey_enabled: existingMfa?.passkey_enabled ? true : null,
+      p_mfa_required: true,
+    });
+
+    if (error) {
+      console.error("Failed to upsert admin_mfa:", error);
+      // Fallback to regular update - preserve existing email OTP and passkey states
+      await supabase
+        .from("admin_mfa")
+        .update({
+          totp_enabled: true,
+          mfa_required: true,
+          email_otp_enabled: existingMfa?.email_otp_enabled ?? false,
+          passkey_enabled: existingMfa?.passkey_enabled ?? false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("admin_id", user.id);
+    }
 
     await supabase.from("mfa_recovery_codes").delete().eq("admin_id", user.id);
     const recoveryCodes = Array.from({ length: 10 }, () => nanoid(8).toUpperCase());
@@ -68,6 +109,13 @@ export async function POST(request: NextRequest) {
       .insert(hashed);
 
     if (recoveryError) throw recoveryError;
+
+    // Send email notifications
+    await sendTotpEnabledNotification(user.id);
+    await sendRecoveryCodesGeneratedNotification(user.id);
+
+    // Make sure the active session is recorded (covers the LOGIN flow).
+    await recordAdminSession({ request, adminId: user.id });
 
     return NextResponse.json({
       success: true,

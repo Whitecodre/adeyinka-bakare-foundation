@@ -11,12 +11,35 @@ import { publicNavigation } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
+interface SiteSettings {
+  site_name?: string;
+  tagline?: string;
+  logo?: string;
+  favicon?: string;
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [settings, setSettings] = useState<SiteSettings>({});
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const res = await fetch("/api/settings");
+        const data = await res.json();
+        if (data.success) {
+          setSettings(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to load settings:", error);
+      }
+    };
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     return scrollY.on("change", (latest) => {
@@ -46,6 +69,8 @@ export function Navbar() {
   }, [menuOpen]);
 
   const compactHeader = isScrolled && !isMobile;
+  const logoSrc = settings.logo || "/brand/logo.png";
+  const siteName = settings.site_name || "Adeyinka Bakare Fellowship";
 
   return (
     <div className="pointer-events-none fixed left-0 top-0 z-50 flex w-full justify-center">
@@ -65,7 +90,7 @@ export function Navbar() {
         )}
       >
         <Link href="/" className="flex min-w-0 items-center gap-3" onClick={() => setMenuOpen(false)}>
-          <Image src="/brand/logo.png" alt="ABF" width={32} height={32} className="rounded-lg" />
+          <Image src={logoSrc} alt="ABF" width={32} height={32} className="rounded-lg" />
           <div className="hidden flex-col leading-tight sm:flex">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/75">ABF</span>
             <span
@@ -74,7 +99,7 @@ export function Navbar() {
                 compactHeader ? "h-0 opacity-0" : "opacity-100"
               )}
             >
-              Adeyinka Bakare Fellowship
+              {siteName}
             </span>
           </div>
         </Link>

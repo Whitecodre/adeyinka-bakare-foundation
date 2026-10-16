@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { testimonialSchema } from "@/lib/validations/testimonials.schema";
-import { 
-  getAllTestimonials, 
-  getTestimonialById, 
-  createNewTestimonial, 
-  updateTestimonialById, 
-  removeTestimonial 
+import {
+  getAllTestimonials,
+  getTestimonialById,
+  createNewTestimonial,
+  updateTestimonialById,
+  removeTestimonial
 } from "@/lib/services/testimonials.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all testimonials
 export async function GET(request: NextRequest) {
@@ -38,12 +39,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = testimonialSchema.parse(body);
-    
+
     const testimonial = await createNewTestimonial(validatedData, user.id);
-    
+
+    // Notify admins about new testimonial
+    await notifyAdmins({
+      title: "New Testimonial Added",
+      message: `A new testimonial has been added.`,
+      ctaUrl: "/admin/testimonials",
+      ctaLabel: "View Testimonials",
+    });
+
     return NextResponse.json(
       { success: true, data: testimonial },
       { status: 201 }

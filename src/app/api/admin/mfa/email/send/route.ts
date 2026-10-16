@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { createClient } from "@/lib/supabase/server";
 import { createHash } from "crypto";
+import { sendEmail } from "@/lib/email/send";
+import { otpEmail } from "@/lib/email/templates";
+import { getSettings } from "@/lib/services/settings.service";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,6 +12,9 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
     const body = await request.json();
     const { purpose = "ENABLE" } = body; // ENABLE, LOGIN
+
+    // Fetch site settings for logo
+    const settings = await getSettings();
 
     // Check rate limit: max 2 sends within 10 minutes
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
@@ -48,9 +54,31 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error;
 
-    // TODO: Send email with the code
-    // For now, log it (remove in production)
-    console.log(`Email OTP for ${user.email}: ${code}`);
+    // Send email with the code
+    // Email is in auth.users, not profiles
+    const email = user.email;
+
+    if (email) {
+      const emailTemplate = otpEmail({
+        fullName: user.user_metadata?.full_name || user.user_metadata?.name || "Admin",
+        code,
+        purpose,
+        logoUrl: settings.logo,
+      });
+
+      try {
+        await sendEmail({
+          to: email,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html,
+          text: emailTemplate.text,
+        });
+      } catch (emailError) {
+        console.error("Failed to send email:", emailError);
+      }
+    } else {
+      console.error("No email found for user");
+    }
 
     return NextResponse.json({
       success: true,

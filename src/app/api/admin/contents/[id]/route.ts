@@ -1,30 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
-import { contentSchema } from "@/lib/validations/contents.schema";
-import { 
-  getContentByKey, 
-  updateContentById, 
-  removeContent 
-} from "@/lib/services/contents.service";
+import { contentSchema } from "@/lib/validations/content.schema";
+import { getContentById, updateContentById, removeContent } from "@/lib/services/content.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
-// GET content by key
+// GET content by id
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ key: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
-    const { key } = await params;
-    
-    const content = await getContentByKey(key);
-    
+    const { id } = await params;
+
+    const content = await getContentById(id);
+
     if (!content) {
       return NextResponse.json(
         { success: false, error: "Content not found" },
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json({ success: true, data: content });
   } catch (error) {
     console.error("Get content error:", error);
@@ -38,26 +35,25 @@ export async function GET(
 // PATCH update content
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ key: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
-    const { key } = await params;
-    
+    const { id } = await params;
+
     const body = await request.json();
     const validatedData = contentSchema.partial().parse(body);
-    
-    // First get the content by key to get its ID
-    const existingContent = await getContentByKey(key);
-    if (!existingContent) {
-      return NextResponse.json(
-        { success: false, error: "Content not found" },
-        { status: 404 }
-      );
-    }
-    
-    const content = await updateContentById(existingContent.id, validatedData, user.id);
-    
+
+    const content = await updateContentById(id, validatedData, user.id);
+
+    // Notify admins about content update
+    await notifyAdmins({
+      title: "Content Updated",
+      message: `Content "${content.title}" has been updated.`,
+      ctaUrl: "/admin/contents",
+      ctaLabel: "View Contents",
+    });
+
     return NextResponse.json({ success: true, data: content });
   } catch (error) {
     console.error("Update content error:", error);
@@ -71,23 +67,24 @@ export async function PATCH(
 // DELETE content
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ key: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
-    const { key } = await params;
-    
-    // First get the content by key to get its ID
-    const existingContent = await getContentByKey(key);
-    if (!existingContent) {
-      return NextResponse.json(
-        { success: false, error: "Content not found" },
-        { status: 404 }
-      );
-    }
-    
-    await removeContent(existingContent.id, user.id);
-    
+    const { id } = await params;
+
+    // Get content info before deletion for notification
+    const content = await getContentById(id);
+    await removeContent(id, user.id);
+
+    // Notify admins about content deletion
+    await notifyAdmins({
+      title: "Content Deleted",
+      message: `Content "${content?.title || "Unknown"}" has been deleted.`,
+      ctaUrl: "/admin/contents",
+      ctaLabel: "View Contents",
+    });
+
     return NextResponse.json({ success: true, message: "Content deleted" });
   } catch (error) {
     console.error("Delete content error:", error);

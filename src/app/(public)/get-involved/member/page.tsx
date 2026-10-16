@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, ArrowRight, CheckCircle2, UserPlus, Users } from "lucide-react";
+
+import { ImageUpload } from "@/components/admin/image-upload";
+import { PageHero } from "@/components/public/page-hero";
+import { Section } from "@/components/public/section";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function MemberPage() {
   const router = useRouter();
@@ -15,6 +24,7 @@ export default function MemberPage() {
     department: "",
     level: "",
     session: "",
+    photo: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -30,13 +40,20 @@ export default function MemberPage() {
       const response = await fetch("/api/public/members", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          photo: formData.photo.trim() || null,
+        }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setSubmitStatus({ type: "success", message: "Thank you for registering! We'll review your application and get back to you." });
+        setSubmitStatus({
+          type: "success",
+          message:
+            "Welcome to the Adeyinka Bakare Foundation! Check your email for next steps and your membership guide.",
+        });
         setFormData({
           full_name: "",
           email: "",
@@ -44,12 +61,13 @@ export default function MemberPage() {
           department: "",
           level: "",
           session: "",
+          photo: "",
         });
-        setTimeout(() => router.push("/"), 3000);
+        setTimeout(() => router.push("/"), 4000);
       } else {
         setSubmitStatus({ type: "error", message: data.error || "Something went wrong. Please try again." });
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus({ type: "error", message: "Network error. Please check your connection and try again." });
     } finally {
       setIsSubmitting(false);
@@ -57,196 +75,193 @@ export default function MemberPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fffdf8] py-12 md:py-20">
-        <div className="max-w-2xl mx-auto px-4 py-12 md:py-20">
-          <div className="mb-8">
-            <a
-              href="/get-involved"
-              className="inline-flex items-center text-[#922821] hover:text-[#aa322b] mb-4 transition-colors"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Get Involved
-            </a>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#2d1816] mb-4 font-['Libre_Baskerville']">
-              Become a Member
-            </h1>
-            <p className="text-lg text-[#2d1816]/70">
-              Join our community of IT students and access exclusive benefits and opportunities.
-            </p>
-          </div>
+    <>
+      <PageHero
+        eyebrow="Get Involved"
+        title="Become a Member"
+        description="Join the Adeyinka Bakare Fellowship — a community of IT students supporting each other through scholarships, mentorship and career development."
+      />
 
-          {submitStatus && (
-            <div
-              className={`mb-6 p-4 rounded-xl ${
-                submitStatus.type === "success"
-                  ? "bg-green-50 border border-green-200 text-green-800"
-                  : "bg-red-50 border border-red-200 text-red-800"
-              }`}
-            >
-              {submitStatus.message}
-            </div>
-          )}
+      <Section width="prose">
+        <Link
+          href="/get-involved"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-maroon-700"
+        >
+          <ArrowLeft className="size-4" /> Back to Get Involved
+        </Link>
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-sm border border-[#e9ddd3]">
-            <div className="space-y-6">
-              {/* Full Name */}
+        <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+          <div className="grid gap-0 md:grid-cols-[1fr_2fr]">
+            {/* Sidebar: what members get */}
+            <aside className="space-y-6 bg-gradient-to-br from-maroon-50 to-cream p-6 md:p-8">
               <div>
-                <label htmlFor="full_name" className="block text-sm font-semibold text-[#2d1816] mb-2">
-                  Full Name <span className="text-[#aa322b]">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="full_name"
-                  name="full_name"
-                  required
-                  value={formData.full_name}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-[#e9ddd3] focus:outline-none focus:ring-2 focus:ring-[#aa322b]/20 focus:border-[#aa322b] transition-all bg-[#fffdf8]"
-                  placeholder="Enter your full name"
-                />
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                  Membership perks
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-foreground">Why join ABF?</h2>
               </div>
-
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-[#2d1816] mb-2">
-                  Email Address <span className="text-[#aa322b]">*</span>
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-[#e9ddd3] focus:outline-none focus:ring-2 focus:ring-[#aa322b]/20 focus:border-[#aa322b] transition-all bg-[#fffdf8]"
-                  placeholder="your.email@example.com"
-                />
+              <ul className="space-y-3 text-sm text-foreground/90">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-maroon-500" />
+                  Access to scholarship and grant opportunities
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-maroon-500" />
+                  Mentorship from seniors and alumni
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-maroon-500" />
+                  Career talks, workshops and networking events
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-maroon-500" />
+                  A welcoming community of like-minded IT students
+                </li>
+              </ul>
+              <div className="rounded-2xl border border-gold-200 bg-gold-50 p-4 text-xs text-foreground/80">
+                <strong className="block text-foreground">Open to</strong>
+                All registered students of the Department of Information Technology, University of Ilorin.
               </div>
+            </aside>
 
-              {/* Phone (WhatsApp) */}
-              <div>
-                <label htmlFor="phone" className="block text-sm font-semibold text-[#2d1816] mb-2">
-                  Phone Number (WhatsApp) <span className="text-[#aa322b]">*</span>
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  required
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-[#e9ddd3] focus:outline-none focus:ring-2 focus:ring-[#aa322b]/20 focus:border-[#aa322b] transition-all bg-[#fffdf8]"
-                  placeholder="+234 XXX XXX XXXX"
-                />
-              </div>
-
-              {/* Department */}
-              <div>
-                <label htmlFor="department" className="block text-sm font-semibold text-[#2d1816] mb-2">
-                  Department <span className="text-[#aa322b]">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="department"
-                  name="department"
-                  required
-                  value={formData.department}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-[#e9ddd3] focus:outline-none focus:ring-2 focus:ring-[#aa322b]/20 focus:border-[#aa322b] transition-all bg-[#fffdf8]"
-                  placeholder="e.g., Computer Science"
-                />
-              </div>
-
-              {/* Level */}
-              <div>
-                <label htmlFor="level" className="block text-sm font-semibold text-[#2d1816] mb-2">
-                  Level <span className="text-[#aa322b]">*</span>
-                </label>
-                <select
-                  id="level"
-                  name="level"
-                  required
-                  value={formData.level}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-[#e9ddd3] focus:outline-none focus:ring-2 focus:ring-[#aa322b]/20 focus:border-[#aa322b] transition-all bg-[#fffdf8]"
+            {/* Form */}
+            <div className="p-6 md:p-8">
+              {submitStatus && (
+                <div
+                  role="alert"
+                  className={`mb-6 rounded-xl border p-4 text-sm ${
+                    submitStatus.type === "success"
+                      ? "border-success bg-success-soft text-success-foreground"
+                      : "border-destructive bg-destructive/10 text-destructive"
+                  }`}
                 >
-                  <option value="">Select your level</option>
-                  <option value="100">100 Level</option>
-                  <option value="200">200 Level</option>
-                  <option value="300">300 Level</option>
-                  <option value="400">400 Level</option>
-                  <option value="500">500 Level</option>
-                </select>
-              </div>
+                  {submitStatus.message}
+                </div>
+              )}
 
-              {/* Session */}
-              <div>
-                <label htmlFor="session" className="block text-sm font-semibold text-[#2d1816] mb-2">
-                  Session <span className="text-[#aa322b]">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="session"
-                  name="session"
-                  required
-                  value={formData.session}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-[#e9ddd3] focus:outline-none focus:ring-2 focus:ring-[#aa322b]/20 focus:border-[#aa322b] transition-all bg-[#fffdf8]"
-                  placeholder="e.g., 2024/2025"
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="full_name">Full Name *</Label>
+                    <Input
+                      id="full_name"
+                      name="full_name"
+                      required
+                      value={formData.full_name}
+                      onChange={handleChange}
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email">Email Address *</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="your.email@example.com"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="phone">Phone (WhatsApp) *</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      required
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="+234 XXX XXX XXXX"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="department">Department *</Label>
+                    <Input
+                      id="department"
+                      name="department"
+                      required
+                      value={formData.department}
+                      onChange={handleChange}
+                      placeholder="e.g., Information Technology"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="level">Level *</Label>
+                    <select
+                      id="level"
+                      name="level"
+                      required
+                      value={formData.level}
+                      onChange={handleChange}
+                      className="h-10 w-full rounded-md border border-border bg-card px-3 text-sm"
+                    >
+                      <option value="">Select your level</option>
+                      <option value="100">100 Level</option>
+                      <option value="200">200 Level</option>
+                      <option value="300">300 Level</option>
+                      <option value="400">400 Level</option>
+                      <option value="500">500 Level</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="session">Session *</Label>
+                    <Input
+                      id="session"
+                      name="session"
+                      required
+                      value={formData.session}
+                      onChange={handleChange}
+                      placeholder="e.g., 2024/2025"
+                    />
+                  </div>
+                </div>
+
+                <ImageUpload
+                  value={formData.photo}
+                  onChange={(value) => setFormData({ ...formData, photo: value })}
+                  onFileMetadata={(filename) => {
+                    if (!formData.full_name) {
+                      const guess = filename.split(".")[0].replace(/[-_]+/g, " ");
+                      if (guess) setFormData((prev) => ({ ...prev, full_name: prev.full_name || guess }));
+                    }
+                  }}
+                  label="Profile Photo"
+                  resource="members"
+                  maxSize={5 * 1024 * 1024}
+                  accept="image/*"
                 />
-              </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-[#f8c84d] to-[#ffe08a] text-[#2d1816] font-semibold py-4 px-6 rounded-xl hover:from-[#ffe08a] hover:to-[#f8c84d] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-              >
-                {isSubmitting ? "Submitting..." : "Register as Member"}
-              </button>
+                <div className="flex flex-col-reverse gap-3 border-t border-border pt-5 sm:flex-row sm:justify-end">
+                  <Button type="button" variant="outline" onClick={() => router.push("/get-involved")} disabled={isSubmitting} className="h-12">
+                    Cancel
+                  </Button>
+                  <Button type="submit" variant="brand" disabled={isSubmitting} className="h-12 px-8">
+                    {isSubmitting ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                        Submitting…
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-2">
+                        <UserPlus className="size-4" />
+                        Submit membership
+                        <ArrowRight className="size-4" />
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </form>
             </div>
-          </form>
-
-          <div className="mt-8 bg-[#aa322b]/5 rounded-2xl p-6 border border-[#aa322b]/10">
-            <h3 className="text-lg font-semibold text-[#2d1816] mb-3 font-['Libre_Baskerville']">
-              Member Benefits
-            </h3>
-            <ul className="space-y-2 text-[#2d1816]/80">
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-[#aa322b] mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Access to scholarship programs
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-[#aa322b] mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Mentorship from industry professionals
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-[#aa322b] mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Career development and placement support
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-[#aa322b] mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Networking with fellow IT students
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-[#aa322b] mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Exclusive workshops and training sessions
-              </li>
-            </ul>
           </div>
         </div>
-      </div>
+
+        <div className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Users className="size-4" />
+          Already a member? <Link href="/get-involved/volunteer" className="font-semibold text-primary hover:text-maroon-700">Volunteer with us →</Link>
+        </div>
+      </Section>
+    </>
   );
 }

@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { eventSchema } from "@/lib/validations/events.schema";
-import { 
-  getAllEvents, 
-  getEventById, 
-  createNewEvent, 
-  updateEventById, 
-  removeEvent 
+import {
+  getAllEvents,
+  getEventById,
+  createNewEvent,
+  updateEventById,
+  removeEvent
 } from "@/lib/services/events.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all events
 export async function GET(request: NextRequest) {
@@ -38,12 +39,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = eventSchema.parse(body);
-    
+
     const event = await createNewEvent(validatedData, user.id);
-    
+
+    // Notify admins about new event
+    await notifyAdmins({
+      title: "New Event Created",
+      message: `A new event "${validatedData.title}" has been created.`,
+      ctaUrl: "/admin/events",
+      ctaLabel: "View Events",
+    });
+
     return NextResponse.json(
       { success: true, data: event },
       { status: 201 }

@@ -102,7 +102,7 @@ export default function AdminsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Admin Users" subtitle="Invite-only via Zoho (hello@whisprwords.com until ABF domain is purchased)" actions={[{ label:"Invite Admin", onClick:()=>handleOpenDialog(), variant:"primary"}]} />
+      <PageHeader title="Admin Users" subtitle="Invite-only" actions={[{ label:"Invite Admin", onClick:()=>handleOpenDialog(), variant:"primary"}]} />
       <Card>
         <CardHeader className="gap-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -147,11 +147,11 @@ export default function AdminsPage() {
         </Card>
       )}
 
-      <FormDialog open={isDialogOpen} onOpenChange={(o)=>(o?setIsDialogOpen(true):handleCloseDialog())} title={editingAdmin?"Edit Admin":"Invite Admin"} description={editingAdmin?"Update this admin's details.":"They'll receive a Zoho email from hello@whisprwords.com (temp) to set their password. Expires in 7 days."} submitLabel={editingAdmin?"Update":sending?"Sending...":"Send invite"} onSubmit={handleInvite}>
+      <FormDialog open={isDialogOpen} onOpenChange={(o)=>(o?setIsDialogOpen(true):handleCloseDialog())} title={editingAdmin?"Edit Admin":"Invite Admin"} description={editingAdmin?"Update this admin's details.":"They'll receive an email from ABF to set their password. Expires in 7 days."} submitLabel={editingAdmin?"Update":sending?"Sending...":"Send invite"} onSubmit={handleInvite}>
         <FormField label="Full Name" htmlFor="full_name" required error={errors.full_name}>
           <Input id="full_name" autoComplete="name" value={formData.full_name} onChange={(e)=>{ setFormData(prev=>({...prev, full_name:e.target.value})); clearError("full_name"); }} placeholder="Jane Doe" className={`h-11 ${errors.full_name?"border-destructive":""}`} />
         </FormField>
-        <FormField label="Email" htmlFor="email" required error={errors.email} hint={editingAdmin?"Email cannot be changed.":"Invite link sent via Zoho SMTP."}>
+        <FormField label="Email" htmlFor="email" required error={errors.email} hint={editingAdmin?"Email cannot be changed.":"Invite link sent via email."}>
           <Input id="email" type="email" autoComplete="email" value={formData.email} onChange={(e)=>{ setFormData(prev=>({...prev, email:e.target.value})); clearError("email"); }} placeholder="admin@adeyinkabakare.org" className={`h-11 ${errors.email?"border-destructive":""}`} disabled={!!editingAdmin} />
         </FormField>
         <FormField label="Role" htmlFor="role">

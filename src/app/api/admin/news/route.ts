@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { newsSchema } from "@/lib/validations/news.schema";
-import { 
-  getAllNews, 
-  getNewsById, 
-  createNewNews, 
-  updateNewsById, 
-  removeNews 
+import {
+  getAllNews,
+  getNewsById,
+  createNewNews,
+  updateNewsById,
+  removeNews
 } from "@/lib/services/news.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all news
 export async function GET(request: NextRequest) {
@@ -38,12 +39,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = newsSchema.parse(body);
-    
+
     const newsItem = await createNewNews(validatedData, user.id);
-    
+
+    // Notify admins about new news article
+    await notifyAdmins({
+      title: "New News Article Created",
+      message: `A new article "${validatedData.title}" has been created.`,
+      ctaUrl: "/admin/news",
+      ctaLabel: "View News",
+    });
+
     return NextResponse.json(
       { success: true, data: newsItem },
       { status: 201 }

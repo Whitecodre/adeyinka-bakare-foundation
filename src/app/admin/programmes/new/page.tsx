@@ -82,23 +82,24 @@ export default function NewProgrammePage() {
     try {
       setLoading(true);
 
-      // TODO: Replace with actual Supabase insert
-      // const { data, error } = await supabase
-      //   .from('programmes')
-      //   .insert({
-      //     title: formData.title,
-      //     slug: formData.slug,
-      //     description: formData.description,
-      //     image: formData.image,
-      //     status: formData.status,
-      //     featured: formData.featured,
-      //   })
-      //   .select()
-      //   .single();
+      const payload = {
+        title: formData.title.trim(),
+        slug: formData.slug.trim(),
+        description: formData.description.trim(),
+        image: formData.image.trim() || null,
+        status: formData.status,
+        featured: formData.featured,
+      };
 
-      // if (error) throw error;
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const res = await fetch("/api/admin/programmes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to create programme");
+      }
 
       toast({
         title: "Success",
@@ -106,12 +107,13 @@ export default function NewProgrammePage() {
       });
 
       router.push("/admin/programmes");
-    } catch (error) {
+      router.refresh();
+    } catch (error: any) {
       console.error("Error creating programme:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create programme",
+        description: error?.message || "Failed to create programme",
       });
     } finally {
       setLoading(false);

@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { LoadingState } from "@/components/admin/loading-state";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
-import { Bell, Trash2, Check, Search, Clock, User } from "lucide-react";
+import { Bell, Trash2, Check, Search, Clock, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toolbar } from "@/components/admin/toolbar";
 
@@ -31,16 +31,21 @@ export default function NotificationsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     const loadNotifications = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/admin/notifications");
+        const offset = (currentPage - 1) * itemsPerPage;
+        const response = await fetch(`/api/admin/notifications?limit=${itemsPerPage}&offset=${offset}`);
         const result = await response.json();
 
         if (result.success) {
           setNotifications(result.data);
+          setTotalPages(Math.ceil(result.total / itemsPerPage));
         } else {
           throw new Error(result.error || "Failed to load notifications");
         }
@@ -57,7 +62,7 @@ export default function NotificationsPage() {
     };
 
     loadNotifications();
-  }, [toast]);
+  }, [toast, currentPage]);
 
   const filteredNotifications = notifications.filter((notif) => {
     const matchesSearch =
@@ -317,14 +322,38 @@ export default function NotificationsPage() {
           )}
 
           {notifications.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-border">
+            <div className="mt-4 pt-4 border-t border-border flex flex-col sm:flex-row gap-4 items-center justify-between">
               <Button
                 variant="outline"
                 onClick={() => setDeleteConfirm("all")}
->
+              >
                 <Trash2 className="w-4 h-4" />
                 Delete All Notifications
               </Button>
+
+              {totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </CardContent>

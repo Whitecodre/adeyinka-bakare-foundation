@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { footerLinkSchema } from "@/lib/validations/footer.schema";
-import { 
-  createNewFooterLink, 
-  getFooterLinkById, 
-  updateFooterLinkById, 
-  removeFooterLink 
+import {
+  createNewFooterLink,
+  getFooterLinkById,
+  updateFooterLinkById,
+  removeFooterLink
 } from "@/lib/services/footer.service";
 import { findAllFooterSections } from "@/lib/repositories/footer.repository";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all footer links
 export async function GET(request: NextRequest) {
@@ -47,12 +48,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = footerLinkSchema.parse(body);
-    
+
     const link = await createNewFooterLink(validatedData, user.id);
-    
+
+    // Notify admins about footer link creation
+    await notifyAdmins({
+      title: "Footer Link Added",
+      message: `Footer link "${validatedData.label}" has been added.`,
+      ctaUrl: "/admin/footer",
+      ctaLabel: "View Footer",
+    });
+
     return NextResponse.json(
       { success: true, data: link },
       { status: 201 }

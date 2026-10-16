@@ -129,6 +129,30 @@ export function AdminHeader({ onToggleSidebar, onLogout }: HeaderProps) {
     };
   }, []);
 
+  // Fetch notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch("/api/admin/notifications?limit=3&offset=0");
+        const result = await res.json();
+
+        if (result.success && Array.isArray(result.data)) {
+          setNotifications(result.data.map((n: any) => ({
+            id: n.id,
+            title: n.title,
+            body: n.message || n.body,
+            read: n.read || false,
+            created_at: n.created_at,
+          })));
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -236,10 +260,25 @@ export function AdminHeader({ onToggleSidebar, onLogout }: HeaderProps) {
                   <div className="px-4 py-10 text-center text-sm text-muted-foreground">You&apos;re all caught up.</div>
                 ) : (
                   notifications.map((n) => (
-                    <div key={n.id} className="cursor-pointer border-b border-border px-4 py-3 transition-colors hover:bg-muted">
-                      <div className="text-sm font-semibold text-foreground">{n.title}</div>
-                      {n.body && <div className="mt-1 text-xs text-muted-foreground">{n.body}</div>}
-                      <div className="mt-1 text-xs text-muted-foreground/70">{timeAgo(n.created_at)}</div>
+                    <div
+                      key={n.id}
+                      className={`cursor-pointer border-b border-border px-4 py-3 transition-colors hover:bg-muted ${!n.read ? "bg-muted/30" : ""}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {!n.read && <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-foreground truncate">{n.title}</div>
+                          {n.body && (
+                            <div className="mt-1 text-xs text-muted-foreground" style={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}>{n.body}</div>
+                          )}
+                          <div className="mt-1 text-xs text-muted-foreground/70">{timeAgo(n.created_at)}</div>
+                        </div>
+                      </div>
                     </div>
                   ))
                 )}

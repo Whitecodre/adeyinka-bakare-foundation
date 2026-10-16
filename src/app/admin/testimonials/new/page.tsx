@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,20 +20,42 @@ import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { PageHeader } from "@/components/admin/page-header";
 
+type MediaType = "text" | "image" | "video" | "audio" | "document";
+
+const DB_MEDIA_TYPES: Array<Exclude<MediaType, "text">> = ["image", "video", "audio", "document"];
+
 export default function NewTestimonialPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [beneficiaries, setBeneficiaries] = useState<Array<{ id: string; full_name: string }>>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     beneficiary_id: "",
     content: "",
     media_url: "",
-    media_type: "text",
+    media_type: "text" as MediaType,
     status: "draft",
     featured: false,
   });
+
+  useEffect(() => {
+    const loadBeneficiaries = async () => {
+      try {
+        const res = await fetch("/api/admin/beneficiaries?status=published");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          setBeneficiaries(
+            json.data.map((b: any) => ({ id: b.id, full_name: b.full_name }))
+          );
+        }
+      } catch (error) {
+        console.error("Failed to load beneficiaries:", error);
+      }
+    };
+    loadBeneficiaries();
+  }, []);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -47,11 +69,16 @@ export default function NewTestimonialPage() {
     }
 
     if (formData.media_type !== "text" && !formData.media_url.trim()) {
-      newErrors.media_url = "Media URL is required for this media type";
+      newErrors.media_url = "Media is required for this media type";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleMediaTypeChange = (value: MediaType) => {
+    setFormData((prev) => ({ ...prev, media_type: value, media_url: value === "text" ? "" : prev.media_url }));
+    if (errors.media_url) setErrors((prev) => ({ ...prev, media_url: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,39 +88,40 @@ export default function NewTestimonialPage() {
       return;
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
+      const dbMediaType = formData.media_type === "text" ? null : formData.media_type;
+      const payload = {
+        beneficiary_id: formData.beneficiary_id || null,
+        content: formData.content.trim(),
+        media_url: formData.media_url.trim() || null,
+        media_type: dbMediaType,
+        status: formData.status,
+        featured: formData.featured,
+      };
 
-      // TODO: Replace with actual Supabase insert
-      // const { data, error } = await supabase
-      //   .from('testimonials')
-      //   .insert({
-      //     beneficiary_id: formData.beneficiary_id,
-      //     content: formData.content,
-      //     media_url: formData.media_url,
-      //     media_type: formData.media_type,
-      //     status: formData.status,
-      //     featured: formData.featured,
-      //   })
-      //   .select()
-      //   .single();
-
-      // if (error) throw error;
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const res = await fetch("/api/admin/testimonials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to create testimonial");
+      }
 
       toast({
         title: "Success",
         description: "Testimonial created successfully",
       });
-
       router.push("/admin/testimonials");
-    } catch (error) {
+      router.refresh();
+    } catch (error: any) {
       console.error("Error creating testimonial:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create testimonial",
+        description: error?.message || "Failed to create testimonial",
       });
     } finally {
       setLoading(false);
@@ -101,19 +129,24 @@ export default function NewTestimonialPage() {
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title="Add New Testimonial" subtitle="Create a new testimonial" backHref="/admin/testimonials" />
+      <PageHeader
+        title="Add New Testimonial"
+        subtitle="Create a new beneficiary testimonial"
+        backHref="/admin/testimonials"
+      />
 
       <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-foreground">
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <Quote className="size-4 text-primary" />
             Testimonial Information
           </CardTitle>
         </CardHeader>
@@ -130,13 +163,14 @@ export default function NewTestimonialPage() {
                   disabled={loading}
                 >
                   <SelectTrigger className={`border-border ${errors.beneficiary_id ? "border-destructive" : ""}`}>
-                    <SelectValue placeholder="Select beneficiary" />
+                    <SelectValue placeholder={beneficiaries.length ? "Select beneficiary" : "No published beneficiaries yet"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* TODO: Load beneficiaries from Supabase */}
-                    <SelectItem value="1">John Doe</SelectItem>
-                    <SelectItem value="2">Jane Smith</SelectItem>
-                    <SelectItem value="3">Michael Johnson</SelectItem>
+                    {beneficiaries.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.full_name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 {errors.beneficiary_id && (
@@ -145,36 +179,34 @@ export default function NewTestimonialPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="media_type">
-                  Media Type
-                </Label>
+                <Label htmlFor="media_type">Media Type</Label>
                 <Select
                   value={formData.media_type}
-                  onValueChange={(value) => handleInputChange("media_type", value)}
+                  onValueChange={(v) => handleMediaTypeChange(v as MediaType)}
                   disabled={loading}
                 >
                   <SelectTrigger className="border-border">
-                    <SelectValue placeholder="Select media type" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="text">Text Only</SelectItem>
+                    <SelectItem value="text">Text only</SelectItem>
                     <SelectItem value="image">Image</SelectItem>
                     <SelectItem value="video">Video</SelectItem>
+                    <SelectItem value="audio">Audio</SelectItem>
+                    <SelectItem value="document">Document</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="status">
-                  Status
-                </Label>
+                <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status}
                   onValueChange={(value) => handleInputChange("status", value)}
                   disabled={loading}
                 >
                   <SelectTrigger className="border-border">
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="draft">Draft</SelectItem>
@@ -183,17 +215,46 @@ export default function NewTestimonialPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
+            {formData.media_type !== "text" && (
               <ImageUpload
                 value={formData.media_url}
                 onChange={(value) => handleInputChange("media_url", value)}
-                label="Media URL"
-                bucket="public-media"
-                folder="testimonials"
+                onFileMetadata={(filename, size, mimeType) => {
+                  // Auto-detect media type from mime if user didn't pick
+                  if (formData.media_type === "text" || !formData.media_type) {
+                    const detected = mimeType.startsWith("image/")
+                      ? "image"
+                      : mimeType.startsWith("video/")
+                      ? "video"
+                      : mimeType.startsWith("audio/")
+                      ? "audio"
+                      : mimeType === "application/pdf"
+                      ? "document"
+                      : null;
+                    if (detected) handleInputChange("media_type", detected);
+                  }
+                  // surface to user if needed
+                  void filename; void size;
+                }}
+                label={`${DB_MEDIA_TYPES.find((t) => t === formData.media_type) || "Media"} attachment`}
+                resource="testimonials"
                 maxSize={50 * 1024 * 1024}
-                accept="image/*,video/*"
+                accept={
+                  formData.media_type === "image"
+                    ? "image/*"
+                    : formData.media_type === "video"
+                    ? "video/*"
+                    : formData.media_type === "audio"
+                    ? "audio/*"
+                    : "application/pdf"
+                }
               />
-            </div>
+            )}
+            {errors.media_url && (
+              <p className="text-xs text-destructive" role="alert">{errors.media_url}</p>
+            )}
 
             <div className="space-y-1.5">
               <Label htmlFor="content">
@@ -220,7 +281,7 @@ export default function NewTestimonialPage() {
                 onCheckedChange={(checked) => handleInputChange("featured", checked)}
                 disabled={loading}
               />
-              <Label htmlFor="featured" className="text-foreground cursor-pointer">
+              <Label htmlFor="featured" className="cursor-pointer text-foreground">
                 Featured Testimonial
               </Label>
             </div>
@@ -235,15 +296,16 @@ export default function NewTestimonialPage() {
               >
                 Cancel
               </Button>
-              <Button variant="brand"
+              <Button
+                variant="brand"
                 type="submit"
                 disabled={loading}
                 className="h-11 w-full sm:h-10 sm:w-auto"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating...
+                    <Loader2 className="size-4 animate-spin" />
+                    Creating…
                   </>
                 ) : (
                   "Create Testimonial"

@@ -3,6 +3,7 @@ import {
   StatsSection,
   FeatureCardsSection,
   MissionSection,
+  ContentSection,
   ProgrammesSection,
   HowToJoinSection,
   CTASection,
@@ -18,6 +19,7 @@ export default function HomePage() {
       <StatsSection />
       <FeatureCardsSection />
       <MissionSection />
+      <ContentSection />
       <ProgrammesSection />
       <HowToJoinSection />
       <CTASection />

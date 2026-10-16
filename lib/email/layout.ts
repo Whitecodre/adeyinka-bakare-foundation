@@ -4,6 +4,13 @@ type EmailLayoutOpts = {
   heroAlt?: string;
   title?: string;
   subtitle?: string;
+  logoUrl?: string;
+  /** Email of the recipient, used to build a one-click unsubscribe link. */
+  recipientEmail?: string;
+  /** Override the auto-generated unsubscribe URL. */
+  unsubscribeUrl?: string;
+  /** Show the unsubscribe link in the email footer (default true). */
+  showUnsubscribe?: boolean;
 };
 
 const BRAND = {
@@ -32,12 +39,24 @@ function resolveLogoUrl(raw: string): string {
 }
 const LOGO_URL: string = resolveLogoUrl(RAW_LOGO);
 
+function buildUnsubscribeUrl(recipientEmail?: string, override?: string): string | null {
+  if (override) return override;
+  if (!recipientEmail) return null;
+  const site = (typeof process !== "undefined" && ((process.env as any).NEXT_PUBLIC_SITE_URL || "https://adeyinkabakare.org")) || "https://adeyinkabakare.org";
+  return `${site.replace(/\/$/, "")}/unsubscribe?email=${encodeURIComponent(recipientEmail)}`;
+}
+
 export function baseEmailLayout(innerHtml: string, opts: EmailLayoutOpts = {}) {
   const preheader = opts.preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${escapeHtml(opts.preheader)}</div>` : "";
+  const showUnsubscribe = opts.showUnsubscribe !== false;
+  const unsubscribeUrl = showUnsubscribe
+    ? buildUnsubscribeUrl(opts.recipientEmail, opts.unsubscribeUrl)
+    : null;
   const hero = opts.heroImage || DEFAULT_HERO;
   const heroAlt = escapeHtml(opts.heroAlt || "ABF scholars graduating -- empowering IT students through scholarships, mentorship and career development");
   const siteLogoFallback = (typeof process !== "undefined" && ((process.env as any).NEXT_PUBLIC_SITE_URL || "https://adeyinkabakare.org")) || "https://adeyinkabakare.org";
   const logoFallback = `${siteLogoFallback.replace(/\/$/, "")}/brand/logo.png`;
+  const logoUrl = opts.logoUrl ? resolveLogoUrl(opts.logoUrl) : LOGO_URL;
   return `<!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(opts.title || "Adeyinka Bakare Foundation")}</title></head>
@@ -52,7 +71,7 @@ export function baseEmailLayout(innerHtml: string, opts: EmailLayoutOpts = {}) {
             <td style="vertical-align:middle">
               <table cellpadding="0" cellspacing="0"><tr>
                 <td style="vertical-align:middle;padding-right:10px">
-                  <img src="${LOGO_URL}" alt="ABF logo" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:10px;background:#fff;object-fit:cover;" onerror="this.onerror=null;this.src='${logoFallback}'" />
+                  <img src="${logoUrl}" alt="ABF logo" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:10px;background:#fff;object-fit:cover;" onerror="this.onerror=null;this.src='${logoFallback}'" />
                 </td>
                 <td style="vertical-align:middle">
                   <div style="color:#fff;font-weight:900;letter-spacing:.14em;font-size:15px;line-height:1">ABF</div>
@@ -89,7 +108,7 @@ export function baseEmailLayout(innerHtml: string, opts: EmailLayoutOpts = {}) {
               <a href="https://adeyinkabakare.org" style="color:${BRAND.maroon};text-decoration:none">adeyinkabakare.org</a> · <a href="mailto:hello@whisprwords.com" style="color:${BRAND.muted}">hello@whisprwords.com</a>
             </td>
             <td align="right" style="font-size:11px;color:#9a8a84">
-              <a href="#" style="color:#9a8a84;text-decoration:underline">Unsubscribe</a><br/>© ${new Date().getFullYear()} ABF
+              ${unsubscribeUrl ? `<a href="${escapeHtml(unsubscribeUrl)}" style="color:#9a8a84;text-decoration:underline">Unsubscribe</a><br/>` : ""}© ${new Date().getFullYear()} ABF
             </td>
           </tr></table>
           <div style="margin-top:12px;text-align:center;color:#b8a99f;font-size:10px;letter-spacing:.06em">FOLLOW US · Instagram · X · LinkedIn · Facebook</div>

@@ -1,155 +1,394 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Image as ImageIcon, Upload, X, FileText, Music, Loader2, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getBucketForResource } from "@/lib/storage/paths";
+import { cn } from "@/lib/utils";
+
+export type UploadResource =
+  | "media"
+  | "news"
+  | "programmes"
+  | "events"
+  | "testimonials"
+  | "content"
+  | "members"
+  | "beneficiaries"
+  | "social-links"
+  | "footer"
+  | "settings"
+  | "logo";
+
+export type UploadedFile = {
+  path: string;
+  url: string;
+  bucket: string;
+  filename: string;
+  size: number;
+  mimeType: string;
+};
 
 interface ImageUploadProps {
+  /** A public URL or storage path used for the current preview. */
   value: string;
   onChange: (value: string) => void;
+  /** Called with full upload metadata after a successful upload. */
+  onUploadComplete?: (file: UploadedFile) => void;
+  /** Legacy callback kept for callers that only need basic metadata. */
+  onFileMetadata?: (filename: string, size: number, mimeType: string) => void;
+  onUploadingChange?: (uploading: boolean) => void;
   label?: string;
-  bucket?: "public-images" | "public-media" | "private-documents";
+  /** Logical resource, used to pick the correct Supabase bucket. */
+  resource?: UploadResource;
+  /** Manual override; takes priority over `resource` when provided. */
+  bucket?: string;
+  /** Folder inside the bucket (defaults to the media type folder). */
   folder?: string;
-  maxSize?: number; // in bytes
+  maxSize?: number;
   accept?: string;
+  /** When true, hides the external-URL input. */
+  hideUrlInput?: boolean;
+  className?: string;
+}
+
+const IMAGE_EXT = /\.(jpg|jpeg|png|gif|webp|svg|avif|bmp)$/i;
+const VIDEO_EXT = /\.(mp4|webm|mov|avi|mkv)$/i;
+const AUDIO_EXT = /\.(mp3|wav|ogg|m4a|flac)$/i;
+
+function isHttpUrl(v: string) {
+  return /^https?:\/\//i.test(v);
+}
+
+function previewKindFromUrl(url: string): "image" | "video" | "audio" | "document" | "unknown" {
+  if (!url) return "unknown";
+  if (IMAGE_EXT.test(url)) return "image";
+  if (VIDEO_EXT.test(url)) return "video";
+  if (AUDIO_EXT.test(url)) return "audio";
+  return "document";
+}
+
+function detectTypeFromMime(mime: string): "image" | "video" | "audio" | "document" | "other" {
+  if (!mime) return "other";
+  if (mime.startsWith("image/")) return "image";
+  if (mime.startsWith("video/")) return "video";
+  if (mime.startsWith("audio/")) return "audio";
+  if (mime === "application/pdf" || mime.includes("msword") || mime.includes("officedocument") || mime.includes("ms-excel") || mime.includes("spreadsheet")) return "document";
+  return "other";
+}
+
+function formatBytes(bytes: number) {
+  if (!bytes) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
 }
 
 export function ImageUpload({
   value,
   onChange,
-  label = "Image",
-  bucket = "public-images",
-  folder = "uploads",
-  maxSize = 10 * 1024 * 1024, // 10MB default
-  accept = "image/*",
+  onUploadComplete,
+  onFileMetadata,
+  onUploadingChange,
+  label = "File",
+  resource = "media",
+  bucket,
+  folder,
+  maxSize = 50 * 1024 * 1024,
+  accept = "image/*,video/*,audio/*,application/pdf",
+  hideUrlInput = false,
+  className,
 }: ImageUploadProps) {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const resolvedBucket = bucket ?? getBucketForResource(resource);
+  const resolvedFolder = folder ?? (resource === "media" ? "uploads" : resource);
 
-    // Validate file size
+  // Keep the preview URL in sync with the controlled `value`.
+  useEffect(() => {
+    setPreviewUrl(value || null);
+  }, [value]);
+
+  // Best-effort preview when the supplied value is a bare storage path
+  // (no scheme) — build a Supabase public URL using the resolved bucket.
+  useEffect(() => {
+    if (!value || isHttpUrl(value)) return;
+    const guess = `${window.location.origin}/storage/v1/object/public/${resolvedBucket}/${value.replace(/^\/+/, "")}`;
+    setPreviewUrl(guess);
+  }, [value, resolvedBucket]);
+
+  useEffect(() => {
+    onUploadingChange?.(uploading);
+  }, [uploading, onUploadingChange]);
+
+  async function uploadFile(file: File) {
     if (file.size > maxSize) {
       toast({
         variant: "destructive",
         title: "File too large",
-        description: `Maximum file size is ${maxSize / 1024 / 1024}MB`,
+        description: `Maximum file size is ${formatBytes(maxSize)}.`,
       });
       return;
     }
 
     setUploading(true);
-
+    setProgress(0);
     try {
-      // TODO: Implement Supabase storage upload
-      // const { data, error } = await supabase.storage
-      //   .from(bucket)
-      //   .upload(`${folder}/${Date.now()}-${file.name}`, file);
+      // Animate progress while the request is in flight (Supabase storage
+      // doesn't expose a real progress event over the REST API).
+      let p = 10;
+      const tick = setInterval(() => {
+        p = Math.min(p + 10, 90);
+        setProgress(p);
+      }, 180);
 
-      // if (error) throw error;
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("type", detectTypeFromMime(file.type));
+      fd.append("bucket", resolvedBucket);
+      fd.append("resource", resource);
+      if (resolvedFolder) fd.append("folder", resolvedFolder);
 
-      // const { data: { publicUrl } } = supabase.storage
-      //   .from(bucket)
-      //   .getPublicUrl(data.path);
+      const res = await fetch("/api/admin/media/upload-url", {
+        method: "POST",
+        body: fd,
+      });
+      clearInterval(tick);
 
-      // onChange(publicUrl);
+      const json = await res.json();
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Upload failed");
+      }
 
-      // For now, simulate upload with local preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onChange(reader.result as string);
+      setProgress(100);
+      const data = json.data as { path: string; url: string; bucket: string };
+      const uploaded: UploadedFile = {
+        path: data.path,
+        url: data.url,
+        bucket: data.bucket,
+        filename: file.name,
+        size: file.size,
+        mimeType: file.type,
       };
-      reader.readAsDataURL(file);
+
+      onChange(data.url);
+      setPreviewUrl(data.url);
+      onUploadComplete?.(uploaded);
+      onFileMetadata?.(uploaded.filename, uploaded.size, uploaded.mimeType);
 
       toast({
-        title: "Upload successful",
-        description: "Image uploaded successfully",
+        title: "Upload complete",
+        description: `${file.name} uploaded successfully.`,
       });
-    } catch (error) {
-      console.error("Upload error:", error);
+    } catch (err) {
+      console.error("Upload error:", err);
       toast({
         variant: "destructive",
         title: "Upload failed",
-        description: error instanceof Error ? error.message : "Failed to upload image",
+        description: err instanceof Error ? err.message : "Failed to upload file",
       });
     } finally {
       setUploading(false);
+      setProgress(0);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
-  };
+  }
 
-  const handleRemove = () => {
+  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) uploadFile(file);
+  }
+
+  function onDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) uploadFile(file);
+  }
+
+  function clearValue() {
     onChange("");
-  };
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  const kind = previewKindFromUrl(previewUrl || "");
 
   return (
-    <div className="space-y-3">
-      <Label>{label}</Label>
+    <div className={cn("space-y-3", className)}>
+      <Label className="text-sm font-medium">{label}</Label>
 
-      {value ? (
-        <div className="relative group">
-          <div className="w-full h-48 rounded-lg overflow-hidden border border-border bg-card">
-            <img
-              src={value}
-              alt={label}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon"
-            onClick={handleRemove}
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+      {previewUrl ? (
+        <Preview previewUrl={previewUrl} kind={kind} onClear={clearValue} uploading={uploading} progress={progress} />
       ) : (
-        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-gold-300 transition-colors">
-          <ImageIcon className="w-12 h-12 mx-auto mb-4 text-primary" />
-          <p className="text-sm text-muted-foreground mb-4">
-            Upload an image or enter a URL below
-          </p>
-          <div className="flex gap-3 justify-center">
-            <label className="cursor-pointer">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={uploading}
-                className="border-border text-foreground hover:bg-muted"
-                asChild
-              >
-                <span>
-                  <Upload className="w-4 h-4" />
-                  {uploading ? "Uploading..." : "Upload File"}
-                </span>
-              </Button>
-              <input
-                type="file"
-                accept={accept}
-                onChange={handleFileUpload}
-                className="hidden"
-                disabled={uploading}
-              />
-            </label>
-          </div>
+        <Dropzone
+          accept={accept}
+          uploading={uploading}
+          progress={progress}
+          dragOver={dragOver}
+          setDragOver={setDragOver}
+          onDrop={onDrop}
+          onFileChange={onFileChange}
+          fileInputRef={fileInputRef}
+          maxSize={maxSize}
+          resource={resource}
+        />
+      )}
+
+      {!hideUrlInput && (
+        <div className="flex items-center gap-2">
+          <Link2 className="size-4 shrink-0 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Or paste a URL:</span>
+          <Input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="https://..."
+            className="h-9 flex-1"
+          />
+          {value && !uploading && (
+            <Button type="button" variant="ghost" size="icon" onClick={clearValue} aria-label="Clear">
+              <X className="size-4" />
+            </Button>
+          )}
         </div>
       )}
 
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">Or paste URL:</span>
-        <Input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="https://..."
-          className="border-border flex-1"
-        />
+      {uploading && (
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div className="h-full bg-gradient-to-r from-maroon-500 to-maroon-700 transition-all" style={{ width: `${progress}%` }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Dropzone({
+  accept,
+  uploading,
+  progress,
+  dragOver,
+  setDragOver,
+  onDrop,
+  onFileChange,
+  fileInputRef,
+  maxSize,
+  resource,
+}: {
+  accept: string;
+  uploading: boolean;
+  progress: number;
+  dragOver: boolean;
+  setDragOver: (v: boolean) => void;
+  onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
+  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  maxSize: number;
+  resource: string;
+}) {
+  return (
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={onDrop}
+      className={cn(
+        "relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/30 px-6 py-10 text-center transition-colors",
+        dragOver && "border-maroon-500 bg-maroon-50",
+        uploading && "pointer-events-none opacity-70"
+      )}
+    >
+      <div className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary">
+        {uploading ? <Loader2 className="size-6 animate-spin" /> : <Upload className="size-6" />}
       </div>
+      <div className="space-y-1">
+        <p className="text-sm font-medium text-foreground">
+          {uploading ? `Uploading… ${progress}%` : "Click to upload or drag and drop"}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {resource} • up to {formatBytes(maxSize)}
+        </p>
+      </div>
+      <label className="cursor-pointer">
+        <Button type="button" variant="outline" size="sm" disabled={uploading} className="border-border" asChild>
+          <span>
+            <Upload className="size-4" />
+            Choose file
+          </span>
+        </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={accept}
+          onChange={onFileChange}
+          className="hidden"
+          disabled={uploading}
+        />
+      </label>
+    </div>
+  );
+}
+
+function Preview({
+  previewUrl,
+  kind,
+  onClear,
+  uploading,
+  progress,
+}: {
+  previewUrl: string;
+  kind: ReturnType<typeof previewKindFromUrl>;
+  onClear: () => void;
+  uploading: boolean;
+  progress: number;
+}) {
+  return (
+    <div className="group relative overflow-hidden rounded-xl border border-border bg-card">
+      <div className="relative aspect-video w-full bg-muted">
+        {kind === "image" ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={previewUrl} alt="" className="h-full w-full object-contain" />
+        ) : kind === "video" ? (
+          <video src={previewUrl} controls className="h-full w-full object-contain" />
+        ) : kind === "audio" ? (
+          <div className="flex h-full flex-col items-center justify-center gap-3 p-6">
+            <Music className="size-10 text-primary" />
+            <audio src={previewUrl} controls className="w-full max-w-md" />
+          </div>
+        ) : (
+          <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
+            {kind === "unknown" ? <ImageIcon className="size-10 text-muted-foreground" /> : <FileText className="size-10 text-primary" />}
+            <p className="line-clamp-2 max-w-md text-xs text-muted-foreground break-all">{previewUrl}</p>
+            <a href={previewUrl} target="_blank" rel="noreferrer" className="text-xs font-medium text-maroon-600 hover:underline">
+              Open in new tab
+            </a>
+          </div>
+        )}
+        {uploading && (
+          <div className="absolute inset-0 grid place-items-center bg-black/40 text-sm font-medium text-white">
+            Uploading… {progress}%
+          </div>
+        )}
+      </div>
+      <Button
+        type="button"
+        variant="destructive"
+        size="icon"
+        onClick={onClear}
+        className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+        aria-label="Remove file"
+      >
+        <X className="size-4" />
+      </Button>
     </div>
   );
 }

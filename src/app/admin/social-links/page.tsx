@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ExternalLink, X, ArrowUp, ArrowDown, Globe, Share2 } from "lucide-react";
+import { ExternalLink, X, ArrowUp, ArrowDown, Globe, Share2, Mail } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +33,7 @@ interface SocialLink {
   id: string;
   platform: string;
   url: string;
-  active: boolean;
+  is_active: boolean;
   sort_order: number;
   created_at: string;
 }
@@ -41,10 +41,11 @@ interface SocialLink {
 const PLATFORMS = [
   { value: "facebook", label: "Facebook", icon: Globe },
   { value: "twitter", label: "Twitter / X", icon: X },
-  { value: "instagram", label: "Instagram", icon: Share2 },
+  { value: "instagram", label: "Instagram", icon: Globe },
   { value: "linkedin", label: "LinkedIn", icon: Globe },
   { value: "youtube", label: "YouTube", icon: Globe },
   { value: "tiktok", label: "TikTok", icon: Share2 },
+  { value: "email", label: "Email", icon: Mail },
   { value: "other", label: "Other", icon: ExternalLink },
 ];
 
@@ -61,7 +62,7 @@ export default function SocialLinksPage() {
   const [formData, setFormData] = useState({
     platform: "",
     url: "",
-    active: true,
+    is_active: true as boolean,
     sort_order: 0,
   });
 
@@ -126,7 +127,7 @@ export default function SocialLinksPage() {
 
       if (editingLink) {
         const response = await fetch(`/api/admin/social-links/${editingLink.id}`, {
-          method: "PUT",
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         });
@@ -224,7 +225,7 @@ export default function SocialLinksPage() {
       setFormData({
         platform: link.platform,
         url: link.url,
-        active: link.active,
+        is_active: link.is_active,
         sort_order: link.sort_order,
       });
     } else {
@@ -232,7 +233,7 @@ export default function SocialLinksPage() {
       setFormData({
         platform: "",
         url: "",
-        active: true,
+        is_active: true,
         sort_order: socialLinks.length,
       });
     }
@@ -246,7 +247,7 @@ export default function SocialLinksPage() {
     setFormData({
       platform: "",
       url: "",
-      active: true,
+      is_active: true,
       sort_order: 0,
     });
     setErrors({});
@@ -298,7 +299,7 @@ export default function SocialLinksPage() {
                       </div>
                     }
                     title={<span className="capitalize">{link.platform}</span>}
-                    badges={!link.active && <StatusBadge status="inactive" />}
+                    badges={!link.is_active && <StatusBadge status="inactive" />}
                     meta={<p className="truncate">{link.url}</p>}
                     actions={
                       <RowActions
@@ -380,8 +381,8 @@ export default function SocialLinksPage() {
         <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
           <Switch
             id="active"
-            checked={formData.active}
-            onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, active: checked }))}
+            checked={formData.is_active}
+            onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_active: checked }))}
           />
           <Label htmlFor="active" className="cursor-pointer">
             Active

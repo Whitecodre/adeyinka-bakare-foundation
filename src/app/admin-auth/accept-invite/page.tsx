@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ShieldCheck, AlertTriangle } from "lucide-react";
+import { metadata } from "./metadata";
 
 function AcceptInviteInner() {
   const searchParams = useSearchParams();
@@ -55,34 +56,38 @@ function AcceptInviteInner() {
 
   if (loading) return <div className="min-h-[60vh] grid place-items-center"><Loader2 className="animate-spin" /></div>;
   if (error) return (
-    <Card className="mx-auto max-w-md mt-10">
-      <CardHeader><CardTitle className="flex gap-2 items-center"><AlertTriangle className="text-destructive" /> Invite error</CardTitle><CardDescription>{error}</CardDescription></CardHeader>
-      <CardContent><Link href="/admin-auth/login" className="text-sm text-primary underline">Back to login</Link></CardContent>
-    </Card>
+    <div className="flex min-h-[calc(100vh-2rem)] flex-col justify-center py-8">
+      <Card className="mx-auto max-w-md">
+        <CardHeader><CardTitle className="flex gap-2 items-center"><AlertTriangle className="text-destructive" /> Invite error</CardTitle><CardDescription>{error}</CardDescription></CardHeader>
+        <CardContent><Link href="/admin-auth/login" className="text-sm text-primary underline">Back to login</Link></CardContent>
+      </Card>
+    </div>
   );
 
   return (
-    <Card className="mx-auto max-w-md mt-6">
-      <CardHeader>
-        <CardTitle className="flex gap-2 items-center"><ShieldCheck className="text-maroon-600" /> Accept invite</CardTitle>
-        <CardDescription>Welcome {invite?.full_name} ({invite?.email}) — set your password to activate your {invite?.role?.replace("_"," ")} account.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirm">Confirm password</Label>
-            <Input id="confirm" type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} />
-          </div>
-          <Button type="submit" disabled={submitting} variant="brand" className="w-full">
-            {submitting ? <><Loader2 className="mr-2 size-4 animate-spin" /> Creating account</> : "Create account"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="flex min-h-[calc(100vh-6rem)] flex-col justify-center py-8">
+      <Card className="mx-auto max-w-md">
+        <CardHeader>
+          <CardTitle className="flex gap-2 items-center"><ShieldCheck className="text-maroon-600" /> Accept invite</CardTitle>
+          <CardDescription>Welcome {invite?.full_name} ({invite?.email}) — set your password to activate your {invite?.role?.replace("_"," ")} account.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm">Confirm password</Label>
+              <Input id="confirm" type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} />
+            </div>
+            <Button type="submit" disabled={submitting} variant="brand" className="w-full">
+              {submitting ? <><Loader2 className="mr-2 size-4 animate-spin" /> Creating account</> : "Create account"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

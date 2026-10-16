@@ -3,34 +3,43 @@ import { requireAuth } from "@/lib/auth/require-auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 
+const RP_ID = process.env.WEBAUTHN_RP_ID ?? 'localhost';
+const ORIGIN = process.env.WEBAUTHN_ORIGIN ?? 'http://localhost:3000';
+
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
     const supabase = await createClient();
 
-    // Get user's passkeys - filter out old placeholder that breaks verification
-    const { data: passkeys } = await supabase
+    // Get user's passkeys
+    const { data: passkeys, error: fetchError } = await supabase
       .from("admin_passkeys")
       .select("credential_id")
       .eq("admin_id", user.id);
 
-    const validPasskeys = (passkeys || []).filter((pk: any) => pk.credential_id && pk.credential_id !== "placeholder-credential-id" && pk.credential_id.length > 10);
+    if (fetchError) {
+      console.error("Error fetching passkeys:", fetchError);
+    }
 
-    if (!validPasskeys || validPasskeys.length === 0) {
+    if (!passkeys || passkeys.length === 0) {
       return NextResponse.json(
         { success: false, error: "No passkeys registered" },
         { status: 400 }
       );
     }
 
-    const allowCredentials = validPasskeys.map((pk) => ({
+    const allowCredentials = passkeys.map((pk) => ({
       id: pk.credential_id,
       type: "public-key" as const,
     }));
 
-    const origin = request.headers.get("origin") || request.nextUrl.origin;
-    let rpID = "localhost";
-    try { rpID = new URL(origin).hostname; } catch {}
+    // Use environment variables or fallback to origin
+    const origin = request.headers.get("origin") || request.nextUrl.origin || ORIGIN;
+    let rpID = RP_ID;
+    try {
+      const url = new URL(origin);
+      rpID = url.hostname;
+    } catch {}
     if (rpID === "127.0.0.1") rpID = "localhost";
 
     // Generate authentication options

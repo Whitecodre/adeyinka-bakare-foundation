@@ -6,11 +6,11 @@ import type { Database, AdminMfaInsert, AdminMfaUpdate, AdminPasskeyInsert, MfaR
 
 const ENCRYPTION_KEY = process.env.TOTP_ENCRYPTION_KEY || "default-encryption-key-change-in-production";
 
-export async function setupTOTP(userId: string) {
+export async function setupTOTP(userId: string, email: string) {
   const supabase = await createClient();
 
   // Generate TOTP secret and QR code
-  const { secret, qrCodeUrl } = await generateTOTPSetup();
+  const { secret, qrCodeUrl } = await generateTOTPSetup(email);
 
   // Encrypt the secret
   const encryptedSecret = await encrypt(secret, ENCRYPTION_KEY);
@@ -171,6 +171,13 @@ export async function authenticatePasskey(credential: any) {
 export async function deletePasskey(passkeyId: string) {
   const supabase = await createClient();
 
+  // Get passkey details before deletion for notification
+  const { data: passkey } = await supabase
+    .from("admin_passkeys")
+    .select("device_name, admin_id")
+    .eq("id", passkeyId)
+    .single();
+
   const { error } = await supabase
     .from("admin_passkeys")
     .delete()
@@ -178,7 +185,7 @@ export async function deletePasskey(passkeyId: string) {
 
   if (error) throw error;
 
-  return { success: true };
+  return { success: true, deviceName: passkey?.device_name || "Passkey", adminId: passkey?.admin_id };
 }
 
 export async function generateRecoveryCodes(userId: string) {

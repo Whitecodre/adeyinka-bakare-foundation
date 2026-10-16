@@ -85,7 +85,7 @@ export default function EmailStudioPage() {
           </CardContent>
         </Card>
         <Card className="border-border overflow-hidden">
-          <CardHeader><CardTitle className="text-sm flex gap-2 items-center"><Eye className="size-4"/> Live preview (header + footer + Unsplash hero + background)</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm flex gap-2 items-center"><Eye className="size-4"/> Live preview</CardTitle></CardHeader>
           <CardContent className="p-0">
             <div className="bg-sand p-3">
               <iframe title="preview" srcDoc={previewHtml} className="w-full h-[520px] rounded-xl border bg-white" />

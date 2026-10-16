@@ -316,6 +316,7 @@ export function NewsForm({ mode = "create", initial }: { mode?: "create" | "edit
         image: formData.coverImage || null,
         status,
         featured: formData.featured,
+        tags: Array.isArray(formData.tags) ? formData.tags : [],
         published_at: status === "published" ? new Date().toISOString() : null,
       };
       const isEdit = mode === "edit" && (initial as any)?.id;

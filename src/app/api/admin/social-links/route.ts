@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { socialLinkSchema } from "@/lib/validations/social-links.schema";
-import { 
-  getAllSocialLinks, 
-  getSocialLinkById, 
-  createNewSocialLink, 
-  updateSocialLinkById, 
-  removeSocialLink 
+import {
+  getAllSocialLinks,
+  getSocialLinkById,
+  createNewSocialLink,
+  updateSocialLinkById,
+  removeSocialLink
 } from "@/lib/services/social-links.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all social links
 export async function GET(request: NextRequest) {
@@ -30,12 +31,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = socialLinkSchema.parse(body);
-    
+
     const link = await createNewSocialLink(validatedData, user.id);
-    
+
+    // Notify admins about new social link
+    await notifyAdmins({
+      title: "Social Link Added",
+      message: `A new social link for "${validatedData.platform}" has been added.`,
+      ctaUrl: "/admin/social-links",
+      ctaLabel: "View Links",
+    });
+
     return NextResponse.json(
       { success: true, data: link },
       { status: 201 }

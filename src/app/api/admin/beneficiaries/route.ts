@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { beneficiarySchema } from "@/lib/validations/beneficiaries.schema";
-import { 
-  getAllBeneficiaries, 
-  getBeneficiaryById, 
-  createNewBeneficiary, 
-  updateBeneficiaryById, 
-  removeBeneficiary 
+import {
+  getAllBeneficiaries,
+  getBeneficiaryById,
+  createNewBeneficiary,
+  updateBeneficiaryById,
+  removeBeneficiary
 } from "@/lib/services/beneficiaries.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all beneficiaries
 export async function GET(request: NextRequest) {
@@ -38,12 +39,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = beneficiarySchema.parse(body);
-    
+
     const beneficiary = await createNewBeneficiary(validatedData, user.id);
-    
+
+    // Notify admins about new beneficiary
+    await notifyAdmins({
+      title: "New Beneficiary Added",
+      message: `A new beneficiary "${validatedData.full_name}" has been added.`,
+      ctaUrl: "/admin/beneficiaries",
+      ctaLabel: "View Beneficiaries",
+    });
+
     return NextResponse.json(
       { success: true, data: beneficiary },
       { status: 201 }

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { LoadingState } from "@/components/admin/loading-state";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Key, Smartphone, Fingerprint, Globe, Trash2, Copy, Download, Plus, Check } from "lucide-react";
+import { Lock, Key, Smartphone, Fingerprint, Globe, Trash2, Copy, Download, Plus, Check, Mail } from "lucide-react";
 
 interface Session {
   id: string;
@@ -47,7 +47,9 @@ export default function SecurityPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [mfaEnabled, setMfaEnabled] = useState(false);
+  const [totpEnabled, setTotpEnabled] = useState(false);
   const [passkeysEnabled, setPasskeysEnabled] = useState(false);
+  const [emailOtpEnabled, setEmailOtpEnabled] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [passkeys, setPasskeys] = useState<Passkey[]>([]);
   const [recoveryCodes, setRecoveryCodes] = useState<RecoveryCode[]>([]);
@@ -60,6 +62,7 @@ export default function SecurityPage() {
   const [showRecoveryCodes, setShowRecoveryCodes] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const [passkeyToDelete, setPasskeyToDelete] = useState<string | null>(null);
+  const [isDeletingPasskey, setIsDeletingPasskey] = useState(false);
 
   // Form states
   const [passwordForm, setPasswordForm] = useState({
@@ -74,6 +77,10 @@ export default function SecurityPage() {
   const [otpauthUrl, setOtpauthUrl] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
+  const [emailOtpCode, setEmailOtpCode] = useState("");
+  const [isSendingEmailOtp, setIsSendingEmailOtp] = useState(false);
+  const [isVerifyingEmailOtp, setIsVerifyingEmailOtp] = useState(false);
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
 
   useEffect(() => {
     const loadSecurityData = async () => {
@@ -84,8 +91,10 @@ export default function SecurityPage() {
         const mfaResult = await mfaRes.json();
 
         if (mfaRes.ok && mfaResult.success) {
-          setMfaEnabled(!!mfaResult.data.totpEnabled || !!mfaResult.data.mfaEnabled);
+          setMfaEnabled(!!mfaResult.data.hasAnyMFA);
+          setTotpEnabled(!!mfaResult.data.totpEnabled);
           setPasskeysEnabled(!!mfaResult.data.passkeyEnabled);
+          setEmailOtpEnabled(!!mfaResult.data.emailOtpEnabled);
           // Try to load real passkeys, fall back to count placeholder if endpoint missing
           try {
             const pkRes = await fetch("/api/admin/security/passkeys");
@@ -120,9 +129,42 @@ export default function SecurityPage() {
           throw new Error(mfaResult.error || "Failed to load MFA status");
         }
 
-        // Fetch sessions - for now we'll leave this as stub since session management
-        // requires additional backend implementation
-        setSessions([]);
+        // Fetch sessions
+        try {
+          const sessionsRes = await fetch("/api/admin/security/sessions");
+          const sessionsResult = await sessionsRes.json();
+
+          if (sessionsRes.ok && sessionsResult.success && Array.isArray(sessionsResult.data)) {
+            setSessions(sessionsResult.data.map((s: any) => {
+              // Build device name from type, browser, and OS
+              const deviceType = s.device_type || s.deviceType || "Unknown";
+              const browser = s.browser || "Unknown Browser";
+              const os = s.os || "Unknown OS";
+              const deviceName = `${deviceType.charAt(0).toUpperCase() + deviceType.slice(1)} - ${browser} on ${os}`;
+
+              // Build location from country and city
+              const country = s.location_country || s.locationCountry;
+              const city = s.location_city || s.locationCity;
+              const location = country && city ? `${city}, ${country}` : country || city || "Unknown Location";
+
+              return {
+                id: s.id,
+                device: deviceName,
+                browser: browser,
+                ip_address: s.ip_address || s.ipAddress || "Unknown IP",
+                location: location,
+                current: s.is_current || s.isCurrent || false,
+                last_active: s.last_activity || s.lastActivity || s.created_at,
+                created_at: s.created_at,
+              };
+            }));
+          } else {
+            setSessions([]);
+          }
+        } catch (error) {
+          console.error("Error loading sessions:", error);
+          setSessions([]);
+        }
       } catch (error) {
         console.error("Error loading security data:", error);
         toast({
@@ -235,6 +277,7 @@ export default function SecurityPage() {
       });
       const j = await res.json();
       if (!j.success) throw new Error(j.error || "Invalid code");
+      setTotpEnabled(true);
       setMfaEnabled(true);
       setMfaDialogOpen(false);
       setTotpCode("");
@@ -262,7 +305,9 @@ export default function SecurityPage() {
       }
 
       setMfaEnabled(false);
+      setTotpEnabled(false);
       setPasskeysEnabled(false);
+      setEmailOtpEnabled(false);
       setPasskeys([]);
       setRecoveryCodes([]);
       toast({
@@ -274,6 +319,102 @@ export default function SecurityPage() {
         variant: "destructive",
         title: "Error",
         description: error.message || "Failed to disable MFA",
+      });
+    }
+  };
+
+  const handleSendEmailOtp = async () => {
+    setIsSendingEmailOtp(true);
+    try {
+      const response = await fetch("/api/admin/mfa/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ purpose: "ENABLE" }),
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      setEmailOtpSent(true);
+      toast({
+        title: "Email sent",
+        description: "Check your email for the verification code",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to send email",
+      });
+    } finally {
+      setIsSendingEmailOtp(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = async () => {
+    const code = emailOtpCode.trim();
+    if (!/^\d{6}$/.test(code)) {
+      toast({ variant: "destructive", title: "Enter the 6-digit code" });
+      return;
+    }
+    setIsVerifyingEmailOtp(true);
+    try {
+      const response = await fetch("/api/admin/mfa/email/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, purpose: "ENABLE" }),
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      setEmailOtpEnabled(true);
+      setMfaEnabled(true);
+      setEmailOtpCode("");
+      setEmailOtpSent(false);
+      toast({
+        title: "Email OTP enabled",
+        description: "Email verification has been enabled for your account",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to verify code",
+      });
+    } finally {
+      setIsVerifyingEmailOtp(false);
+    }
+  };
+
+  const handleDisableEmailOtp = async () => {
+    try {
+      const response = await fetch("/api/admin/mfa/email/disable", {
+        method: "POST",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      setEmailOtpEnabled(false);
+      setEmailOtpSent(false);
+      setEmailOtpCode("");
+      setMfaEnabled(totpEnabled || passkeysEnabled);
+      toast({
+        title: "Email OTP disabled",
+        description: "Email verification has been disabled",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to disable email OTP",
       });
     }
   };
@@ -340,8 +481,15 @@ export default function SecurityPage() {
 
   const handleDeleteSession = async (id: string) => {
     try {
-      // Session management requires backend implementation
-      // For now, we'll show a message
+      const response = await fetch(`/api/admin/security/sessions/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       toast({
         title: "Session revoked",
         description: "The session has been revoked successfully",
@@ -358,6 +506,7 @@ export default function SecurityPage() {
   };
 
   const handleDeletePasskey = async (id: string) => {
+    setIsDeletingPasskey(true);
     try {
       const response = await fetch(`/api/admin/security/passkeys/${id}`, {
         method: "DELETE",
@@ -380,6 +529,8 @@ export default function SecurityPage() {
         title: "Error",
         description: "Failed to remove passkey",
       });
+    } finally {
+      setIsDeletingPasskey(false);
     }
   };
 
@@ -465,15 +616,15 @@ export default function SecurityPage() {
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Smartphone className="w-5 h-5" />
-            Two-Factor Authentication
+            Authenticator App (TOTP)
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-foreground">Two-Factor Authentication</p>
-                {mfaEnabled && (
+                <p className="text-sm font-medium text-foreground">Authenticator App</p>
+                {totpEnabled && (
                   <Badge className="bg-success-soft text-success border-success/20">
                     <Check className="w-3 h-3 mr-1" />
                     Enabled
@@ -481,10 +632,10 @@ export default function SecurityPage() {
                 )}
               </div>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                Add an extra layer of security to your account
+                Use Google Authenticator, Authy, or 1Password for 2FA
               </p>
             </div>
-            {mfaEnabled ? (
+            {totpEnabled ? (
               <Button
                 variant="outline"
                 onClick={handleDisableMfa}
@@ -502,7 +653,7 @@ export default function SecurityPage() {
             )}
           </div>
 
-          {mfaEnabled && (
+          {totpEnabled && (
             <div className="pt-4 border-t border-border">
               <Button
                 variant="outline"
@@ -574,6 +725,79 @@ export default function SecurityPage() {
                   </Button>
                 </div>
               ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Email OTP */}
+      <Card className="border-border">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <Mail className="w-5 h-5" />
+            Email Verification
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-foreground">Email OTP</p>
+                {emailOtpEnabled && (
+                  <Badge className="bg-success-soft text-success border-success/20">
+                    <Check className="w-3 h-3 mr-1" />
+                    Enabled
+                  </Badge>
+                )}
+              </div>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                Receive verification codes via email
+              </p>
+            </div>
+            {emailOtpEnabled ? (
+              <Button
+                variant="outline"
+                onClick={handleDisableEmailOtp}
+                className="w-full sm:w-auto"
+              >
+                Disable
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={handleSendEmailOtp}
+                disabled={isSendingEmailOtp}
+                className="w-full sm:w-auto"
+              >
+                {isSendingEmailOtp ? "Sending..." : "Enable"}
+              </Button>
+            )}
+          </div>
+
+          {emailOtpSent && (
+            <div className="pt-4 border-t border-border space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="emailOtpCode">6-digit code</Label>
+                <Input
+                  id="emailOtpCode"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="123456"
+                  maxLength={6}
+                  value={emailOtpCode}
+                  onChange={(e) => setEmailOtpCode(e.target.value.replace(/\D/g, ""))}
+                  className="border-border text-center font-mono text-lg tracking-widest"
+                />
+              </div>
+              <Button
+                variant="brand"
+                onClick={handleVerifyEmailOtp}
+                disabled={isVerifyingEmailOtp || emailOtpCode.length !== 6}
+                className="w-full"
+              >
+                {isVerifyingEmailOtp ? "Verifying..." : "Verify & Enable"}
+              </Button>
             </div>
           )}
         </CardContent>
@@ -908,14 +1132,16 @@ export default function SecurityPage() {
             <Button
               variant="outline"
               onClick={() => setPasskeyToDelete(null)}
->
+              disabled={isDeletingPasskey}
+            >
               Cancel
             </Button>
             <Button
               onClick={() => passkeyToDelete && handleDeletePasskey(passkeyToDelete)}
               className="bg-red-600 hover:bg-red-700"
+              disabled={isDeletingPasskey}
             >
-              Remove
+              {isDeletingPasskey ? "Removing..." : "Remove"}
             </Button>
           </DialogFooter>
         </DialogContent>

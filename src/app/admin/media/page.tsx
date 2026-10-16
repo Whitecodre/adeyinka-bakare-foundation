@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { File, Video, FileText, Download, Image as ImageIcon } from "lucide-react";
+import { File, Video as VideoIcon, FileText, Download, Image as ImageIcon, Music } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -16,15 +16,24 @@ import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/admin/page-header";
 
+type MediaType = "image" | "video" | "audio" | "document" | "other";
+
+interface MediaUploader {
+  id: string;
+  full_name: string | null;
+}
+
 interface Media {
   id: string;
   filename: string;
   storage_path: string;
-  type: "image" | "video" | "document" | "other";
+  type: MediaType;
   mime_type?: string;
   size_bytes: number;
-  uploaded_by?: string;
+  uploaded_by?: string | null;
   created_at: string;
+  public_url?: string | null;
+  uploader?: MediaUploader | null;
 }
 
 export default function MediaPage() {
@@ -64,7 +73,8 @@ export default function MediaPage() {
 
   const filteredMedia = media.filter((item) =>
     item.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.storage_path.toLowerCase().includes(searchQuery.toLowerCase())
+    (item.storage_path || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.uploader?.full_name || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDelete = async (id: string) => {
@@ -97,29 +107,38 @@ export default function MediaPage() {
   const getTypeIcon = (type?: string) => {
     switch (type) {
       case "image":
-        return <ImageIcon className="w-3 h-3" />;
+        return ImageIcon;
       case "video":
-        return <Video className="w-3 h-3" />;
+        return VideoIcon;
+      case "audio":
+        return Music;
       case "document":
-        return <FileText className="w-3 h-3" />;
+        return FileText;
       default:
-        return <File className="w-3 h-3" />;
+        return File;
     }
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
+    if (!bytes || bytes <= 0) return "—";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+    return `${Math.round((bytes / Math.pow(k, i)) * 100) / 100} ${sizes[i]}`;
+  };
+
+  const uploaderName = (m: Media): string => {
+    const u = m.uploader;
+    if (!u) return "—";
+    if (u.full_name && u.full_name.trim()) return u.full_name;
+    return "Unknown";
   };
 
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
         title="Media"
-        subtitle="Manage media files"
+        subtitle="Manage media files in the ABF library"
         actions={[{ label: "Upload Media", onClick: () => router.push("/admin/media/new"), variant: "primary" }]}
       />
 
@@ -153,22 +172,54 @@ export default function MediaPage() {
               getKey={(r) => r.id}
               getName={(r) => r.filename}
               icon={File}
-              leading={(r) => (<div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary [&_svg]:size-5">{getTypeIcon(r.type)}</div>)}
+              leading={(r) => <MediaThumb media={r} />}
               columns={[
                 { header: "Filename", cell: (r) => <span className="font-medium text-foreground">{r.filename}</span> },
-                { header: "Type", cell: (r) => (<Badge variant="outline" className="gap-1 capitalize">{getTypeIcon(r.type)}{r.type}</Badge>) },
-                { header: "MIME Type", cell: (r) => r.mime_type || "-", className: "text-muted-foreground" },
+                {
+                  header: "Type",
+                  cell: (r) => {
+                    const Icon = getTypeIcon(r.type);
+                    return (
+                      <Badge variant="outline" className="gap-1 capitalize">
+                        <Icon className="w-3 h-3" />
+                        {r.type}
+                      </Badge>
+                    );
+                  },
+                },
+                { header: "MIME Type", cell: (r) => r.mime_type || "—", className: "text-muted-foreground" },
                 { header: "Size", cell: (r) => formatFileSize(r.size_bytes), className: "text-muted-foreground" },
-                { header: "Uploaded By", cell: (r) => r.uploaded_by || "-", className: "text-muted-foreground" },
+                { header: "Uploaded by", cell: (r) => uploaderName(r), className: "text-muted-foreground" },
               ]}
               title={(r) => r.filename}
-              badges={(r) => (<><Badge variant="outline" className="gap-1 capitalize">{getTypeIcon(r.type)}{r.type}</Badge></>)}
-              meta={(r) => (<>
-                  <p>{formatFileSize(r.size_bytes)} · {r.mime_type || "-"}</p>
-                </>)}
+              badges={(r) => {
+                const Icon = getTypeIcon(r.type);
+                return (
+                  <>
+                    <Badge variant="outline" className="gap-1 capitalize">
+                      <Icon className="w-3 h-3" />
+                      {r.type}
+                    </Badge>
+                  </>
+                );
+              }}
+              meta={(r) => (
+                <>
+                  <p>
+                    {formatFileSize(r.size_bytes)} · {r.mime_type || "—"} · uploaded by {uploaderName(r)}
+                  </p>
+                </>
+              )}
               onEdit={(r) => router.push(`/admin/media/${r.id}/edit`)}
               onDelete={(r) => setDeleteConfirm(r.id)}
-              extra={(r) => [{ label: "Download", icon: Download, onSelect: () => window.open(r.storage_path, "_blank") }]}
+              extra={(r) => [
+                {
+                  label: r.public_url ? "Open" : "Download",
+                  icon: Download,
+                  onSelect: () => r.public_url && window.open(r.public_url, "_blank"),
+                  disabled: !r.public_url,
+                },
+              ]}
             />
           )}
         </CardContent>
@@ -184,6 +235,45 @@ export default function MediaPage() {
         destructive
         cancelLabel="Cancel"
       />
+    </div>
+  );
+}
+
+function MediaThumb({ media }: { media: Media }) {
+  const Icon = (() => {
+    switch (media.type) {
+      case "image": return ImageIcon;
+      case "video": return VideoIcon;
+      case "audio": return Music;
+      case "document": return FileText;
+      default: return File;
+    }
+  })();
+  const src = media.public_url;
+
+  if (media.type === "image" && src) {
+    return (
+      <div className="size-11 shrink-0 overflow-hidden rounded-xl border border-border bg-muted">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={media.filename} className="h-full w-full object-cover" loading="lazy" />
+      </div>
+    );
+  }
+
+  if (media.type === "video" && src) {
+    return (
+      <div className="relative size-11 shrink-0 overflow-hidden rounded-xl border border-border bg-black">
+        <video src={src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+        <div className="absolute inset-0 grid place-items-center bg-black/30">
+          <VideoIcon className="size-4 text-white" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+      <Icon className="size-5" />
     </div>
   );
 }

@@ -3,8 +3,8 @@ import { z } from "zod";
 export const settingsSchema = z.object({
   site_name: z.string().min(1, "Site name is required"),
   tagline: z.string().optional().nullable(),
-  logo: z.string().url().optional().nullable(),
-  favicon: z.string().url().optional().nullable(),
+  logo: z.string().optional().nullable(),
+  favicon: z.string().optional().nullable(),
   email: z.string().email().optional().nullable(),
   phone: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
