@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Search, Bell, ChevronRight, Settings, LogOut } from "lucide-react";
 import { SearchModal } from "@/components/admin/search-modal";
-import { createClient } from "@/lib/supabase/client";
+import { useAccount } from "@/components/admin/account-provider";
 
 interface HeaderProps {
   isMobile?: boolean;
@@ -40,12 +40,6 @@ const ROLE_LABELS: Record<string, string> = {
   editor: "Editor",
 };
 
-interface Account {
-  name: string;
-  email: string;
-  role: string;
-}
-
 function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return "AD";
@@ -75,7 +69,7 @@ export function AdminHeader({ onToggleSidebar, onLogout }: HeaderProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
-  const [account, setAccount] = useState<Account | null>(null);
+  const { account } = useAccount();
   const displayName = account?.name ?? "Admin";
   const displayEmail = account?.email ?? "";
   const roleLabel = account ? (ROLE_LABELS[account.role] ?? account.role) : "";
@@ -83,30 +77,6 @@ export function AdminHeader({ onToggleSidebar, onLogout }: HeaderProps) {
 
   const crumbs = pathname.split("/").filter(Boolean).slice(1);
   const isOverview = crumbs.length === 0;
-
-  // Show the signed-in admin's real name, email and role.
-  useEffect(() => {
-    const supabase = createClient();
-    let cancelled = false;
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user || cancelled) return;
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, role")
-        .eq("id", user.id)
-        .single();
-      if (cancelled) return;
-      setAccount({
-        name: profile?.full_name ?? user.email ?? "Admin",
-        email: user.email ?? "",
-        role: profile?.role ?? "",
-      });
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {

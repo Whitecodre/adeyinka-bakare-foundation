@@ -6,6 +6,7 @@ import type { LucideIcon } from "lucide-react";
 import { ListRow } from "@/components/admin/list-row";
 import { RowActions, type ExtraAction } from "@/components/admin/row-actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useAccount } from "@/components/admin/account-provider";
 import { cn } from "@/lib/utils";
 
 export interface ResourceColumn<T> {
@@ -47,9 +48,12 @@ export function ResourceList<T>({
   badges,
   meta,
   onEdit,
-  onDelete,
+  onDelete: onDeleteProp,
   extra,
 }: ResourceListProps<T>) {
+  // Roles without delete rights (editors) never see the Delete action.
+  const { canHere } = useAccount();
+  const onDelete = canHere("delete") ? onDeleteProp : undefined;
   const actionsFor = (row: T) => (
     <RowActions
       name={getName(row)}

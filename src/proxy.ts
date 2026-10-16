@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { can, requirementForPath } from "@/lib/auth/permissions";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -29,6 +30,12 @@ export async function proxy(request: NextRequest) {
       const loginUrl = new URL("/admin-auth/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
+    }
+
+    // Page access by role. Sections the role cannot use send it back to the dashboard.
+    const needs = requirementForPath(pathname);
+    if (needs && !can(profile.role, needs.resource, needs.action)) {
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
 
     const { data: mfa } = await supabase
