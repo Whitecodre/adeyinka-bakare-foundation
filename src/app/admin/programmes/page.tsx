@@ -35,14 +35,17 @@ export default function ProgrammesPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase query
     const loadProgrammes = async () => {
       try {
         setLoading(true);
-        // const { data, error } = await supabase.from('programmes').select('*')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setProgrammes([]);
+        const response = await fetch("/api/admin/programmes");
+        const result = await response.json();
+
+        if (result.success) {
+          setProgrammes(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load programmes");
+        }
       } catch (error) {
         console.error("Error loading programmes:", error);
         toast({
@@ -66,10 +69,15 @@ export default function ProgrammesPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Replace with actual Supabase delete
-      // const { error } = await supabase.from('programmes').delete().eq('id', id)
-      // if (error) throw error
-      
+      const response = await fetch(`/api/admin/programmes/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       setProgrammes(programmes.filter((p) => p.id !== id));
       setDeleteConfirm(null);
       toast({

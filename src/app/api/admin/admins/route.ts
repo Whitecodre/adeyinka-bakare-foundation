@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { adminSchema, adminCreateSchema } from "@/lib/validations/admins.schema";
-import { 
-  getAllAdmins, 
-  getAdminById, 
-  createNewAdmin, 
-  updateAdminById, 
-  removeAdmin 
+import {
+  getAllAdmins,
+  getAdminById,
+  createNewAdmin,
+  updateAdminById,
+  removeAdmin
 } from "@/lib/services/admins.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all admins
 export async function GET(request: NextRequest) {
@@ -38,12 +39,21 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = adminCreateSchema.parse(body);
-    
+
     const admin = await createNewAdmin(validatedData, user.id);
-    
+
+    // Note: Email notifications for admin creation are handled by the invite system
+    // This is for creating admins directly, which should notify other admins
+    await notifyAdmins({
+      title: "New Admin Added",
+      message: `A new admin "${validatedData.full_name}" has been added.`,
+      ctaUrl: "/admin/admins",
+      ctaLabel: "View Admins",
+    });
+
     return NextResponse.json(
       { success: true, data: admin },
       { status: 201 }

@@ -8,6 +8,7 @@ import {
   updateMemberById, 
   removeMember 
 } from "@/lib/services/members.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all members
 export async function GET(request: NextRequest) {
@@ -38,12 +39,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = memberSchema.parse(body);
-    
+
     const member = await createNewMember(validatedData, user.id);
-    
+
+    // Notify admins about new member
+    await notifyAdmins({
+      title: "New Member Added",
+      message: `A new member "${validatedData.full_name}" has been added to the fellowship.`,
+      ctaUrl: "/admin/members",
+      ctaLabel: "View Members",
+    });
+
     return NextResponse.json(
       { success: true, data: member },
       { status: 201 }

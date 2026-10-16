@@ -35,14 +35,17 @@ export default function TestimonialsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase query
     const loadTestimonials = async () => {
       try {
         setLoading(true);
-        // const { data, error } = await supabase.from('testimonials').select('*')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setTestimonials([]);
+        const response = await fetch("/api/admin/testimonials");
+        const result = await response.json();
+
+        if (result.success) {
+          setTestimonials(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load testimonials");
+        }
       } catch (error) {
         console.error("Error loading testimonials:", error);
         toast({
@@ -64,10 +67,15 @@ export default function TestimonialsPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Replace with actual Supabase delete
-      // const { error } = await supabase.from('testimonials').delete().eq('id', id)
-      // if (error) throw error
-      
+      const response = await fetch(`/api/admin/testimonials/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       setTestimonials(testimonials.filter((t) => t.id !== id));
       setDeleteConfirm(null);
       toast({

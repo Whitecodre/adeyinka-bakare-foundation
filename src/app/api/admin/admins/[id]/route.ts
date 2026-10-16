@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { adminSchema } from "@/lib/validations/admins.schema";
-import { 
-  getAdminById, 
-  updateAdminById, 
-  removeAdmin 
+import {
+  getAdminById,
+  updateAdminById,
+  removeAdmin
 } from "@/lib/services/admins.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET admin by id
 export async function GET(
@@ -43,12 +44,20 @@ export async function PATCH(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
     const body = await request.json();
     const validatedData = adminSchema.partial().parse(body);
-    
+
     const admin = await updateAdminById(id, validatedData, user.id);
-    
+
+    // Notify admins about admin update
+    await notifyAdmins({
+      title: "Admin Updated",
+      message: `Admin "${admin.full_name}" has been updated.`,
+      ctaUrl: `/admin/admins/${id}`,
+      ctaLabel: "View Admin",
+    });
+
     return NextResponse.json({ success: true, data: admin });
   } catch (error) {
     console.error("Update admin error:", error);
@@ -67,9 +76,19 @@ export async function DELETE(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
+    // Get admin info before deletion for notification
+    const admin = await getAdminById(id);
     await removeAdmin(id, user.id);
-    
+
+    // Notify admins about admin deletion
+    await notifyAdmins({
+      title: "Admin Removed",
+      message: `Admin "${admin?.full_name || "Unknown"}" has been removed.`,
+      ctaUrl: "/admin/admins",
+      ctaLabel: "View Admins",
+    });
+
     return NextResponse.json({ success: true, message: "Admin deleted" });
   } catch (error) {
     console.error("Delete admin error:", error);

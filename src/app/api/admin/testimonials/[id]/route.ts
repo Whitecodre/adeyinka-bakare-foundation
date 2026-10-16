@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { testimonialSchema } from "@/lib/validations/testimonials.schema";
-import { 
-  getTestimonialById, 
-  updateTestimonialById, 
-  removeTestimonial 
+import {
+  getTestimonialById,
+  updateTestimonialById,
+  removeTestimonial
 } from "@/lib/services/testimonials.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET testimonial by id
 export async function GET(
@@ -43,12 +44,20 @@ export async function PATCH(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
     const body = await request.json();
     const validatedData = testimonialSchema.partial().parse(body);
-    
+
     const testimonial = await updateTestimonialById(id, validatedData, user.id);
-    
+
+    // Notify admins about testimonial update
+    await notifyAdmins({
+      title: "Testimonial Updated",
+      message: `A testimonial has been updated.`,
+      ctaUrl: `/admin/testimonials/${id}`,
+      ctaLabel: "View Testimonial",
+    });
+
     return NextResponse.json({ success: true, data: testimonial });
   } catch (error) {
     console.error("Update testimonial error:", error);
@@ -67,9 +76,17 @@ export async function DELETE(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
     await removeTestimonial(id, user.id);
-    
+
+    // Notify admins about testimonial deletion
+    await notifyAdmins({
+      title: "Testimonial Deleted",
+      message: `A testimonial has been deleted.`,
+      ctaUrl: "/admin/testimonials",
+      ctaLabel: "View Testimonials",
+    });
+
     return NextResponse.json({ success: true, message: "Testimonial deleted" });
   } catch (error) {
     console.error("Delete testimonial error:", error);

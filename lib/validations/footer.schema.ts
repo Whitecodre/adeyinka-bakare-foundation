@@ -11,7 +11,7 @@ export type FooterSectionInput = z.infer<typeof footerSectionSchema>;
 export const footerLinkSchema = z.object({
   section_id: z.string().uuid("Invalid section ID"),
   label: z.string().min(1, "Label is required"),
-  url: z.string().url("Invalid URL"),
+  url: z.string().min(1, "URL is required"),
   sort_order: z.number().int().optional(),
   is_active: z.boolean().optional(),
 });

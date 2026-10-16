@@ -15,15 +15,25 @@ import {
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const { searchParams } = new URL(request.url);
     const unreadOnly = searchParams.get("unread") === "true";
-    
-    const notifications = unreadOnly 
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const offset = parseInt(searchParams.get("offset") || "0");
+
+    const notifications = unreadOnly
       ? await getUnreadNotifications(user.id)
       : await getUserNotifications(user.id);
-    
-    return NextResponse.json({ success: true, data: notifications });
+
+    // Get total count for pagination
+    const totalCount = notifications.length;
+    const paginatedNotifications = notifications.slice(offset, offset + limit);
+
+    return NextResponse.json({
+      success: true,
+      data: paginatedNotifications,
+      total: totalCount,
+    });
   } catch (error) {
     console.error("Get notifications error:", error);
     return NextResponse.json(

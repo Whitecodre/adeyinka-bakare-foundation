@@ -129,6 +129,30 @@ export function AdminHeader({ onToggleSidebar, onLogout }: HeaderProps) {
     };
   }, []);
 
+  // Fetch notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch("/api/admin/notifications?limit=3&offset=0");
+        const result = await res.json();
+
+        if (result.success && Array.isArray(result.data)) {
+          setNotifications(result.data.map((n: any) => ({
+            id: n.id,
+            title: n.title,
+            body: n.message || n.body,
+            read: n.read || false,
+            created_at: n.created_at,
+          })));
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -147,10 +171,14 @@ export function AdminHeader({ onToggleSidebar, onLogout }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/85 px-4 backdrop-blur md:px-6 lg:px-8">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 md:gap-3">
-        <button className={iconButton} onClick={onToggleSidebar} aria-label="Toggle sidebar">
-          <Menu className="size-5" />
+    <header className="sticky top-0 z-30 flex h-16 w-full shrink-0 items-center border-b border-border bg-[#FFFBF5]/90 px-3 backdrop-blur supports-[backdrop-filter]:bg-[#FFFBF5]/80 md:px-4">
+      <div className="flex h-full w-full items-center gap-2 md:gap-3">
+        <button
+          className="grid size-9 shrink-0 place-items-center rounded-xl border border-border bg-card text-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 md:size-9"
+          onClick={onToggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          <Menu className="size-[18px]" />
         </button>
 
         <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
@@ -232,10 +260,25 @@ export function AdminHeader({ onToggleSidebar, onLogout }: HeaderProps) {
                   <div className="px-4 py-10 text-center text-sm text-muted-foreground">You&apos;re all caught up.</div>
                 ) : (
                   notifications.map((n) => (
-                    <div key={n.id} className="cursor-pointer border-b border-border px-4 py-3 transition-colors hover:bg-muted">
-                      <div className="text-sm font-semibold text-foreground">{n.title}</div>
-                      {n.body && <div className="mt-1 text-xs text-muted-foreground">{n.body}</div>}
-                      <div className="mt-1 text-xs text-muted-foreground/70">{timeAgo(n.created_at)}</div>
+                    <div
+                      key={n.id}
+                      className={`cursor-pointer border-b border-border px-4 py-3 transition-colors hover:bg-muted ${!n.read ? "bg-muted/30" : ""}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {!n.read && <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-foreground truncate">{n.title}</div>
+                          {n.body && (
+                            <div className="mt-1 text-xs text-muted-foreground" style={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}>{n.body}</div>
+                          )}
+                          <div className="mt-1 text-xs text-muted-foreground/70">{timeAgo(n.created_at)}</div>
+                        </div>
+                      </div>
                     </div>
                   ))
                 )}

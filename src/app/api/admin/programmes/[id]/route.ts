@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { programmeSchema } from "@/lib/validations/programmes.schema";
-import { 
-  getProgrammeById, 
-  updateProgrammeById, 
-  removeProgramme 
+import {
+  getProgrammeById,
+  updateProgrammeById,
+  removeProgramme
 } from "@/lib/services/programmes.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET programme by id
 export async function GET(
@@ -43,12 +44,20 @@ export async function PATCH(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
     const body = await request.json();
     const validatedData = programmeSchema.partial().parse(body);
-    
+
     const programme = await updateProgrammeById(id, validatedData, user.id);
-    
+
+    // Notify admins about programme update
+    await notifyAdmins({
+      title: "Programme Updated",
+      message: `Programme "${programme.title}" has been updated.`,
+      ctaUrl: `/admin/programmes/${id}`,
+      ctaLabel: "View Programme",
+    });
+
     return NextResponse.json({ success: true, data: programme });
   } catch (error) {
     console.error("Update programme error:", error);
@@ -67,9 +76,19 @@ export async function DELETE(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
+    // Get programme info before deletion for notification
+    const programme = await getProgrammeById(id);
     await removeProgramme(id, user.id);
-    
+
+    // Notify admins about programme deletion
+    await notifyAdmins({
+      title: "Programme Deleted",
+      message: `Programme "${programme?.title || "Unknown"}" has been deleted.`,
+      ctaUrl: "/admin/programmes",
+      ctaLabel: "View Programmes",
+    });
+
     return NextResponse.json({ success: true, message: "Programme deleted" });
   } catch (error) {
     console.error("Delete programme error:", error);

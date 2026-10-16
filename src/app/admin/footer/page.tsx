@@ -27,14 +27,14 @@ interface FooterLink {
   label: string;
   url: string;
   sort_order: number;
-  active: boolean;
+  is_active: boolean;
 }
 
 interface FooterSection {
   id: string;
   title: string;
   sort_order: number;
-  active: boolean;
+  is_active: boolean;
   links: FooterLink[];
 }
 
@@ -54,14 +54,14 @@ export default function FooterPage() {
   const [sectionFormData, setSectionFormData] = useState({
     title: "",
     sort_order: 0,
-    active: true,
+    is_active: true as boolean,
   });
 
   const [linkFormData, setLinkFormData] = useState({
     label: "",
     url: "",
     sort_order: 0,
-    active: true,
+    is_active: true as boolean,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -70,11 +70,25 @@ export default function FooterPage() {
     const loadFooterSections = async () => {
       try {
         setLoading(true);
-        // TODO: Replace with actual Supabase query
-        // const { data, error } = await supabase.from('footer_sections').select('*, footer_links(*)').order('sort_order')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setFooterSections([]);
+        const response = await fetch("/api/admin/footer/sections");
+        const result = await response.json();
+
+        if (result.success) {
+          // Fetch links for each section
+          const sectionsWithLinks = await Promise.all(
+            result.data.map(async (section: any) => {
+              const linksResponse = await fetch(`/api/admin/footer/links?section_id=${section.id}`);
+              const linksResult = await linksResponse.json();
+              return {
+                ...section,
+                links: linksResult.success ? linksResult.data : [],
+              };
+            })
+          );
+          setFooterSections(sectionsWithLinks);
+        } else {
+          throw new Error(result.error || "Failed to load footer sections");
+        }
       } catch (error) {
         console.error("Error loading footer sections:", error);
         toast({
@@ -135,16 +149,14 @@ export default function FooterPage() {
       setSaving(true);
 
       if (editingSection) {
-        // TODO: Replace with actual Supabase update
-        // const { error } = await supabase
-        //   .from('footer_sections')
-        //   .update({
-        //     title: sectionFormData.title,
-        //     sort_order: sectionFormData.sort_order,
-        //     active: sectionFormData.active,
-        //   })
-        //   .eq('id', editingSection.id);
-        // if (error) throw error;
+        const response = await fetch(`/api/admin/footer/sections/${editingSection.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(sectionFormData),
+        });
+        const result = await response.json();
+
+        if (!result.success) throw new Error(result.error);
 
         setFooterSections(footerSections.map(section =>
           section.id === editingSection.id
@@ -156,24 +168,17 @@ export default function FooterPage() {
           description: "Footer section updated successfully",
         });
       } else {
-        // TODO: Replace with actual Supabase insert
-        // const { data, error } = await supabase
-        //   .from('footer_sections')
-        //   .insert({
-        //     title: sectionFormData.title,
-        //     sort_order: sectionFormData.sort_order,
-        //     active: sectionFormData.active,
-        //   })
-        //   .select()
-        //   .single();
-        // if (error) throw error;
+        const response = await fetch("/api/admin/footer/sections", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(sectionFormData),
+        });
+        const result = await response.json();
 
-        const newSection: FooterSection = {
-          id: crypto.randomUUID(),
-          ...sectionFormData,
-          links: [],
-        };
-        setFooterSections([...footerSections, newSection]);
+        if (!result.success) throw new Error(result.error);
+
+        const newSection = result.data;
+        setFooterSections([...footerSections, { ...newSection, links: [] }]);
         toast({
           title: "Success",
           description: "Footer section added successfully",
@@ -205,6 +210,15 @@ export default function FooterPage() {
 
       if (editingLink.link.id) {
         // Update existing link
+        const response = await fetch(`/api/admin/footer/links/${editingLink.link.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(linkFormData),
+        });
+        const result = await response.json();
+
+        if (!result.success) throw new Error(result.error);
+
         setFooterSections(footerSections.map(section =>
           section.id === editingLink.sectionId
             ? {
@@ -223,10 +237,16 @@ export default function FooterPage() {
         });
       } else {
         // Add new link
-        const newLink: FooterLink = {
-          id: crypto.randomUUID(),
-          ...linkFormData,
-        };
+        const response = await fetch("/api/admin/footer/links", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...linkFormData, section_id: editingLink.sectionId }),
+        });
+        const result = await response.json();
+
+        if (!result.success) throw new Error(result.error);
+
+        const newLink = result.data;
         setFooterSections(footerSections.map(section =>
           section.id === editingLink.sectionId
             ? { ...section, links: [...section.links, newLink] }
@@ -256,9 +276,12 @@ export default function FooterPage() {
 
     try {
       if (deleteConfirm.type === "section") {
-        // TODO: Replace with actual Supabase delete
-        // const { error } = await supabase.from('footer_sections').delete().eq('id', deleteConfirm.id)
-        // if (error) throw error
+        const response = await fetch(`/api/admin/footer/sections/${deleteConfirm.id}`, {
+          method: "DELETE",
+        });
+        const result = await response.json();
+
+        if (!result.success) throw new Error(result.error);
 
         setFooterSections(footerSections.filter((section) => section.id !== deleteConfirm.id));
         toast({
@@ -266,7 +289,13 @@ export default function FooterPage() {
           description: "Footer section deleted successfully",
         });
       } else {
-        // Delete link
+        const response = await fetch(`/api/admin/footer/links/${deleteConfirm.id}`, {
+          method: "DELETE",
+        });
+        const result = await response.json();
+
+        if (!result.success) throw new Error(result.error);
+
         setFooterSections(footerSections.map(section => ({
           ...section,
           links: section.links.filter((link) => link.id !== deleteConfirm.id),
@@ -319,14 +348,14 @@ export default function FooterPage() {
       setSectionFormData({
         title: section.title,
         sort_order: section.sort_order,
-        active: section.active,
+        is_active: section.is_active,
       });
     } else {
       setEditingSection(null);
       setSectionFormData({
         title: "",
         sort_order: footerSections.length,
-        active: true,
+        is_active: true,
       });
     }
     setErrors({});
@@ -339,7 +368,7 @@ export default function FooterPage() {
     setSectionFormData({
       title: "",
       sort_order: 0,
-      active: true,
+      is_active: true,
     });
     setErrors({});
   };
@@ -351,7 +380,7 @@ export default function FooterPage() {
         label: link.label,
         url: link.url,
         sort_order: link.sort_order,
-        active: link.active,
+        is_active: link.is_active,
       });
     } else {
       const section = footerSections.find(s => s.id === sectionId);
@@ -362,14 +391,14 @@ export default function FooterPage() {
           label: "",
           url: "",
           sort_order: section?.links.length || 0,
-          active: true,
+          is_active: true,
         },
       });
       setLinkFormData({
         label: "",
         url: "",
         sort_order: section?.links.length || 0,
-        active: true,
+        is_active: true,
       });
     }
     setErrors({});
@@ -383,7 +412,7 @@ export default function FooterPage() {
       label: "",
       url: "",
       sort_order: 0,
-      active: true,
+      is_active: true,
     });
     setErrors({});
   };
@@ -455,7 +484,7 @@ export default function FooterPage() {
                       title={section.title}
                       badges={
                         <>
-                          {!section.active && <StatusBadge status="inactive" />}
+                          {!section.is_active && <StatusBadge status="inactive" />}
                           <Badge variant="muted">{section.links.length} links</Badge>
                         </>
                       }
@@ -485,7 +514,7 @@ export default function FooterPage() {
                                 <div className="min-w-0 flex-1">
                                   <div className="flex flex-wrap items-center gap-2">
                                     <span className="text-sm font-medium text-foreground">{link.label}</span>
-                                    {!link.active && <StatusBadge status="inactive" />}
+                                    {!link.is_active && <StatusBadge status="inactive" />}
                                   </div>
                                   <p className="truncate text-xs text-muted-foreground">{link.url}</p>
                                 </div>
@@ -545,8 +574,8 @@ export default function FooterPage() {
         <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
           <Switch
             id="active"
-            checked={sectionFormData.active}
-            onCheckedChange={(checked) => setSectionFormData((prev) => ({ ...prev, active: checked }))}
+            checked={sectionFormData.is_active}
+            onCheckedChange={(checked) => setSectionFormData((prev) => ({ ...prev, is_active: checked }))}
           />
           <Label htmlFor="active" className="cursor-pointer">
             Active
@@ -599,8 +628,8 @@ export default function FooterPage() {
         <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
           <Switch
             id="link_active"
-            checked={linkFormData.active}
-            onCheckedChange={(checked) => setLinkFormData((prev) => ({ ...prev, active: checked }))}
+            checked={linkFormData.is_active}
+            onCheckedChange={(checked) => setLinkFormData((prev) => ({ ...prev, is_active: checked }))}
           />
           <Label htmlFor="link_active" className="cursor-pointer">
             Active

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
+import { recordAdminSession } from "@/lib/auth/record-session";
 import { createClient } from "@/lib/supabase/server";
 import { createHash } from "crypto";
 
@@ -58,17 +59,40 @@ export async function POST(request: NextRequest) {
 
     // If purpose is ENABLE, enable email MFA
     if (purpose === "ENABLE") {
-      const { error: mfaError } = await supabase
+      // Read existing MFA state to preserve other methods
+      const { data: existingMfa } = await supabase
         .from("admin_mfa")
-        .update({
-          email_otp_enabled: true,
-          mfa_required: true,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("admin_id", user.id);
+        .select("totp_enabled, passkey_enabled")
+        .eq("admin_id", user.id)
+        .single();
 
-      if (mfaError) throw mfaError;
+      const { error: mfaError } = await supabase.rpc("upsert_admin_mfa", {
+        p_admin_id: user.id,
+        p_email_otp_enabled: true,
+        p_totp_enabled: existingMfa?.totp_enabled ? true : null,
+        p_passkey_enabled: existingMfa?.passkey_enabled ? true : null,
+        p_mfa_required: true,
+      });
+
+      if (mfaError) {
+        console.error("Failed to upsert admin_mfa:", mfaError);
+        // Fallback to regular update - but preserve existing TOTP and passkey states
+        const { error: fallbackError } = await supabase
+          .from("admin_mfa")
+          .update({
+            email_otp_enabled: true,
+            mfa_required: true,
+            totp_enabled: existingMfa?.totp_enabled ?? false,
+            passkey_enabled: existingMfa?.passkey_enabled ?? false,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("admin_id", user.id);
+        if (fallbackError) throw fallbackError;
+      }
     }
+
+    // Make sure the active session is recorded (covers the LOGIN flow).
+    await recordAdminSession({ request, adminId: user.id });
 
     return NextResponse.json({
       success: true,

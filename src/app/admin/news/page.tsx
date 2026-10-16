@@ -38,14 +38,17 @@ export default function NewsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Replace with actual Supabase query
     const loadNews = async () => {
       try {
         setLoading(true);
-        // const { data, error } = await supabase.from('news').select('*')
-        // if (error) throw error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setNews([]);
+        const response = await fetch("/api/admin/news");
+        const result = await response.json();
+
+        if (result.success) {
+          setNews(result.data);
+        } else {
+          throw new Error(result.error || "Failed to load news");
+        }
       } catch (error) {
         console.error("Error loading news:", error);
         toast({
@@ -69,10 +72,15 @@ export default function NewsPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Replace with actual Supabase delete
-      // const { error } = await supabase.from('news').delete().eq('id', id)
-      // if (error) throw error
-      
+      const response = await fetch(`/api/admin/news/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       setNews(news.filter((n) => n.id !== id));
       setDeleteConfirm(null);
       toast({

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { footerLinkSchema } from "@/lib/validations/footer.schema";
-import { 
-  getFooterLinkById, 
-  updateFooterLinkById, 
-  removeFooterLink 
+import {
+  getFooterLinkById,
+  updateFooterLinkById,
+  removeFooterLink
 } from "@/lib/services/footer.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET footer link by id
 export async function GET(
@@ -43,12 +44,20 @@ export async function PATCH(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
     const body = await request.json();
     const validatedData = footerLinkSchema.partial().parse(body);
-    
+
     const link = await updateFooterLinkById(id, validatedData, user.id);
-    
+
+    // Notify admins about footer link update
+    await notifyAdmins({
+      title: "Footer Link Updated",
+      message: `Footer link "${link.label}" has been updated.`,
+      ctaUrl: "/admin/footer",
+      ctaLabel: "View Footer",
+    });
+
     return NextResponse.json({ success: true, data: link });
   } catch (error) {
     console.error("Update footer link error:", error);
@@ -67,9 +76,19 @@ export async function DELETE(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
+    // Get link info before deletion for notification
+    const link = await getFooterLinkById(id);
     await removeFooterLink(id, user.id);
-    
+
+    // Notify admins about footer link deletion
+    await notifyAdmins({
+      title: "Footer Link Deleted",
+      message: `Footer link "${link?.label || "Unknown"}" has been deleted.`,
+      ctaUrl: "/admin/footer",
+      ctaLabel: "View Footer",
+    });
+
     return NextResponse.json({ success: true, message: "Footer link deleted" });
   } catch (error) {
     console.error("Delete footer link error:", error);

@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
 
-    const result = await setupTOTP(user.id);
+    const result = await setupTOTP(user.id, user.email || "admin");
 
     return NextResponse.json({
       success: true,

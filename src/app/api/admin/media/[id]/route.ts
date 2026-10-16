@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { mediaSchema } from "@/lib/validations/media.schema";
-import { 
-  getMediaById, 
-  updateMediaById, 
-  removeMedia 
-} from "@/lib/services/media.service";
+import { getMediaById, updateMediaById, removeMedia } from "@/lib/services/media.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
+import { publicUrlForMedia } from "@/lib/storage/public-url";
 
 // GET media by id
 export async function GET(
@@ -15,17 +13,17 @@ export async function GET(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
-    const mediaItem = await getMediaById(id);
-    
-    if (!mediaItem) {
+
+    const media = await getMediaById(id);
+
+    if (!media) {
       return NextResponse.json(
         { success: false, error: "Media not found" },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json({ success: true, data: mediaItem });
+
+    return NextResponse.json({ success: true, data: media });
   } catch (error) {
     console.error("Get media error:", error);
     return NextResponse.json(
@@ -43,13 +41,21 @@ export async function PATCH(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
     const body = await request.json();
     const validatedData = mediaSchema.partial().parse(body);
-    
-    const mediaItem = await updateMediaById(id, validatedData, user.id);
-    
-    return NextResponse.json({ success: true, data: mediaItem });
+
+    const media = await updateMediaById(id, validatedData, user.id);
+
+    // Notify admins about media update
+    await notifyAdmins({
+      title: "Media Updated",
+      message: `Media "${media.filename}" has been updated.`,
+      ctaUrl: "/admin/media",
+      ctaLabel: "View Media",
+    });
+
+    return NextResponse.json({ success: true, data: { ...media, public_url: publicUrlForMedia(media.storage_path) } });
   } catch (error) {
     console.error("Update media error:", error);
     return NextResponse.json(
@@ -67,9 +73,19 @@ export async function DELETE(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
+    // Get media info before deletion for notification
+    const media = await getMediaById(id);
     await removeMedia(id, user.id);
-    
+
+    // Notify admins about media deletion
+    await notifyAdmins({
+      title: "Media Deleted",
+      message: `Media "${media?.filename || "Unknown"}" has been deleted.`,
+      ctaUrl: "/admin/media",
+      ctaLabel: "View Media",
+    });
+
     return NextResponse.json({ success: true, message: "Media deleted" });
   } catch (error) {
     console.error("Delete media error:", error);

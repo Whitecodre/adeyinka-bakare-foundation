@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { regenerateRecoveryCodes } from "@/lib/services/security.service";
+import { sendRecoveryCodesGeneratedNotification } from "@/lib/services/security-notifications.service";
 
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
 
     const codes = await regenerateRecoveryCodes(user.id);
+
+    // Send email notification
+    await sendRecoveryCodesGeneratedNotification(user.id);
 
     return NextResponse.json({
       success: true,

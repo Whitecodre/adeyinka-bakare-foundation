@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { beneficiarySchema } from "@/lib/validations/beneficiaries.schema";
-import { 
-  getBeneficiaryById, 
-  updateBeneficiaryById, 
-  removeBeneficiary 
+import {
+  getBeneficiaryById,
+  updateBeneficiaryById,
+  removeBeneficiary
 } from "@/lib/services/beneficiaries.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET beneficiary by id
 export async function GET(
@@ -43,12 +44,20 @@ export async function PATCH(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
     const body = await request.json();
     const validatedData = beneficiarySchema.partial().parse(body);
-    
+
     const beneficiary = await updateBeneficiaryById(id, validatedData, user.id);
-    
+
+    // Notify admins about beneficiary update
+    await notifyAdmins({
+      title: "Beneficiary Updated",
+      message: `Beneficiary "${beneficiary.full_name}" has been updated.`,
+      ctaUrl: `/admin/beneficiaries/${id}`,
+      ctaLabel: "View Beneficiary",
+    });
+
     return NextResponse.json({ success: true, data: beneficiary });
   } catch (error) {
     console.error("Update beneficiary error:", error);
@@ -67,9 +76,19 @@ export async function DELETE(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
+    // Get beneficiary info before deletion for notification
+    const beneficiary = await getBeneficiaryById(id);
     await removeBeneficiary(id, user.id);
-    
+
+    // Notify admins about beneficiary deletion
+    await notifyAdmins({
+      title: "Beneficiary Deleted",
+      message: `Beneficiary "${beneficiary?.full_name || "Unknown"}" has been deleted.`,
+      ctaUrl: "/admin/beneficiaries",
+      ctaLabel: "View Beneficiaries",
+    });
+
     return NextResponse.json({ success: true, message: "Beneficiary deleted" });
   } catch (error) {
     console.error("Delete beneficiary error:", error);

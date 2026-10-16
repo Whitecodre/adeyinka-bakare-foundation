@@ -6,6 +6,7 @@ import {
   updateMemberById, 
   removeMember 
 } from "@/lib/services/members.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET member by id
 export async function GET(
@@ -43,12 +44,20 @@ export async function PATCH(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
     const body = await request.json();
     const validatedData = memberSchema.partial().parse(body);
-    
+
     const member = await updateMemberById(id, validatedData, user.id);
-    
+
+    // Notify admins about member update
+    await notifyAdmins({
+      title: "Member Updated",
+      message: `Member "${member.full_name}" has been updated.`,
+      ctaUrl: `/admin/members/${id}`,
+      ctaLabel: "View Member",
+    });
+
     return NextResponse.json({ success: true, data: member });
   } catch (error) {
     console.error("Update member error:", error);
@@ -67,9 +76,19 @@ export async function DELETE(
   try {
     const user = await requireAuth();
     const { id } = await params;
-    
+
+    // Get member info before deletion for notification
+    const member = await getMemberById(id);
     await removeMember(id, user.id);
-    
+
+    // Notify admins about member deletion
+    await notifyAdmins({
+      title: "Member Deleted",
+      message: `Member "${member?.full_name || "Unknown"}" has been deleted.`,
+      ctaUrl: "/admin/members",
+      ctaLabel: "View Members",
+    });
+
     return NextResponse.json({ success: true, message: "Member deleted" });
   } catch (error) {
     console.error("Delete member error:", error);

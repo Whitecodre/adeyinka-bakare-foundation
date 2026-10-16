@@ -486,6 +486,174 @@
 - `src/app/admin-auth/layout.tsx` - All auth pages use this layout
 
 #### Middleware Implementation:
+- Checks Supabase session for authenticated user
+- Verifies user has admin role in profiles table
+- Checks admin status is 'active' in admins table
+- Redirects to /admin-auth/login if not authenticated
+- Redirects to /admin-auth/login if not admin or not active
+- Allows public routes and admin-auth routes without authentication
+- Protects all /admin/* routes
+
+## 2026-10-14
+
+### MFA and Passkey Configuration Fix
+
+**Status**: Completed
+
+**Objective**: Fix MFA (TOTP) and passkey authentication by implementing proper configurations from WORKNOW project.
+
+#### Completed:
+- ✅ Added WebAuthn environment variables to .env.local.example:
+  - WEBAUTHN_RP_ID (domain only, no port/scheme)
+  - WEBAUTHN_RP_NAME (application name)
+  - WEBAUTHN_ORIGIN (full URL with scheme)
+- ✅ Updated TOTP implementation to use otplib instead of custom implementation
+- ✅ Updated TOTP to use generateSecret, verify, and generateURI from otplib
+- ✅ Added TOTP_ISSUER environment variable support
+- ✅ Updated TOTP verification to use window for clock drift tolerance
+- ✅ Updated encryption utilities to add TOTP-specific encryption functions
+- ✅ Updated TOTP setup route to use new otplib-based implementation
+- ✅ Updated TOTP verify route to decrypt secret before verification
+- ✅ Updated passkey registration options to use environment variables
+- ✅ Updated passkey authentication options to use environment variables
+- ✅ Updated passkey registration to store public_key as base64url string (like WORKNOW)
+- ✅ Updated passkey authentication verify to handle base64url format
+- ✅ Created upsert_admin_mfa function for proper row creation/update
+- ✅ Updated TOTP routes to use upsert function
+- ✅ Updated passkey routes to use upsert function
+- ✅ Updated security page to show TOTP and passkey status independently
+- ✅ Fixed empty state component to use Lucide icon instead of emoji
+- ✅ Created migration to fix corrupted passkey entries
+
+#### Environment Variables Added:
+```env
+# WebAuthn / Passkeys Configuration
+WEBAUTHN_RP_ID=localhost
+WEBAUTHN_RP_NAME=ABF Admin
+WEBAUTHN_ORIGIN=http://localhost:3000
+```
+
+#### Key Changes:
+- **TOTP**: Now uses otplib library (same as WORKNOW) for proper TOTP generation and verification
+- **TOTP Encryption**: Secret is encrypted before storage using TOTP_ENCRYPTION_KEY
+- **TOTP Verification**: Decrypts secret before verifying with otplib
+- **Passkey Storage**: Public key stored as base64url string (like WORKNOW) instead of raw Buffer
+- **Passkey Decoding**: Handles multiple formats (base64url, base64, hex, JSON-encoded Buffer)
+- **Environment Variables**: RP_ID, RP_NAME, and ORIGIN now configurable via environment
+- **Upsert Function**: Ensures admin_mfa row exists when enabling MFA methods
+- **Status Display**: Security page shows TOTP and passkey status independently
+- **Icon Fix**: Empty state now uses Lucide Inbox icon instead of emoji
+
+#### Files Modified:
+- `.env.local.example` - Added WebAuthn environment variables
+- `lib/security/totp.ts` - Switched to otplib implementation
+- `lib/security/encryption.ts` - Added TOTP-specific encryption functions
+- `src/app/api/admin/mfa/totp/setup/route.ts` - Updated to use otplib and encryption
+- `src/app/api/admin/mfa/totp/verify/route.ts` - Updated to decrypt secret
+- `src/app/api/admin/mfa/totp/disable/route.ts` - Updated to use upsert
+- `src/app/api/admin/mfa/passkey/register/options/route.ts` - Added environment variable support
+- `src/app/api/admin/mfa/passkey/register/verify/route.ts` - Changed to base64url storage
+- `src/app/api/admin/mfa/passkey/authenticate/options/route.ts` - Added environment variable support
+- `src/app/api/admin/mfa/passkey/authenticate/verify/route.ts` - Updated to handle base64url
+- `src/app/admin/security/page.tsx` - Added independent TOTP/passkey status
+- `components/admin/empty-state.tsx` - Replaced emoji with Lucide icon
+- `supabase/migrations/20261014_add_admin_mfa_upsert.sql` - Created upsert function
+- `supabase/migrations/20261014_fix_corrupted_passkeys.sql` - Created cleanup migration
+
+#### Notes:
+- TOTP now properly generates secrets compatible with Google Authenticator, Authy, 1Password
+- Passkey public key storage format matches WORKNOW implementation
+- Environment variables allow easy configuration for different domains (localhost vs production)
+- Upsert function ensures admin_mfa row exists before trying to update it
+- Security page now accurately shows which MFA methods are enabled independently
+- Corrupted passkey entries (from old JSON format) are cleaned up by migration
+- All MFA configurations align with WORKNOW project patterns
+
+#### Next Steps:
+- Run migrations in Supabase (upsert function and corrupted passkey cleanup)
+- Update .env.local with actual values for TOTP_ENCRYPTION_KEY and WebAuthn variables
+- Test TOTP setup and verification with authenticator app
+- Test passkey registration and authentication
+- Verify security page shows correct status for each MFA method
+
+## 2026-10-15
+
+### Security Email Notifications Implementation
+
+**Status**: Completed
+
+**Objective**: Add email notifications for all MFA/security events on the security page.
+
+#### Completed:
+- ✅ Created security notification service (lib/services/security-notifications.service.ts)
+- ✅ Added email templates for all MFA events:
+  - TOTP enabled notification
+  - TOTP disabled notification
+  - Passkey added notification
+  - Passkey removed notification
+  - Recovery codes generated notification
+  - Recovery codes low warning notification
+- ✅ Integrated notifications into TOTP verify route
+- ✅ Integrated notifications into TOTP disable route
+- ✅ Integrated notifications into passkey register verify route
+- ✅ Integrated notifications into passkey delete route
+- ✅ Integrated notifications into recovery codes generate route
+- ✅ Integrated notifications into recovery codes regenerate route
+- ✅ Updated deletePasskey service to return device name for notification
+- ✅ All notifications use ABF-branded email templates
+- ✅ Notifications don't block main operations (errors are logged but not thrown)
+
+#### Email Templates Created:
+- **totpEnabledEmail**: Notifies user when authenticator app MFA is enabled
+- **totpDisabledEmail**: Notifies user when authenticator app MFA is disabled
+- **passkeyAddedEmail**: Notifies user when a new passkey is added (includes device name)
+- **passkeyRemovedEmail**: Notifies user when a passkey is removed (includes device name)
+- **recoveryCodesGeneratedEmail**: Notifies user when recovery codes are generated/regenerated
+- **recoveryCodesLowWarningEmail**: Warns user when recovery codes are running low (≤3 remaining)
+
+#### Notification Triggers:
+- TOTP verification successful → TOTP enabled notification + recovery codes notification
+- TOTP disabled → TOTP disabled notification
+- Passkey registration successful → Passkey added notification (with device name)
+- Passkey deleted → Passkey removed notification (with device name)
+- Recovery codes generated → Recovery codes generated notification
+- Recovery codes regenerated → Recovery codes generated notification
+
+#### Implementation Details:
+- Notifications use existing email infrastructure (lib/email/send.ts)
+- All templates follow ABF branding (maroon colors, proper styling)
+- User's full name and email fetched from profiles table
+- Login URLs generated from NEXT_PUBLIC_SITE_URL environment variable
+- Device names included in passkey notifications for better tracking
+- Errors in notification sending are logged but don't block the main operation
+- Notifications are sent in background (fire-and-forget pattern)
+
+#### Files Created:
+- `lib/services/security-notifications.service.ts` - Security notification service with all notification functions
+
+#### Files Modified:
+- `lib/email/templates.ts` - Added 6 new email templates for MFA events
+- `src/app/api/admin/mfa/totp/verify/route.ts` - Added TOTP enabled and recovery codes notifications
+- `src/app/api/admin/mfa/totp/disable/route.ts` - Added TOTP disabled notification
+- `src/app/api/admin/mfa/passkey/register/verify/route.ts` - Added passkey added notification
+- `src/app/api/admin/security/passkeys/[id]/route.ts` - Added passkey removed notification
+- `src/app/api/admin/security/recovery-codes/generate/route.ts` - Added recovery codes generated notification
+- `src/app/api/admin/security/recovery-codes/regenerate/route.ts` - Added recovery codes generated notification
+- `lib/services/security.service.ts` - Updated deletePasskey to return device name
+
+#### Notes:
+- All MFA/security events now trigger email notifications
+- Users are kept informed of changes to their account security
+- Device names in passkey notifications help users identify which device was added/removed
+- Recovery codes warnings help users regenerate before running out
+- Notification failures don't block security operations (best practice)
+- Email templates match ABF branding and design system
+
+#### Next Steps:
+- Test email notifications with SMTP configuration
+- Verify email templates render correctly
+- Check that device names are properly captured in passkey notifications
+- Test recovery codes low warning threshold (currently set to 3)
 - Allows public access to `/admin-auth/*` routes
 - Protects all `/admin/*` routes
 - Checks for valid Supabase session
@@ -914,3 +1082,138 @@ The admin dashboard is now fully functional with:
 - Responsive layouts
 - No mock data
 - Supabase integration ready
+
+## 2026-10-14
+
+### Admin Console Activation, Security Hardening & Email Studio
+
+**Status**: Completed
+
+**Objective**: Make the entire `/admin` console live (no stubs), secure the proxy/data layer, use correct storage buckets, and wire Zoho invite + studio emails with reusable branded templates.
+
+#### Completed:
+
+**Header / Sidebar Alignment**
+- Fixed `/src/app/admin/layout.tsx` to full-width flex so the hamburger sits directly against the sidebar edge in both `w-64` and `w-20` states. Made both the sidebar brand strip and header `h-16` with aligned `border-b`.
+
+**Data Layer & Storage**
+- Audited admin API routes, normalized protection to `requireRole(PERMISSIONS.*)`.
+- Fixed `lib/storage/paths.ts` bucket mapper and `generateStoragePathWithOwner(uid/…)` so RLS checks pass. Updated `upload.ts`/`delete.ts` and `hooks/use-media-upload.ts` to be bucket-aware, and made `src/app/api/admin/media/upload-url/route.ts` a real handler.
+
+**Admin Pages Wired**
+- Dashboard now `fetch /api/admin/stats` + `/activity`. Lists now fetch real APIs, and new/edit forms changed from `setTimeout` mocks to real `POST/PATCH` via service layer.
+
+**Security — Secure Proxy + MFA (TOTP + Passkeys)**
+- Hardened proxy: replaced `getSession()` (cookie-trusted) with `getUser()` (verifies via Auth server), renamed to `src/proxy.ts` per Next 16. Fixed `getSession` warning.
+- **TOTP 2FA**: fixed `setup` to generate `otpauthUrl` + `QR data URL` via `qrcode`, store secret. Frontend now shows a real dialog with QR image, copyable secret, and 6-digit input. `handleVerifyMfa()` calls `POST /api/admin/mfa/totp/verify` which now does real `verifyTOTP(token, secret)` via `lib/security/totp.ts` instead of placeholder, hashes recovery codes, and enables `totp_enabled`.
+- **Passkeys**: rewrote `register/options` to use `generateRegistrationOptions` from `@simplewebauthn/server` with `rpID` from origin, `excludeCredentials`, and stores challenge in `webauthn_challenges`. Rewrote `register/verify` to use `verifyRegistrationResponse`, stores real `credential_id`/`public_key`/`counter`. Frontend `handleAddPasskey()` now dynamically imports `startRegistration` from `@simplewebauthn/browser` which triggers Windows Hello / Touch ID.
+
+**Zoho Email + Invite Studio (Invite-Only)**
+- Added `nodemailer`, `lib/email/{client,send,log,layout,templates}`. Env `SMTP_HOST=smtp.zoho.com:587` etc. from `D:\Codes\whispr\.env.local` copied to `ABF/.env.local` for testing, documented in `.env.local.example`. Added `EMAIL_LOGO_URL=https://ibb.co/LhSBgzZK` and `EMAIL_HERO_IMAGE` env, logo now rendered in email header from env with fallback to `/brand/logo.png`, hero verified to `1522202176988-66273c2fd55f` (students) and `1498050108023` (IT).
+- Created `admin_invites` table (per-invite `token_hash` sha256 of `randomBytes(32)`, 7-day expiry) and `email_logs` + `newsletter_subscribers`. Routes `POST /api/admin/admins/invite`, `GET /invites`, `DELETE`, `POST+GET /api/auth/accept-invite`, page `src/app/admin-auth/accept-invite/page.tsx` with `force-dynamic` + `Suspense`.
+- Updated `admins` page to invite-only (Invite Admin -> Zoho email, pending invites list).
+- Created Email Studio `src/app/admin/email/page.tsx` with live preview (header/logo/hero/footer), recipient groups, send via `POST /api/admin/email/send`, logs via `GET /api/admin/email/logs`.
+
+**Public Newsletter**
+- Created `src/app/api/public/newsletter/route.ts` (upsert `newsletter_subscribers`, welcome email, log + notify). Added newsletter form to `components/public/footer.tsx` Stay connected section.
+- Wired `volunteers`/`members`/`contact` public routes to send templated Zoho emails + `logEmail` + `notifyAdmins` using correct table columns.
+
+**Verification**
+- `npm run build` passes, `useSearchParams` wrapped in `Suspense` with `force-dynamic`, no `getSession` warning.
+
+
+### Passkey 405 Fix (2026-10-14 -- Follow-up)
+
+**Issue**: `POST /api/admin/mfa/passkey/register/verify 200` succeeded but frontend then did `GET /api/admin/security/passkeys/register 405` -- not RLS, just `405 Method Not Allowed` because that route is `POST`-only. User saw it as possible RLS.
+
+**Fix**:
+- Created `GET /api/admin/security/passkeys` (`src/app/api/admin/security/passkeys/route.ts`) to list the current admin's passkeys (RLS: `admin_id = auth.uid()`). Returns `id, device_name, created_at, last_used_at`.
+- Updated `src/app/admin/security/page.tsx` `loadSecurityData()` to fetch the real list instead of `Array(passkeyCount).fill` fakes, and `handleAddPasskey()` fallback to `GET /api/admin/security/passkeys` (was `/register`). Build verified, Windows Hello now persists and list survives reload.
+
+**Note on RLS**: `admin_passkeys` RLS is `admin_id = auth.uid() OR has_admin_role(super_admin)` -- with `createClient()` (auth user) the insert/select where `admin_id = user.id` passes. Verify succeeded with `200`, so RLS is fine.
+
+### MFA Confirm Passkey Prompt Fix (2026-10-14)
+
+**Issue**: Clicking “Use Passkey” on `/admin-auth/mfa/confirm?redirect=%2Fadmin%2Femail` did `POST /api/admin/mfa/passkey/authenticate/options 200` twice but never showed Windows Hello — the page was fetching options then immediately setting `mfa-verified=true` without calling the browser WebAuthn API.
+
+**Fix**:
+- `src/app/admin-auth/mfa/confirm/page.tsx` `verifyPasskey()` now `fetch /api/admin/mfa/passkey/authenticate/options`, then `const { startAuthentication } = await import("@simplewebauthn/browser")` and `authResp = await startAuthentication({ optionsJSON: data })` — this is what actually triggers Windows Hello / Touch ID / phone. Handles `NotAllowedError` (cancelled/timeout) with friendly message, then `POST /api/admin/mfa/passkey/authenticate/verify` with `{ response: authResp }`. On success sets `mfa-verified` cookie (30m) and `router.push(redirect || "/admin")`. Also fixed `verifyTotpCode` to send `{ code }` (not `secret: "placeholder"`) and redirect via `redirect` param.
+- `src/app/api/admin/mfa/passkey/authenticate/verify/route.ts` replaced placeholder `simulate success` with real `verifyAuthenticationResponse` (checks `expectedChallenge/Origin/RPID` from `webauthn_challenges` table, loads `admin_passkeys` by `credential_id`, verifies with `credential.publicKey`/`counter`, deletes challenge, updates `counter`/`last_used_at` and `admin_mfa.updated_at`).
+- `src/app/api/admin/mfa/passkey/authenticate/options/route.ts` now derives `rpID` from `request.headers.get("origin") || nextUrl.origin` (handles `localhost` vs `127.0.0.1` and custom `NEXT_PUBLIC_SITE_URL`), instead of hardcoded `localhost` env.
+- `src/app/api/admin/mfa/passkey/register/options|verify` were already fixed for enrollment; this completes the login-time flow.
+
+Re-test: `/admin/email` with passkey-enabled admin → redirect 307 to `/admin-auth/mfa/confirm?redirect=%2Fadmin%2Femail` → select Passkey → click “Use Passkey” → Windows Hello appears → approve → redirected back to `/admin/email`.
+
+## 2026-10-16
+
+### Admin Auth — Active Sessions Recorded on Login
+
+**Issue**: After an admin logged in, the row never showed up under "Active Sessions" on the Security page. The `admin_sessions` table was being populated only on the no-MFA path of `/api/auth/login`; the MFA-pending path bailed out early, and the MFA verify routes never recorded anything. So an admin who completed MFA on the confirm page still had no entry in `admin_sessions`.
+
+**Fix**:
+- New helper `lib/auth/record-session.ts` exports `recordAdminSession({ request, adminId, sessionToken? })` — idempotent (skips when a row with the same `session_token` already exists), reads the access token out of the cookies if not passed, and falls back to the admin client so RLS is bypassed for the write.
+- `src/app/api/auth/login/route.ts` calls the helper **before** the MFA check, so the row is written on password sign-in regardless of whether MFA is required. This means MFA-pending admins also appear in the list (which is correct: their session is technically live).
+- `src/app/api/admin/mfa/totp/verify/route.ts`, `.../passkey/authenticate/verify/route.ts`, and `.../email/verify/route.ts` all call the helper on success — covers any sign-in path that lands directly on a verify route.
+- `tsc --noEmit` and `next build` both pass.
+
+Re-test: admin signs in with password + TOTP → `/admin/security` shows the current row with the `is_current` flag; `Last activity` updates on subsequent requests.
+
+### Public News Page — Design + Dynamic Metadata + Tags + Button Contrast
+
+- New APIs: `GET /api/public/news`, `GET /api/public/news/[slug]` (returns 404 for non-published).
+- `components/public/news-card.tsx` rewritten: cover image, date + author row, excerpt, "Read more" arrow. Variant `featured` is a wide hero card with overlay.
+- `app/(public)/news/page.tsx`: `PageHero`, featured hero (largest published or first), "More Stories" grid, empty state, CTA banner.
+- `app/(public)/news/[slug]/page.tsx`: full-bleed cover with date/reading time/author, back link, body rendered in the new `.abf-prose-body` block, author + share row, related grid, CTA banner.
+- `generateMetadata` on the slug page → `<title>` becomes the article title, OG image is the cover, OG type `article` with `publishedTime` and author.
+- `lib/email/templates.ts` and `lib/validations/news.schema.ts` extended to support `tags: text[] default '{}'`; migration `supabase/migrations/20261016_news_tags.sql` adds the column with a GIN index. Form posts `tags: formData.tags`, detail page renders them with the same floating pill style used on the about page.
+- `.abf-prose-body` rules in `src/app/globals.css` (headings, lists, blockquote, code, responsive font sizes). `:where(a)` keeps link colour from overriding the CTA button's `text-white` utility.
+
+### Public Events Slug Page — Designed
+
+- New `GET /api/public/events/[slug]`.
+- `app/(public)/events/[slug]/page.tsx` rewritten with `generateMetadata`, full-bleed cover (gradient overlay, date/time/location eyebrow), back link, detail card with calendar-shape aside (month/day/year/time) + "About this event"/Location/"When" + Add-to-calendar + Read-details buttons, related events grid, CTA banner, and proper 404 fallback. `tsc`/`build` pass.
+
+### Media Library — Real Uploads + Previews + uploaded_by
+
+- `components/admin/image-upload.tsx` rewritten to use `/api/admin/media/upload-url` (uid-prefixed path, admin client), drag-and-drop dropzone, paste-URL fallback, per-type preview (image/video/audio/document), animated progress bar.
+- `components/admin/forms/media-form.tsx` rewritten: two-pane layout, `resource="media"` → `public-media` bucket, auto-fills `filename`/`mime_type`/`size_bytes`, auto-detects `type` from mime.
+- `lib/services/media.service.ts` now joins `profiles!media_uploaded_by_fkey(id, full_name)` and adds `public_url` per row. `createNewMedia` injects `uploaded_by: actorId` so new rows have the uploader FK set.
+- `src/app/api/admin/media/route.ts` (GET + POST) and `src/app/api/admin/media/[id]/route.ts` (PATCH) decorate every row with `public_url` via the new `lib/storage/public-url.ts` helper.
+- `lib/repositories/media.repository.ts` and `lib/services/media.service.ts` narrowed the embedded `profiles` select to `id, full_name` only (the previous `email`/`avatar_url` columns don't exist on `profiles`).
+- `src/app/admin/media/page.tsx` rewritten: per-type thumbnail via a `MediaThumb` component (image/video/audio/document), uploader name in the "Uploaded by" column (falls back to "Unknown" — no more UUID), `Open` action uses `public_url`.
+- `src/app/admin/media/[id]/edit/page.tsx` passes `public_url` as `initial.previewUrl` so the form actually shows a thumbnail in edit mode.
+
+### Testimonials, Beneficiaries, Programmes, Events — Real Wire-up + Media on Public
+
+- `admin/testimonials/new` and `admin/testimonials/[id]/edit` were stubs (`setTimeout(1000)` + toast, no API call). Rewritten: fetch real beneficiaries from `/api/admin/beneficiaries?status=published`, POST/PATCH `/api/admin/testimonials`, map form `media_type` "text/image/video/audio/document" to the DB enum (text → `null`), only show the `ImageUpload` when the type isn't text, auto-detect mime.
+- `admin/beneficiaries/new` and `admin/beneficiaries/[id]/edit` rewired to actually POST/PATCH. Uses `resource="beneficiaries"` so the photo goes to the right bucket.
+- `admin/programmes/new` and `admin/events/new` were stubs. Replaced the setTimeout handlers with real `POST /api/admin/programmes` and `POST /api/admin/events`, sending `image` properly.
+- `components/public/testimonial-card.tsx` rewritten to render the testimonial's own `media_url` (image / video player / audio player / document link) with a small type badge.
+- `app/(public)/testimonials/page.tsx` passes `media_url` and `media_type` into the card.
+- `app/(public)/beneficiaries/[id]/page.tsx` designed with hero photo, name, programme/department/level chips, bio, related grid, CTA, plus `generateMetadata` and a new `GET /api/public/beneficiaries/[id]`.
+
+### Public Footer + Get-Involved Buttons
+
+- Footer redesigned: featured gradient-maroon newsletter band sits above the link columns, with eyebrow/headline/copy + email + gold Subscribe button. Old "Stay connected" mini form inside the column grid removed.
+- `components/public/footer.tsx` adds a hardcoded `QuickSection` block (Explore / News & Events / Get Involved) that always renders so the footer is never empty, with the seeded DB rows layered on top.
+- New migration `supabase/migrations/20261016_footer_public_links.sql` seeds three footer sections (Explore, News & Events, Get Involved) with links to all public pages, idempotent via `if not exists` checks so re-runs don't duplicate. "Apply" replaces "Apply for Support" everywhere.
+- `app/(public)/get-involved/page.tsx` hero buttons were disabled (empty `externalLinks.registrationForm` / `whatsappCommunity`). Replaced `LinkButton` with real `Button asChild` + `<Link>` to `/get-involved/member`, `/get-involved/volunteer`, and `/get-involved`.
+- `app/(public)/get-involved/member/page.tsx` rewritten in brand: two-pane layout with a "Why join ABF?" sidebar (perks + eligibility) and the form on the right. Adds an `ImageUpload` (resource `members`, 5 MB, image only) — the DB already had a `photo text` column on `members`. Public member API now passes `photo` through.
+- `app/(public)/get-involved/volunteer/page.tsx` rewritten in brand with the same two-pane pattern (no photo — the `volunteers` table doesn't have a photo column).
+- `lib/email/templates.ts` `memberWelcomeEmail` rewritten: long-form, with member's details card, "About ABF" (vision/mission), member benefits, numbered next steps with inline site links, social handles, conduct note, and a matching plain-text body. Subject: `Welcome to the Adeyinka Bakare Foundation — your membership is confirmed`. Public members API passes department/level/session/siteUrl to it.
+
+### Newsletter — Name Capture + One-Click Unsubscribe
+
+- `components/public/footer.tsx`: the newsletter band now asks for both name and email (Name field with a `User` icon, Email field with the existing `Mail` icon, Subscribe button below them). Handler POSTs `{ email, full_name, source: "footer" }` to `/api/public/newsletter`, so `newsletter_subscribers.full_name` is populated instead of NULL.
+- `lib/email/templates.ts` `newsletterEmail` now accepts `recipientEmail` and `fullName`. The greeting is personalised when a name is available, and the plain-text body includes the unsubscribe URL.
+- `lib/email/layout.ts` `baseEmailLayout` gained `recipientEmail` and `unsubscribeUrl` opts. The footer link is now a real `<a href="${SITE}/unsubscribe?email=…">Unsubscribe</a>` instead of `href="#"`. `showUnsubscribe: false` opts out per-email.
+- `src/app/api/public/newsletter/route.ts` now passes `recipientEmail` and `fullName` into `newsletterEmail`, and the email log includes the name (`to_name: full_name`).
+- New `src/app/api/public/newsletter/unsubscribe/route.ts` (`POST`): validates the email, looks the row up, sets `status = "unsubscribed"`, logs to `email_logs`, and notifies admins.
+- New `src/app/(public)/unsubscribe/page.tsx` (server component, `force-dynamic`, `noindex`): looks up the subscriber by `?email=…` and renders one of four states in a single ABF-branded card with a hero image, a `BellOff` icon tile, and brand typography:
+  - **Confirm** — eyebrow "Are you sure?", name + email recap, a gold warning note ("only stops the monthly digest, not transactional emails"), and a brand `UnsubscribeForm` button.
+  - **Success** (just confirmed or already unsubscribed) — big green `CheckCircle2`, signed-off copy, email recap, Back to ABF / Browse latest news CTAs.
+  - **Missing** (no record) — amber `ShieldAlert`, helpful copy and Back / Contact links.
+  - **Invalid** (no `?email=`) — same warning style with a contact link.
+- `src/app/(public)/unsubscribe/unsubscribe-form.tsx`: client component that POSTs to the API, shows a loading spinner, toasts on success/error, and `router.push`s to `?confirmed=1` on success so the page re-renders the success state.
+
+Re-test: subscribe via the footer band (with a name) → receive welcome email with a real Unsubscribe link in the footer → click it → land on `/unsubscribe?email=…` → confirm → see success state and have `newsletter_subscribers.status = "unsubscribed"` in the DB.

@@ -40,6 +40,14 @@ async function getTestimonials() {
         full_name: (person?.full_name ?? "ABF Beneficiary") as string,
         role: [person?.programme, person?.level].filter(Boolean).join(" · ") || null,
         photo: (person?.photo ?? null) as string | null,
+        media_url: (row.media_url ?? null) as string | null,
+        media_type: (row.media_type ?? null) as
+          | "image"
+          | "video"
+          | "audio"
+          | "document"
+          | "other"
+          | null,
       };
     });
   } catch (error) {

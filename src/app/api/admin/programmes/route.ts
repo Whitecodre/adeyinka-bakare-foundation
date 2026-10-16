@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { programmeSchema } from "@/lib/validations/programmes.schema";
-import { 
-  getAllProgrammes, 
-  getProgrammeById, 
-  createNewProgramme, 
-  updateProgrammeById, 
-  removeProgramme 
+import {
+  getAllProgrammes,
+  getProgrammeById,
+  createNewProgramme,
+  updateProgrammeById,
+  removeProgramme
 } from "@/lib/services/programmes.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all programmes
 export async function GET(request: NextRequest) {
@@ -38,12 +39,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = programmeSchema.parse(body);
-    
+
     const programme = await createNewProgramme(validatedData, user.id);
-    
+
+    // Notify admins about new programme
+    await notifyAdmins({
+      title: "New Programme Created",
+      message: `A new programme "${validatedData.title}" has been created.`,
+      ctaUrl: "/admin/programmes",
+      ctaLabel: "View Programmes",
+    });
+
     return NextResponse.json(
       { success: true, data: programme },
       { status: 201 }

@@ -101,26 +101,27 @@ export default function NewEventPage() {
     try {
       setLoading(true);
 
-      // TODO: Replace with actual Supabase insert
-      // const { data, error } = await supabase
-      //   .from('events')
-      //   .insert({
-      //     title: formData.title,
-      //     slug: formData.slug,
-      //     description: formData.description,
-      //     location: formData.location,
-      //     start_at: formData.start_at,
-      //     end_at: formData.end_at,
-      //     image: formData.image,
-      //     status: formData.status,
-      //     featured: formData.featured,
-      //   })
-      //   .select()
-      //   .single();
+      const payload = {
+        title: formData.title.trim(),
+        slug: formData.slug.trim(),
+        description: formData.description.trim(),
+        location: formData.location.trim() || null,
+        start_at: formData.start_at,
+        end_at: formData.end_at || null,
+        image: formData.image.trim() || null,
+        status: formData.status,
+        featured: formData.featured,
+      };
 
-      // if (error) throw error;
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const res = await fetch("/api/admin/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to create event");
+      }
 
       toast({
         title: "Success",
@@ -128,12 +129,13 @@ export default function NewEventPage() {
       });
 
       router.push("/admin/events");
-    } catch (error) {
+      router.refresh();
+    } catch (error: any) {
       console.error("Error creating event:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create event",
+        description: error?.message || "Failed to create event",
       });
     } finally {
       setLoading(false);

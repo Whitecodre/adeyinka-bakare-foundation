@@ -77,55 +77,28 @@ export default function EditEventPage() {
     const loadEvent = async () => {
       try {
         setLoading(true);
-
-        // TODO: Replace with actual Supabase query
-        // const { data, error } = await supabase
-        //   .from('events')
-        //   .select('*')
-        //   .eq('id', params.id)
-        //   .single();
-        // if (error) throw error;
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Mock data - replace with actual data from Supabase
-        const mockEvent: Event = {
-          id: params.id as string,
-          title: "Annual Fellowship Dinner",
-          slug: "annual-fellowship-dinner",
-          description: "Join us for our annual fellowship dinner celebration.",
-          location: "Main Hall, Campus",
-          start_at: "2024-12-15T18:00",
-          end_at: "2024-12-15T22:00",
-          image: "https://example.com/image.jpg",
-          status: "published",
-          featured: true,
-        };
-
-        setEvent(mockEvent);
+        const res = await fetch(`/api/admin/events/${params.id}`);
+        const j = await res.json();
+        if (!j.success) throw new Error(j.error || "Failed to load event");
+        const data: Event = j.data;
+        setEvent(data);
         setFormData({
-          title: mockEvent.title,
-          slug: mockEvent.slug,
-          description: mockEvent.description,
-          location: mockEvent.location,
-          start_at: mockEvent.start_at,
-          end_at: mockEvent.end_at,
-          image: mockEvent.image || "",
-          status: mockEvent.status,
-          featured: mockEvent.featured,
+          title: data.title,
+          slug: data.slug,
+          description: data.description,
+          location: data.location || "",
+          start_at: data.start_at ? data.start_at.slice(0,16) : "",
+          end_at: data.end_at ? data.end_at.slice(0,16) : "",
+          image: data.image || "",
+          status: data.status,
+          featured: data.featured,
         });
-      } catch (error) {
-        console.error("Error loading event:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load event",
-        });
+      } catch (error: any) {
+        toast({ variant: "destructive", title: "Error", description: error.message || "Failed to load event" });
       } finally {
         setLoading(false);
       }
     };
-
     loadEvent();
   }, [params.id, toast]);
 
@@ -166,48 +139,21 @@ export default function EditEventPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     try {
       setSubmitting(true);
-
-      // TODO: Replace with actual Supabase update
-      // const { data, error } = await supabase
-      //   .from('events')
-      //   .update({
-      //     title: formData.title,
-      //     slug: formData.slug,
-      //     description: formData.description,
-      //     location: formData.location,
-      //     start_at: formData.start_at,
-      //     end_at: formData.end_at,
-      //     image: formData.image,
-      //     status: formData.status,
-      //     featured: formData.featured,
-      //   })
-      //   .eq('id', params.id)
-      //   .select()
-      //   .single();
-      // if (error) throw error;
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      toast({
-        title: "Success",
-        description: "Event updated successfully",
+      const res = await fetch(`/api/admin/events/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
-
+      const j = await res.json();
+      if (!j.success) throw new Error(j.error || "Failed to update event");
+      toast({ title: "Success", description: "Event updated successfully" });
       router.push("/admin/events");
-    } catch (error) {
-      console.error("Error updating event:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update event",
-      });
+      router.refresh();
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Error", description: error.message || "Failed to update event" });
     } finally {
       setSubmitting(false);
     }

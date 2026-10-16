@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { recordAdminSession } from "@/lib/auth/record-session";
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,6 +50,15 @@ export async function POST(request: NextRequest) {
           { status: 403 }
         );
       }
+
+      // Record this sign-in in the admin_sessions table so it shows
+      // up in the Security → Active Sessions list. Record before the
+      // MFA check so an admin who is mid-MFA also shows up here.
+      await recordAdminSession({
+        request,
+        adminId: data.user.id,
+        sessionToken: data.session?.access_token,
+      });
 
       // Check if MFA is required
       const { data: mfaSettings } = await supabase

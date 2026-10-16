@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { footerSectionSchema } from "@/lib/validations/footer.schema";
-import { 
-  getAllFooterSections, 
-  createNewFooterSection, 
-  updateFooterSectionById, 
-  removeFooterSection 
+import {
+  getAllFooterSections,
+  createNewFooterSection,
+  updateFooterSectionById,
+  removeFooterSection
 } from "@/lib/services/footer.service";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 // GET all footer sections
 export async function GET(request: NextRequest) {
@@ -29,12 +30,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
-    
+
     const body = await request.json();
     const validatedData = footerSectionSchema.parse(body);
-    
+
     const section = await createNewFooterSection(validatedData, user.id);
-    
+
+    // Notify admins about footer section creation
+    await notifyAdmins({
+      title: "Footer Section Added",
+      message: `Footer section "${validatedData.title}" has been added.`,
+      ctaUrl: "/admin/footer",
+      ctaLabel: "View Footer",
+    });
+
     return NextResponse.json(
       { success: true, data: section },
       { status: 201 }
