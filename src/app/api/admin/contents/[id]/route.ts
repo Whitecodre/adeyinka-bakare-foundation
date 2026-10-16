@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { contentSchema } from "@/lib/validations/content.schema";
 import { getContentById, updateContentById, removeContent } from "@/lib/services/content.service";
 import { notifyAdmins } from "@/lib/email/admin-notifications";
@@ -10,7 +11,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("contents", "read");
     const { id } = await params;
 
     const content = await getContentById(id);
@@ -24,6 +25,8 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: content });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get content error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch content" },
@@ -38,7 +41,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("contents", "update");
     const { id } = await params;
 
     const body = await request.json();
@@ -56,6 +59,8 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, data: content });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Update content error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to update content" },
@@ -70,7 +75,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("contents", "delete");
     const { id } = await params;
 
     // Get content info before deletion for notification
@@ -87,6 +92,8 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Content deleted" });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Delete content error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to delete content" },

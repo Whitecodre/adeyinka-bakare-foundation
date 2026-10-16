@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash, randomBytes } from "crypto";
-import { requireRole } from "@/lib/auth/require-role";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { adminInviteSchema } from "@/lib/validations/admins.schema";
 import { findPendingInviteByEmail, createInvite } from "@/lib/repositories/admin-invites.repository";
 import { sendEmail } from "@/lib/email/send";
@@ -13,7 +14,7 @@ function hashToken(raw: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { profile, user } = await requireRole(["super_admin"]);
+    const { profile, user } = await requirePermission("admins", "create");
 
     const body = await request.json();
     const parsed = adminInviteSchema.safeParse(body);
@@ -67,6 +68,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: { id: invite.id, email: invite.email, expires_at } });
   } catch (err: any) {
+    const denied = authErrorResponse(err);
+    if (denied) return denied;
     if (err?.message?.includes("Unauthorized") || err?.message?.includes("Forbidden")) {
       return NextResponse.json({ success: false, error: err.message }, { status: err.message === "Forbidden" ? 403 : 401 });
     }

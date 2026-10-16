@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { socialLinkSchema } from "@/lib/validations/social-links.schema";
 import {
   getAllSocialLinks,
@@ -13,12 +14,14 @@ import { notifyAdmins } from "@/lib/email/admin-notifications";
 // GET all social links
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("socialLinks", "read");
     
     const links = await getAllSocialLinks();
     
     return NextResponse.json({ success: true, data: links });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get social links error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch social links" },
@@ -30,7 +33,7 @@ export async function GET(request: NextRequest) {
 // POST create social link
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("socialLinks", "create");
 
     const body = await request.json();
     const validatedData = socialLinkSchema.parse(body);
@@ -50,6 +53,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Create social link error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to create social link" },

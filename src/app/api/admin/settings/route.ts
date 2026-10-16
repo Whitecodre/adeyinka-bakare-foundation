@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { settingsSchema } from "@/lib/validations/settings.schema";
 import {
   getSettings,
@@ -10,12 +11,14 @@ import { notifyAdmins } from "@/lib/email/admin-notifications";
 // GET site settings
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("settings", "read");
     
     const settings = await getSettings();
     
     return NextResponse.json({ success: true, data: settings });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get settings error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch settings" },
@@ -27,7 +30,7 @@ export async function GET(request: NextRequest) {
 // PUT update site settings
 export async function PUT(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("settings", "update");
 
     const body = await request.json();
     console.log("PUT settings received body:", body);
@@ -48,6 +51,8 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: settings });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Update settings error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to update settings" },

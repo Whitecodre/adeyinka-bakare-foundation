@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { notificationSchema } from "@/lib/validations/notifications.schema";
 import { 
   getNotificationById, 
@@ -14,7 +15,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("notifications", "read");
     const { id } = await params;
     
     const notification = await getNotificationById(id);
@@ -36,6 +37,8 @@ export async function GET(
     
     return NextResponse.json({ success: true, data: notification });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get notification error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to fetch notification" },
@@ -50,7 +53,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("notifications", "update");
     const { id } = await params;
 
     const body = await request.json();
@@ -75,6 +78,8 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, data: notification });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Update notification error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to update notification" },
@@ -89,7 +94,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("notifications", "delete");
     const { id } = await params;
     
     // First check if user owns this notification
@@ -105,6 +110,8 @@ export async function DELETE(
     
     return NextResponse.json({ success: true, message: "Notification deleted" });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Delete notification error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to delete notification" },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { footerSectionSchema } from "@/lib/validations/footer.schema";
 import {
   getAllFooterSections,
@@ -12,12 +13,14 @@ import { notifyAdmins } from "@/lib/email/admin-notifications";
 // GET all footer sections
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("footer", "read");
     
     const sections = await getAllFooterSections();
     
     return NextResponse.json({ success: true, data: sections });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get footer sections error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch footer sections" },
@@ -29,7 +32,7 @@ export async function GET(request: NextRequest) {
 // POST create footer section
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("footer", "create");
 
     const body = await request.json();
     const validatedData = footerSectionSchema.parse(body);
@@ -49,6 +52,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Create footer section error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to create footer section" },

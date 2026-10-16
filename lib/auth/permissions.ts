@@ -24,6 +24,7 @@ type Grant = Record<Role, readonly Action[]>;
 const CONTENT: Grant = { super_admin: ALL, admin: ALL, editor: NO_DELETE };
 const SUPER_ONLY: Grant = { super_admin: ALL, admin: NONE, editor: NONE };
 const ADMIN_UP: Grant = { super_admin: ALL, admin: ALL, editor: NONE };
+const EVERYONE_FULL: Grant = { super_admin: ALL, admin: ALL, editor: ALL };
 const EVERYONE_READ: Grant = { super_admin: ["read"], admin: ["read"], editor: ["read"] };
 
 export const PERMISSIONS = {
@@ -37,7 +38,7 @@ export const PERMISSIONS = {
   news: CONTENT,
   media: CONTENT,
   contents: CONTENT,
-  notifications: CONTENT,
+  notifications: EVERYONE_FULL,
   email: ADMIN_UP,
   footer: SUPER_ONLY,
   socialLinks: SUPER_ONLY,

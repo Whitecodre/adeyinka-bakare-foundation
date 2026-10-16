@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { mediaSchema } from "@/lib/validations/media.schema";
 import { getMediaById, updateMediaById, removeMedia } from "@/lib/services/media.service";
 import { notifyAdmins } from "@/lib/email/admin-notifications";
@@ -11,7 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("media", "read");
     const { id } = await params;
 
     const media = await getMediaById(id);
@@ -25,6 +26,8 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: media });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get media error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch media" },
@@ -39,7 +42,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("media", "update");
     const { id } = await params;
 
     const body = await request.json();
@@ -57,6 +60,8 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, data: { ...media, public_url: publicUrlForMedia(media.storage_path) } });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Update media error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to update media" },
@@ -71,7 +76,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("media", "delete");
     const { id } = await params;
 
     // Get media info before deletion for notification
@@ -88,6 +93,8 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Media deleted" });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Delete media error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to delete media" },
