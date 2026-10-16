@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Libre_Baskerville, Manrope } from "next/font/google";
+import { Libre_Baskerville, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { getSettings } from "@/lib/services/settings.service";
 
-const bodyFont = Manrope({
+const bodyFont = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-body",
 });
@@ -13,16 +14,24 @@ const displayFont = Libre_Baskerville({
   variable: "--font-display",
 });
 
-export const metadata: Metadata = {
-  title: "Adeyinka Bakare Fellowship | Empowering IT Students",
-  description: "Scholarships, mentorship, and career development for Information Technology students at the University of Ilorin.",
-  icons: {
-    icon: "/brand/favicon.ico",
-    shortcut: "/brand/favicon-16x16.png",
-    apple: "/brand/apple-touch-icon.png",
-  },
-  manifest: "/brand/site.webmanifest",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+
+  const siteName = settings.site_name || "Adeyinka Bakare Fellowship";
+  const tagline = settings.tagline || "Empowering IT Students";
+  const favicon = settings.favicon || "/brand/favicon.ico";
+
+  return {
+    title: `${siteName} | ${tagline}`,
+    description: "Scholarships, mentorship, and career development for Information Technology students at the University of Ilorin.",
+    icons: {
+      icon: favicon,
+      shortcut: "/brand/favicon-16x16.png",
+      apple: "/brand/apple-touch-icon.png",
+    },
+    manifest: "/brand/site.webmanifest",
+  };
+}
 
 export default function RootLayout({
   children,

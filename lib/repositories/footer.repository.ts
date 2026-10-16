@@ -18,6 +18,20 @@ export async function findAllFooterSections() {
   return data;
 }
 
+export async function findFooterSectionById(id: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("footer_sections")
+    .select("*, footer_links(*)")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+
+  return data;
+}
+
 export async function createFooterSection(data: FooterSectionInsert) {
   const supabase = await createClient();
 
@@ -90,4 +104,31 @@ export async function deleteFooterLink(id: string) {
   const { error } = await supabase.from("footer_links").delete().eq("id", id);
 
   if (error) throw error;
+}
+
+export async function findFooterLinkById(id: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("footer_links")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function findAllFooterLinks() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("footer_links")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+
+  return data;
 }

@@ -1,3 +1,97 @@
-export default function TestimonialsPage() {
-  return <div>Testimonials Page</div>;
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
+import { PageHero } from "@/components/public/page-hero";
+import { Reveal } from "@/components/public/reveal";
+import { Section, SectionHeading } from "@/components/public/section";
+import { CTABanner } from "@/components/public/cta-banner";
+import { TestimonialCard } from "@/components/public/testimonial-card";
+import { EmptyState } from "@/components/admin/empty-state";
+import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "Testimonials | Adeyinka Bakare Fellowship",
+  description: "Hear from our members and beneficiaries about their experiences with ABF.",
+};
+
+export const dynamic = "force-dynamic";
+
+async function getTestimonials() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/public/testimonials`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    if (!data.success) return [];
+
+    // The API returns the raw row with the linked beneficiary nested inside.
+    // The card wants a flat shape, so map it here.
+    return data.data.map((row: any) => {
+      const person = row.beneficiaries;
+      return {
+        id: row.id as string,
+        content: row.content as string,
+        full_name: (person?.full_name ?? "ABF Beneficiary") as string,
+        role: [person?.programme, person?.level].filter(Boolean).join(" · ") || null,
+        photo: (person?.photo ?? null) as string | null,
+        media_url: (row.media_url ?? null) as string | null,
+        media_type: (row.media_type ?? null) as
+          | "image"
+          | "video"
+          | "audio"
+          | "document"
+          | "other"
+          | null,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching testimonials:", error);
+    return [];
+  }
+}
+
+export default async function TestimonialsPage() {
+  const testimonials = await getTestimonials();
+
+  return (
+    <>
+      <PageHero
+        eyebrow="Testimonials"
+        title="What Our Members Say"
+        description="Hear directly from students whose lives have been impacted by our programmes and support."
+      />
+
+      <Section>
+        {testimonials.length === 0 ? (
+          <Reveal>
+            <EmptyState
+              title="No testimonials yet"
+              description="We'll be sharing member stories soon."
+            />
+          </Reveal>
+        ) : (
+          <div className="gap-8 md:columns-2 lg:columns-3">
+            {testimonials.map((testimonial: Awaited<ReturnType<typeof getTestimonials>>[number], index: number) => (
+              <Reveal key={testimonial.id} delay={index * 0.08} className="mb-8 break-inside-avoid">
+                <TestimonialCard testimonial={testimonial} />
+              </Reveal>
+            ))}
+          </div>
+        )}
+      </Section>
+
+      <CTABanner
+        title="Have a story to share?"
+        description="We'd love to hear about your experience with ABF."
+        primary={{ label: "Share Your Story", href: "/contact" }}
+        secondary={{ label: "Join ABF", href: "/get-involved" }}
+      />
+    </>
+  );
 }

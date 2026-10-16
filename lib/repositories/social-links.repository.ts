@@ -9,7 +9,6 @@ export async function findAllSocialLinks() {
   const { data, error } = await supabase
     .from("social_links")
     .select("*")
-    .eq("is_active", true)
     .order("sort_order", { ascending: true });
 
   if (error) throw error;
@@ -52,4 +51,18 @@ export async function deleteSocialLink(id: string) {
   const { error } = await supabase.from("social_links").delete().eq("id", id);
 
   if (error) throw error;
+}
+
+export async function findSocialLinkById(id: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("social_links")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+
+  return data;
 }

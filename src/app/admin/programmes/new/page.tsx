@@ -1,3 +1,270 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/admin/image-upload";
+import { PageHeader } from "@/components/admin/page-header";
+
 export default function NewProgrammePage() {
-  return <div>New Programme Page</div>;
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [formData, setFormData] = useState({
+    title: "",
+    slug: "",
+    description: "",
+    image: "",
+    status: "draft",
+    featured: false,
+  });
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  };
+
+  const handleTitleChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      title: value,
+      slug: generateSlug(value),
+    }));
+    if (errors.title) {
+      setErrors(prev => ({ ...prev, title: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = "Title is required";
+    }
+
+    if (!formData.slug.trim()) {
+      newErrors.slug = "Slug is required";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        title: formData.title.trim(),
+        slug: formData.slug.trim(),
+        description: formData.description.trim(),
+        image: formData.image.trim() || null,
+        status: formData.status,
+        featured: formData.featured,
+      };
+
+      const res = await fetch("/api/admin/programmes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to create programme");
+      }
+
+      toast({
+        title: "Success",
+        description: "Programme created successfully",
+      });
+
+      router.push("/admin/programmes");
+      router.refresh();
+    } catch (error: any) {
+      console.error("Error creating programme:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error?.message || "Failed to create programme",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-5">
+      <PageHeader title="Add New Programme" subtitle="Create a new fellowship programme" backHref="/admin/programmes" />
+
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-foreground">
+            Programme Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="title">
+                  Title <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  placeholder="Enter programme title"
+                  className={`border-border ${errors.title ? "border-destructive" : ""}`}
+                  disabled={loading}
+                />
+                {errors.title && (
+                  <p className="text-xs text-destructive" role="alert">{errors.title}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="slug">
+                  Slug <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => handleInputChange("slug", e.target.value)}
+                  placeholder="programme-slug"
+                  className={`border-border ${errors.slug ? "border-destructive" : ""}`}
+                  disabled={loading}
+                />
+                {errors.slug && (
+                  <p className="text-xs text-destructive" role="alert">{errors.slug}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="status">
+                  Status
+                </Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => handleInputChange("status", value)}
+                  disabled={loading}
+                >
+                  <SelectTrigger className="border-border">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <ImageUpload
+                  value={formData.image}
+                  onChange={(value) => handleInputChange("image", value)}
+                  label="Image URL"
+                  bucket="public-images"
+                  folder="programmes"
+                  maxSize={10 * 1024 * 1024}
+                  accept="image/*"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="description">
+                Description <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                placeholder="Enter programme description..."
+                rows={6}
+                className={`border-border resize-none ${errors.description ? "border-destructive" : ""}`}
+                disabled={loading}
+              />
+              {errors.description && (
+                <p className="text-xs text-destructive" role="alert">{errors.description}</p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
+              <Switch
+                id="featured"
+                checked={formData.featured}
+                onCheckedChange={(checked) => handleInputChange("featured", checked)}
+                disabled={loading}
+              />
+              <Label htmlFor="featured" className="text-foreground cursor-pointer">
+                Featured Programme
+              </Label>
+            </div>
+
+            <div className="mt-2 flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                disabled={loading}
+                className="h-11 w-full sm:h-10 sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button variant="brand"
+                type="submit"
+                disabled={loading}
+                className="h-11 w-full sm:h-10 sm:w-auto"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Programme"
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

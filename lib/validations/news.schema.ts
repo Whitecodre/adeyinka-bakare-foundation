@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const newsSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  slug: z.string().min(1, "Slug is required"),
   excerpt: z.string().optional().nullable(),
   content: z.string().min(1, "Content is required"),
   image: z.string().url().optional().nullable(),
@@ -10,6 +9,7 @@ export const newsSchema = z.object({
   status: z.enum(["draft", "published", "archived"]).optional(),
   published_at: z.string().optional().nullable(),
   featured: z.boolean().optional(),
+  tags: z.array(z.string().min(1)).optional().nullable(),
 });
 
 export type NewsInput = z.infer<typeof newsSchema>;

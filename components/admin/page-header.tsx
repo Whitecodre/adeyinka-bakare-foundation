@@ -1,38 +1,76 @@
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Plus, ArrowLeft, type LucideIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+interface PageHeaderAction {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  variant?: "primary" | "secondary";
+  /** Replaces the default "+" on primary actions. */
+  icon?: LucideIcon;
+  loading?: boolean;
+}
 
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
-  actions?: {
-    label: string;
-    href?: string;
-    onClick?: () => void;
-  }[];
+  backHref?: string;
+  actions?: PageHeaderAction[];
+  /** Small status text shown beside the actions, e.g. "Live data". */
+  aside?: React.ReactNode;
 }
 
-export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
+/** Top of every admin page: title, one-line subtitle, and the page's actions. */
+export function PageHeader({ title, subtitle, backHref, actions, aside }: PageHeaderProps) {
   return (
-    <div className="mb-8">
-      <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-      {subtitle && (
-        <p className="text-gray-600 mt-2">{subtitle}</p>
+    <div className="mb-6 md:mb-8">
+      {backHref && (
+        <Link
+          href={backHref}
+          className="mb-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        >
+          <ArrowLeft className="size-4" />
+          Back
+        </Link>
       )}
-      {actions && actions.length > 0 && (
-        <div className="mt-4 flex gap-2">
-          {actions.map((action, index) => (
-            action.href ? (
-              <Link key={index} href={action.href}>
-                <Button>{action.label}</Button>
-              </Link>
-            ) : (
-              <Button key={index} onClick={action.onClick}>
-                {action.label}
-              </Button>
-            )
-          ))}
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{title}</h1>
+          {subtitle && <p className="mt-1 text-sm text-muted-foreground md:text-base">{subtitle}</p>}
         </div>
-      )}
+
+        {aside && <div className="shrink-0">{aside}</div>}
+
+        {actions && actions.length > 0 && (
+          <div className="flex flex-col gap-2 sm:flex-row sm:shrink-0">
+            {actions.map((action) => {
+              const primary = action.variant !== "secondary";
+              const Icon = action.icon ?? (primary ? Plus : null);
+              const content = (
+                <>
+                  {Icon && <Icon />}
+                  {action.label}
+                </>
+              );
+              const className = "h-11 w-full px-5 sm:h-10 sm:w-auto";
+              const variant = primary ? "brand" : "outline";
+
+              return action.href ? (
+                <Button key={action.label} asChild variant={variant} className={className}>
+                  <Link href={action.href}>{content}</Link>
+                </Button>
+              ) : (
+                <Button key={action.label} variant={variant} className={className} onClick={action.onClick} loading={action.loading}>
+                  {content}
+                </Button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -14,7 +14,7 @@ export async function getProgrammeBySlug(slug: string) {
   return findProgrammeBySlug(slug);
 }
 
-export async function createNewProgramme(data: ProgrammeInsert, actorId: string) {
+export async function createNewProgramme(data: Omit<ProgrammeInsert, "slug">, actorId: string) {
   const slug = await generateUniqueSlug(data.title, async (slug) => {
     const existing = await findProgrammeBySlug(slug);
     return !!existing;

@@ -40,3 +40,27 @@ export async function decrypt(encrypted: string, secret: string): Promise<string
   );
   return decoder.decode(decrypted);
 }
+
+// TOTP-specific encryption using TOTP_ENCRYPTION_KEY from environment
+// AES-GCM requires key to be exactly 16, 24, or 32 bytes (128, 192, or 256 bits)
+const TOTP_ENCRYPTION_KEY = process.env.TOTP_ENCRYPTION_KEY ?? 'abf-totp-enc-key-32byt';
+
+// Ensure the key is exactly 32 bytes for AES-256-GCM
+function getEncryptionKey(): string {
+  let key = TOTP_ENCRYPTION_KEY;
+  // Pad or truncate to exactly 32 bytes
+  if (key.length < 32) {
+    key = key.padEnd(32, '0');
+  } else if (key.length > 32) {
+    key = key.slice(0, 32);
+  }
+  return key;
+}
+
+export async function encryptTOTPSecret(secret: string): Promise<string> {
+  return encrypt(secret, getEncryptionKey());
+}
+
+export async function decryptTOTPSecret(encrypted: string): Promise<string> {
+  return decrypt(encrypted, getEncryptionKey());
+}

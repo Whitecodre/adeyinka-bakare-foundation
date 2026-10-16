@@ -1,8 +1,12 @@
-import { createSocialLink, updateSocialLink, deleteSocialLink, findAllSocialLinks } from "../repositories/social-links.repository";
+import { createSocialLink, updateSocialLink, deleteSocialLink, findAllSocialLinks, findSocialLinkById } from "../repositories/social-links.repository";
 import type { SocialLinkInsert } from "../types/database.types";
 
 export async function getAllSocialLinks() {
   return findAllSocialLinks();
+}
+
+export async function getSocialLinkById(id: string) {
+  return findSocialLinkById(id);
 }
 
 export async function createNewSocialLink(data: SocialLinkInsert, actorId: string) {

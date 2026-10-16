@@ -1,3 +1,186 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, GraduationCap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/admin/image-upload";
+import { PageHeader } from "@/components/admin/page-header";
+
 export default function NewBeneficiaryPage() {
-  return <div>New Beneficiary Page</div>;
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [formData, setFormData] = useState({
+    full_name: "",
+    department: "",
+    level: "",
+    session: "",
+    programme: "",
+    photo: "",
+    bio: "",
+    status: "draft",
+    featured: false,
+  });
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.full_name.trim()) newErrors.full_name = "Full name is required";
+    if (!formData.department.trim()) newErrors.department = "Department is required";
+    if (!formData.level.trim()) newErrors.level = "Level is required";
+    if (!formData.session.trim()) newErrors.session = "Session is required";
+    if (!formData.programme.trim()) newErrors.programme = "Programme is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      const payload = {
+        full_name: formData.full_name.trim(),
+        department: formData.department.trim() || null,
+        level: formData.level.trim() || null,
+        session: formData.session.trim() || null,
+        programme: formData.programme.trim() || null,
+        photo: formData.photo.trim() || null,
+        bio: formData.bio.trim() || null,
+        status: formData.status,
+        featured: formData.featured,
+      };
+
+      const res = await fetch("/api/admin/beneficiaries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to create beneficiary");
+      }
+
+      toast({ title: "Success", description: "Beneficiary created successfully" });
+      router.push("/admin/beneficiaries");
+      router.refresh();
+    } catch (error: any) {
+      console.error("Error creating beneficiary:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error?.message || "Failed to create beneficiary",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  return (
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title="Add New Beneficiary"
+        subtitle="Create a new fellowship beneficiary"
+        backHref="/admin/beneficiaries"
+      />
+
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <GraduationCap className="size-4 text-primary" />
+            Beneficiary Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="full_name">Full Name <span className="text-destructive">*</span></Label>
+                <Input id="full_name" value={formData.full_name} onChange={(e) => handleInputChange("full_name", e.target.value)} placeholder="Enter full name" className={`border-border ${errors.full_name ? "border-destructive" : ""}`} disabled={loading} />
+                {errors.full_name && <p className="text-xs text-destructive">{errors.full_name}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="department">Department <span className="text-destructive">*</span></Label>
+                <Input id="department" value={formData.department} onChange={(e) => handleInputChange("department", e.target.value)} placeholder="e.g., Information Technology" className={`border-border ${errors.department ? "border-destructive" : ""}`} disabled={loading} />
+                {errors.department && <p className="text-xs text-destructive">{errors.department}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="level">Level <span className="text-destructive">*</span></Label>
+                <Input id="level" value={formData.level} onChange={(e) => handleInputChange("level", e.target.value)} placeholder="e.g., 400 Level" className={`border-border ${errors.level ? "border-destructive" : ""}`} disabled={loading} />
+                {errors.level && <p className="text-xs text-destructive">{errors.level}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="session">Session <span className="text-destructive">*</span></Label>
+                <Input id="session" value={formData.session} onChange={(e) => handleInputChange("session", e.target.value)} placeholder="e.g., 2024/2025" className={`border-border ${errors.session ? "border-destructive" : ""}`} disabled={loading} />
+                {errors.session && <p className="text-xs text-destructive">{errors.session}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="programme">Programme <span className="text-destructive">*</span></Label>
+                <Input id="programme" value={formData.programme} onChange={(e) => handleInputChange("programme", e.target.value)} placeholder="e.g., Scholarship Programme" className={`border-border ${errors.programme ? "border-destructive" : ""}`} disabled={loading} />
+                {errors.programme && <p className="text-xs text-destructive">{errors.programme}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)} disabled={loading}>
+                  <SelectTrigger className="border-border"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <ImageUpload
+              value={formData.photo}
+              onChange={(value) => handleInputChange("photo", value)}
+              label="Photo"
+              resource="beneficiaries"
+              maxSize={5 * 1024 * 1024}
+              accept="image/*"
+            />
+
+            <div className="space-y-1.5">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea id="bio" value={formData.bio} onChange={(e) => handleInputChange("bio", e.target.value)} placeholder="Enter beneficiary bio..." rows={4} className="border-border resize-none" disabled={loading} />
+            </div>
+
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
+              <Switch id="featured" checked={formData.featured} onCheckedChange={(checked) => handleInputChange("featured", checked)} disabled={loading} />
+              <Label htmlFor="featured" className="cursor-pointer text-foreground">Featured Beneficiary</Label>
+            </div>
+
+            <div className="mt-2 flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading} className="h-11 w-full sm:h-10 sm:w-auto">Cancel</Button>
+              <Button variant="brand" type="submit" disabled={loading} className="h-11 w-full sm:h-10 sm:w-auto">
+                {loading ? <><Loader2 className="size-4 animate-spin" /> Creating…</> : "Create Beneficiary"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

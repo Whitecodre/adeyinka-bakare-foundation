@@ -14,7 +14,7 @@ export async function getEventBySlug(slug: string) {
   return findEventBySlug(slug);
 }
 
-export async function createNewEvent(data: EventInsert, actorId: string) {
+export async function createNewEvent(data: Omit<EventInsert, "slug">, actorId: string) {
   const slug = await generateUniqueSlug(data.title, async (slug) => {
     const existing = await findEventBySlug(slug);
     return !!existing;
