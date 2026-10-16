@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 
 interface Content {
@@ -66,15 +65,10 @@ export function ContentSection() {
                 </div>
               )}
               <div className={`w-full ${content.image ? "lg:w-1/2" : ""}`}>
-                <div className="mb-4">
-                  <Badge variant="secondary" className="text-xs">
-                    {content.key}
-                  </Badge>
-                </div>
                 <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-6">
                   {content.title}
                 </h2>
-                <p className="text-lg leading-relaxed text-muted-foreground">
+                <p className="whitespace-pre-line text-lg leading-relaxed text-muted-foreground">
                   {content.content}
                 </p>
               </div>

@@ -17,7 +17,7 @@ export function BeneficiaryCard({ beneficiary }: BeneficiaryCardProps) {
   return (
     <Link
       href={`/beneficiaries/${beneficiary.id}`}
-      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-border hover:border-gold-300/30"
+      className="group block h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-border hover:border-gold-300/30"
     >
       {beneficiary.photo ? (
         <div className="aspect-square overflow-hidden">

@@ -27,9 +27,10 @@ export function ProgrammeCard({ programme, className }: ProgrammeCardProps) {
   const Icon = programmeIcons[programme.slug] ?? GraduationCap;
 
   return (
-    <ScrollFocus tilt className={cn(cardMotion, "flex flex-col overflow-hidden", className)}>
-      {programme.image && (
-        <div className="relative aspect-video w-full overflow-hidden">
+    <ScrollFocus tilt className={cn(cardMotion, "flex h-full flex-col overflow-hidden", className)}>
+      {/* Same header on every card, so a programme with a photo and one without line up. */}
+      <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-maroon-500/10 to-gold-300/15">
+        {programme.image ? (
           <Image
             src={programme.image}
             alt={programme.title}
@@ -38,12 +39,14 @@ export function ProgrammeCard({ programme, className }: ProgrammeCardProps) {
             sizes="(min-width: 768px) 50vw, 100vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105 group-data-[focused=true]:scale-105"
           />
-        </div>
-      )}
-      <div className="flex flex-1 flex-col p-6">
-        <IconTile className="mb-4 group-hover:-rotate-6 group-hover:scale-110 group-data-[focused=true]:-rotate-6 group-data-[focused=true]:scale-110">
+        ) : (
+          <Icon aria-hidden className="absolute left-1/2 top-1/2 size-16 -translate-x-1/2 -translate-y-1/2 text-primary/25" />
+        )}
+        <IconTile className="absolute left-5 top-5 shadow-md group-hover:-rotate-6 group-hover:scale-110 group-data-[focused=true]:-rotate-6 group-data-[focused=true]:scale-110">
           <Icon aria-hidden />
         </IconTile>
+      </div>
+      <div className="flex flex-1 flex-col p-6">
         <h3 className="mb-2 text-xl font-semibold text-foreground">{programme.title}</h3>
         <p className="text-muted-foreground">{programme.description}</p>
       </div>
