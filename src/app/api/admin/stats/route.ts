@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("dashboard", "read");
     const supabase = await createClient();
 
     // Get counts from all tables
@@ -38,6 +39,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: stats });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get stats error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch stats" },

@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/admin/sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { LogoutDialog } from "@/components/admin/logout-dialog";
 import { Toaster } from "@/components/ui/toaster";
+import { AccountProvider } from "@/components/admin/account-provider";
 
 export default function AdminLayoutClient({
   children,
@@ -66,6 +67,7 @@ export default function AdminLayoutClient({
   }
 
   return (
+    <AccountProvider>
     <div className="flex min-h-screen bg-background">
       <Sidebar
         isMobile={isMobile}
@@ -87,5 +89,6 @@ export default function AdminLayoutClient({
       <LogoutDialog open={logoutOpen} onOpenChange={setLogoutOpen} />
       <Toaster />
     </div>
+    </AccountProvider>
   );
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { eventSchema } from "@/lib/validations/events.schema";
 import {
   getEventById,
@@ -14,7 +15,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("events", "read");
     const { id } = await params;
     
     const event = await getEventById(id);
@@ -28,6 +29,8 @@ export async function GET(
     
     return NextResponse.json({ success: true, data: event });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get event error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch event" },
@@ -42,7 +45,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("events", "update");
     const { id } = await params;
 
     const body = await request.json();
@@ -60,6 +63,8 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, data: event });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Update event error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to update event" },
@@ -74,7 +79,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("events", "delete");
     const { id } = await params;
 
     // Get event info before deletion for notification
@@ -91,6 +96,8 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Event deleted" });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Delete event error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to delete event" },

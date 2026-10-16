@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("media", "create");
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
@@ -88,6 +89,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Upload error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to upload file" },

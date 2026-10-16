@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { notificationSchema } from "@/lib/validations/notifications.schema";
 import { 
   getUserNotifications, 
@@ -14,7 +15,7 @@ import {
 // GET all notifications for the current user
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("notifications", "read");
 
     const { searchParams } = new URL(request.url);
     const unreadOnly = searchParams.get("unread") === "true";
@@ -35,6 +36,8 @@ export async function GET(request: NextRequest) {
       total: totalCount,
     });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get notifications error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to fetch notifications" },
@@ -46,7 +49,7 @@ export async function GET(request: NextRequest) {
 // POST create notification (admin only - to send to other users)
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("notifications", "create");
 
     const body = await request.json();
     const validatedData = notificationSchema.parse(body);
@@ -58,6 +61,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Create notification error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to create notification" },
@@ -69,7 +74,7 @@ export async function POST(request: NextRequest) {
 // PATCH mark all notifications as read
 export async function PATCH(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("notifications", "update");
     
     const body = await request.json();
     const { action } = body;
@@ -84,6 +89,8 @@ export async function PATCH(request: NextRequest) {
       { status: 400 }
     );
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Update notifications error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to update notifications" },

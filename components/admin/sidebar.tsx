@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useAccount } from "@/components/admin/account-provider";
+import { requirementForPath } from "@/lib/auth/permissions";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -155,6 +157,14 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onLogout, c
   const width = collapsed && !isMobile ? "w-20" : "w-64";
   const showLabels = !collapsed || isMobile;
 
+  const { account, can: canDo } = useAccount();
+  // Hide sections this role cannot open. Wait for the profile so nothing flashes.
+  const visible = (href: string) => {
+    if (!account) return false;
+    const needs = requirementForPath(href);
+    return needs ? canDo(needs.resource, needs.action) : true;
+  };
+
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 
@@ -198,7 +208,7 @@ export function Sidebar({ isMobile = false, isOpen = false, onClose, onLogout, c
 
         <nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-3 pb-3 pt-3 scrollbar-hide">
           {navGroups.map((group) => {
-            const items = adminNavigation.filter((i) => i.group === group);
+            const items = adminNavigation.filter((i) => i.group === group && visible(i.href));
             if (!items.length) return null;
             return (
               <div key={group} className="flex flex-col gap-1">

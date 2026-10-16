@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireRole } from "@/lib/auth/require-role";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import { baseEmailLayout } from "@/lib/email/layout";
@@ -7,7 +8,7 @@ import { logEmail, notifyAdmins } from "@/lib/email/log";
 
 export async function POST(request: NextRequest) {
   try {
-    const { user } = await requireRole(["super_admin", "admin"]);
+    const { user } = await requirePermission("email", "create");
     const body = await request.json();
     const { to, subject, html, text, template = "custom", recipients = [] } = body;
     if (!subject || (!html && !text)) return NextResponse.json({ success:false, error:"Subject and body required" }, { status:400 });
@@ -62,6 +63,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success:true, data:{ sent, failed, total: targets.length } });
   } catch (err:any) {
+    const denied = authErrorResponse(err);
+    if (denied) return denied;
     const msg = err?.message ?? "Failed";
     return NextResponse.json({ success:false, error: msg }, { status: msg.includes("Forbidden")?403:500 });
   }

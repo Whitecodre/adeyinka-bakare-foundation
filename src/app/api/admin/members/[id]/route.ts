@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { memberSchema } from "@/lib/validations/members.schema";
 import { 
   getMemberById, 
@@ -14,7 +15,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("members", "read");
     const { id } = await params;
     
     const member = await getMemberById(id);
@@ -28,6 +29,8 @@ export async function GET(
     
     return NextResponse.json({ success: true, data: member });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get member error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch member" },
@@ -42,7 +45,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("members", "update");
     const { id } = await params;
 
     const body = await request.json();
@@ -60,6 +63,8 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, data: member });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Update member error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to update member" },
@@ -74,7 +79,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("members", "delete");
     const { id } = await params;
 
     // Get member info before deletion for notification
@@ -91,6 +96,8 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Member deleted" });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Delete member error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to delete member" },

@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { useAccount } from "@/components/admin/account-provider";
+import { requirementForPath } from "@/lib/auth/permissions";
 import { useRouter } from "next/navigation";
 import { CornerDownLeft, Loader2, Search, SearchX, X, type LucideIcon } from "lucide-react";
 
@@ -46,14 +48,21 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [active, setActive] = useState(0);
+  const { account, can: canDo } = useAccount();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const items = useMemo<PaletteItem[]>(() => {
     const q = query.trim().toLowerCase();
+    // Only offer pages this role can open.
+    const allowed = pageItems.filter((p) => {
+      if (!account) return false;
+      const needs = requirementForPath(p.url);
+      return needs ? canDo(needs.resource, needs.action) : true;
+    });
     const pages = q
-      ? pageItems.filter((p) => p.title.toLowerCase().includes(q) || p.subtitle?.toLowerCase().includes(q))
-      : pageItems;
+      ? allowed.filter((p) => p.title.toLowerCase().includes(q) || p.subtitle?.toLowerCase().includes(q))
+      : allowed;
     const found: PaletteItem[] = results.map((r) => ({
       id: r.id,
       group: "Results",
@@ -63,7 +72,7 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
       icon: Search,
     }));
     return [...found, ...pages];
-  }, [query, results]);
+  }, [query, results, account, canDo]);
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {

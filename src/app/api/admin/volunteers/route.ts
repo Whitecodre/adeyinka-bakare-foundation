@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { volunteerSchema } from "@/lib/validations/volunteers.schema";
 import {
   getAllVolunteers,
@@ -13,7 +14,7 @@ import { notifyAdmins } from "@/lib/email/admin-notifications";
 // GET all volunteers
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("volunteers", "read");
     
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -27,6 +28,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({ success: true, data: filtered });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get volunteers error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch volunteers" },
@@ -38,7 +41,7 @@ export async function GET(request: NextRequest) {
 // POST create volunteer
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("volunteers", "create");
 
     const body = await request.json();
     const validatedData = volunteerSchema.parse(body);
@@ -58,6 +61,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Create volunteer error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to create volunteer" },

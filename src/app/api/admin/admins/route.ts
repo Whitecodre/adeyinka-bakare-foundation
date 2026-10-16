@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { adminSchema, adminCreateSchema } from "@/lib/validations/admins.schema";
 import {
   getAllAdmins,
@@ -13,7 +14,7 @@ import { notifyAdmins } from "@/lib/email/admin-notifications";
 // GET all admins
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("admins", "read");
     
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -27,6 +28,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({ success: true, data: filtered });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get admins error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch admins" },
@@ -38,7 +41,7 @@ export async function GET(request: NextRequest) {
 // POST create admin
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("admins", "create");
 
     const body = await request.json();
     const validatedData = adminCreateSchema.parse(body);
@@ -59,6 +62,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Create admin error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to create admin" },

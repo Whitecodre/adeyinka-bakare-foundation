@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("dashboard", "read");
 
     const supabase = await createClient();
 
@@ -20,6 +21,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("List buckets error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to list buckets" },
@@ -30,7 +33,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("dashboard", "read");
 
     const body = await request.json();
     const { bucket, public: isPublic } = body;
@@ -58,6 +61,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Create bucket error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to create bucket" },

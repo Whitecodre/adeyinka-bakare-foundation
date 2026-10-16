@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { testimonialSchema } from "@/lib/validations/testimonials.schema";
 import {
   getAllTestimonials,
@@ -13,7 +14,7 @@ import { notifyAdmins } from "@/lib/email/admin-notifications";
 // GET all testimonials
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("testimonials", "read");
     
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -27,6 +28,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({ success: true, data: filtered });
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Get testimonials error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to fetch testimonials" },
@@ -38,7 +41,7 @@ export async function GET(request: NextRequest) {
 // POST create testimonial
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const { user } = await requirePermission("testimonials", "create");
 
     const body = await request.json();
     const validatedData = testimonialSchema.parse(body);
@@ -58,6 +61,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    const denied = authErrorResponse(error);
+    if (denied) return denied;
     console.error("Create testimonial error:", error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to create testimonial" },

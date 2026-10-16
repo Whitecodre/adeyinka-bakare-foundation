@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireRole } from "@/lib/auth/require-role";
-import { PERMISSIONS } from "@/lib/auth/permissions";
+import { requirePermission } from "@/lib/auth/require-permission";
+import { authErrorResponse } from "@/lib/auth/auth-error";
 import { uploadFile } from "@/lib/storage/upload";
 import { getBucketForResource } from "@/lib/storage/paths";
 
 export async function POST(request: NextRequest) {
   try {
-    const { user } = await requireRole(PERMISSIONS.MEDIA as unknown as string[]);
+    const { user } = await requirePermission("media", "create");
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const type = (formData.get("type") as string) || "image";
@@ -36,6 +36,8 @@ export async function POST(request: NextRequest) {
     const result = await uploadFile(file as unknown as File, type as any, bucket, user.id);
     return NextResponse.json({ success: true, data: result });
   } catch (err: any) {
+    const denied = authErrorResponse(err);
+    if (denied) return denied;
     const msg = err?.message ?? "Upload failed";
     const status = msg.includes("Unauthorized") || msg.includes("Forbidden") ? 401 : 500;
     return NextResponse.json({ success: false, error: msg }, { status });
