@@ -87,6 +87,16 @@ function formatBytes(bytes: number) {
   return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
 }
 
+/** A readable file name for a storage URL, so the long link is never shown. */
+function fileNameOf(url: string): string {
+  try {
+    const last = new URL(url, "http://local").pathname.split("/").filter(Boolean).pop() ?? "";
+    return decodeURIComponent(last) || "Uploaded file";
+  } catch {
+    return "Uploaded file";
+  }
+}
+
 export function ImageUpload({
   value,
   onChange,
@@ -243,7 +253,8 @@ export function ImageUpload({
         />
       )}
 
-      {!hideUrlInput && (
+      {/* The raw link is only offered while nothing is set; once a file is chosen it stays hidden. */}
+      {!hideUrlInput && !value && (
         <div className="flex items-center gap-2">
           <Link2 className="size-4 shrink-0 text-muted-foreground" />
           <span className="text-xs text-muted-foreground whitespace-nowrap">Or paste a URL:</span>
@@ -253,11 +264,6 @@ export function ImageUpload({
             placeholder="https://..."
             className="h-9 flex-1"
           />
-          {value && !uploading && (
-            <Button type="button" variant="ghost" size="icon" onClick={clearValue} aria-label="Clear">
-              <X className="size-4" />
-            </Button>
-          )}
         </div>
       )}
 
@@ -367,7 +373,7 @@ function Preview({
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
             {kind === "unknown" ? <ImageIcon className="size-10 text-muted-foreground" /> : <FileText className="size-10 text-primary" />}
-            <p className="line-clamp-2 max-w-md text-xs text-muted-foreground break-all">{previewUrl}</p>
+            <p className="line-clamp-2 max-w-md text-xs text-muted-foreground break-all">{fileNameOf(previewUrl)}</p>
             <a href={previewUrl} target="_blank" rel="noreferrer" className="text-xs font-medium text-maroon-600 hover:underline">
               Open in new tab
             </a>
