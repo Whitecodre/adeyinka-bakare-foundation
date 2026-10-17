@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MapPin, MessageSquare, User } from "lucide-react";
+import { Mail, Phone, MapPin, MessageSquare, User, CheckCircle2, AlertCircle, Info, Loader2 } from "lucide-react";
 import { SocialIcon } from "@/components/ui/social-icon";
 import { useEffect, useState } from "react";
 
@@ -10,7 +10,6 @@ import type { FooterSection, FooterLink, SocialLink } from "@/lib/types/domain.t
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 const headingClass = "font-sans text-xs font-bold uppercase tracking-[0.2em] text-maroon-600";
 const linkClass =
@@ -86,6 +85,10 @@ export function Footer() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterName, setNewsletterName] = useState("");
   const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterFeedback, setNewsletterFeedback] = useState<{
+    type: "success" | "error" | "info";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -128,8 +131,13 @@ export function Footer() {
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setNewsletterFeedback(null);
     const email = newsletterEmail.trim().toLowerCase();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setNewsletterFeedback({
+        type: "error",
+        message: "Please enter a valid email address.",
+      });
       toast({ variant: "destructive", title: "Enter a valid email" });
       return;
     }
@@ -145,13 +153,34 @@ export function Footer() {
         }),
       });
       const j = await res.json();
-      if (!j.success) throw new Error(j.error);
-      toast({ title: j.message === "Already subscribed" ? "Already subscribed" : "Subscribed!", description: "Check your email for a welcome note." });
+      if (!j.success) throw new Error(j.error || "Subscription failed");
+
+      if (j.message === "Already subscribed") {
+        setNewsletterFeedback({
+          type: "info",
+          message: "You're already subscribed to our newsletter! Check your inbox for our latest updates.",
+        });
+        toast({ title: "Already subscribed", description: "You are already on our list." });
+      } else {
+        setNewsletterFeedback({
+          type: "success",
+          message: "Thank you for subscribing! Check your email for a welcome note.",
+        });
+        toast({ title: "Subscribed!", description: "Check your email for a welcome note." });
+      }
+
       setNewsletterEmail("");
       setNewsletterName("");
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Failed", description: err.message || "Try again" });
-    } finally { setNewsletterLoading(false); }
+      const errMsg = err?.message || "Failed to subscribe. Please try again.";
+      setNewsletterFeedback({
+        type: "error",
+        message: errMsg,
+      });
+      toast({ variant: "destructive", title: "Failed", description: errMsg });
+    } finally {
+      setNewsletterLoading(false);
+    }
   };
 
   // Group links by section
@@ -248,6 +277,30 @@ export function Footer() {
               >
                 {newsletterLoading ? <Loader2 className="size-4 animate-spin" /> : "Subscribe"}
               </Button>
+              {newsletterFeedback && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className={`mt-1 flex items-start gap-2 rounded-xl p-3 text-xs sm:text-sm font-medium ${
+                    newsletterFeedback.type === "success"
+                      ? "bg-emerald-500/20 text-emerald-100 border border-emerald-400/30"
+                      : newsletterFeedback.type === "info"
+                      ? "bg-gold-400/20 text-gold-200 border border-gold-400/30"
+                      : "bg-red-500/20 text-red-100 border border-red-400/30"
+                  }`}
+                >
+                  {newsletterFeedback.type === "success" && (
+                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-300" aria-hidden />
+                  )}
+                  {newsletterFeedback.type === "info" && (
+                    <Info className="mt-0.5 size-4 shrink-0 text-gold-300" aria-hidden />
+                  )}
+                  {newsletterFeedback.type === "error" && (
+                    <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-300" aria-hidden />
+                  )}
+                  <span>{newsletterFeedback.message}</span>
+                </div>
+              )}
             </form>
           </div>
         </div>

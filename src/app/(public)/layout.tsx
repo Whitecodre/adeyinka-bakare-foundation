@@ -2,6 +2,7 @@ import { BackToTop } from "@/components/public/back-to-top";
 import { Footer } from "@/components/public/footer";
 import { Navbar } from "@/components/public/navbar";
 import { ScrollProgress } from "@/components/public/scroll-progress";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function PublicLayout({
   children,
@@ -17,6 +18,7 @@ export default function PublicLayout({
       </main>
       <Footer />
       <BackToTop />
+      <Toaster />
     </>
   );
 }
